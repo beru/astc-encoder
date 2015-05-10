@@ -27,8 +27,10 @@ float cospi(float p);
 
 float nan(int p);
 
+#if _MSC_VER < 1700
 float fmax(float p, float q);
 float fmin(float p, float q);
+#endif
 
 float2 fmax(float2 p, float2 q);
 

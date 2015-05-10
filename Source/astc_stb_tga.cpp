@@ -175,8 +175,6 @@ enum tga_errors
 astc_codec_image *load_tga_image(const char *tga_filename, int padding, int *result)
 {
 	int x, y;
-	int i;
-
 	int y_flip;
 
 	FILE *f = fopen(tga_filename, "rb");
@@ -260,7 +258,7 @@ astc_codec_image *load_tga_image(const char *tga_filename, int padding, int *res
 	{
 		row_pointers8 = new uint8_t *[hdr.ysize];
 		row_pointers8[0] = new uint8_t[hdr.xsize * hdr.ysize * bytesperpixel];
-		for (i = 1; i < hdr.ysize; i++)
+		for (int i = 1; i < hdr.ysize; i++)
 			row_pointers8[i] = row_pointers8[0] + hdr.xsize * bytesperpixel * i;
 		bytestoread = hdr.xsize * hdr.ysize * bytesperpixel;
 		bytes_read = fread(row_pointers8[0], 1, bytestoread, f);
@@ -269,7 +267,7 @@ astc_codec_image *load_tga_image(const char *tga_filename, int padding, int *res
 	{
 		row_pointers16 = new uint16_t *[hdr.ysize];
 		row_pointers16[0] = new uint16_t[hdr.xsize * hdr.ysize * (bytesperpixel / 2)];
-		for (i = 1; i < hdr.ysize; i++)
+		for (int i = 1; i < hdr.ysize; i++)
 			row_pointers16[i] = row_pointers16[0] + hdr.xsize * (bytesperpixel / 2) * i;
 		bytestoread = hdr.xsize * hdr.ysize * bytesperpixel;
 		bytes_read = fread(row_pointers16[0], 1, bytestoread, f);
@@ -427,8 +425,6 @@ astc_codec_image *load_tga_image(const char *tga_filename, int padding, int *res
 int store_tga_image(const astc_codec_image * img, const char *tga_filename, int bitness)
 {
 	int x, y;
-	int i;
-
 	int xsize = img->xsize;
 	int ysize = img->ysize;
 
@@ -444,7 +440,7 @@ int store_tga_image(const astc_codec_image * img, const char *tga_filename, int 
 	if (bitness == 16)
 		hdr.imagetype |= 0x80;
 
-	for (i = 0; i < 5; i++)
+	for (int i = 0; i < 5; i++)
 		hdr.dummied[i] = 0;
 	hdr.xstart = 0;
 	hdr.ystart = 0;
@@ -463,7 +459,7 @@ int store_tga_image(const astc_codec_image * img, const char *tga_filename, int 
 	{
 		row_pointers8 = new uint8_t *[hdr.ysize];
 		row_pointers8[0] = new uint8_t[hdr.xsize * hdr.ysize * bytesperpixel];
-		for (i = 1; i < hdr.ysize; i++)
+		for (int i = 1; i < hdr.ysize; i++)
 			row_pointers8[i] = row_pointers8[0] + hdr.xsize * bytesperpixel * i;
 
 		for (y = 0; y < ysize; y++)
@@ -507,7 +503,7 @@ int store_tga_image(const astc_codec_image * img, const char *tga_filename, int 
 	{
 		row_pointers16 = new uint16_t *[hdr.ysize];
 		row_pointers16[0] = new uint16_t[hdr.xsize * hdr.ysize * bytesperpixel];
-		for (i = 1; i < hdr.ysize; i++)
+		for (int i = 1; i < hdr.ysize; i++)
 			row_pointers16[i] = row_pointers16[0] + hdr.xsize * bytesperpixel * i;
 
 		for (y = 0; y < ysize; y++)

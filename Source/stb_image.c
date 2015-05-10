@@ -1495,12 +1495,11 @@ static int process_marker(jpeg *z, int m)
 // after we see SOS
 static int process_scan_header(jpeg *z)
 {
-   int i;
    int Ls = get16(z->s);
    z->scan_n = get8(z->s);
    if (z->scan_n < 1 || z->scan_n > 4 || z->scan_n > (int) z->s->img_n) return e("bad SOS component count","Corrupt JPEG");
    if (Ls != 6+2*z->scan_n) return e("bad SOS len","Corrupt JPEG");
-   for (i=0; i < z->scan_n; ++i) {
+   for (int i=0; i < z->scan_n; ++i) {
       int id = get8(z->s), which;
       int q = get8(z->s);
       for (which = 0; which < z->s->img_n; ++which)
@@ -1668,9 +1667,8 @@ static uint8 *resample_row_1(uint8 *out, uint8 *in_near, uint8 *in_far, int w, i
 static uint8* resample_row_v_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)
 {
    // need to generate two samples vertically for every one in input
-   int i;
    STBI_NOTUSED(hs);
-   for (i=0; i < w; ++i)
+   for (int i=0; i < w; ++i)
       out[i] = div4(3*in_near[i] + in_far[i] + 2);
    return out;
 }
@@ -1746,8 +1744,7 @@ static uint8 *resample_row_generic(uint8 *out, uint8 *in_near, uint8 *in_far, in
 // VC6 without processor=Pro is generating multiple LEAs per multiply!
 static void YCbCr_to_RGB_row(uint8 *out, const uint8 *y, const uint8 *pcb, const uint8 *pcr, int count, int step)
 {
-   int i;
-   for (i=0; i < count; ++i) {
+   for (int i=0; i < count; ++i) {
       int y_fixed = (y[i] << 16) + 32768; // rounding
       int r,g,b;
       int cr = pcr[i] - 128;
@@ -1782,8 +1779,7 @@ void stbi_install_YCbCr_to_RGB(stbi_YCbCr_to_RGB_run func)
 // clean up the temporary component buffers
 static void cleanup_jpeg(jpeg *j)
 {
-   int i;
-   for (i=0; i < j->s->img_n; ++i) {
+   for (int i=0; i < j->s->img_n; ++i) {
       if (j->img_comp[i].data) {
          free(j->img_comp[i].raw_data);
          j->img_comp[i].data = NULL;
@@ -2405,8 +2401,7 @@ static chunk get_chunk_header(stbi *s)
 static int check_png_header(stbi *s)
 {
    static uint8 png_sig[8] = { 137,80,78,71,13,10,26,10 };
-   int i;
-   for (i=0; i < 8; ++i)
+   for (int i=0; i < 8; ++i)
       if (get8u(s) != png_sig[i]) return e("bad png sig","Not a PNG");
    return 1;
 }
@@ -3641,8 +3636,7 @@ static stbi_uc *stbi_psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 
 static int pic_is4(stbi *s,const char *str)
 {
-   int i;
-   for (i=0; i<4; ++i)
+   for (int i=0; i<4; ++i)
       if (get8(s) != (stbi_uc)str[i])
          return 0;
 
@@ -3651,12 +3645,10 @@ static int pic_is4(stbi *s,const char *str)
 
 static int pic_test(stbi *s)
 {
-   int i;
-
    if (!pic_is4(s,"\x53\x80\xF6\x34"))
       return 0;
 
-   for(i=0;i<84;++i)
+   for(int i=0; i<84; ++i)
       get8(s);
 
    if (!pic_is4(s,"PICT"))
@@ -3771,8 +3763,6 @@ static stbi_uc *pic_load2(stbi *s,int width,int height,int *comp, stbi_uc *resul
 
                   if (count >= 128) { // Repeated
                      stbi_uc value[4];
-                     int i;
-
                      if (count==128)
                         count = get16(s);
                      else
@@ -3783,7 +3773,7 @@ static stbi_uc *pic_load2(stbi *s,int width,int height,int *comp, stbi_uc *resul
                      if (!pic_readval(s,packet->channel,value))
                         return 0;
 
-                     for(i=0;i<count;++i, dest += 4)
+                     for(int i=0;i<count;++i, dest += 4)
                         pic_copyval(packet->channel,dest,value);
                   } else { // Raw
                      ++count;
@@ -3893,8 +3883,7 @@ static int stbi_gif_test(stbi *s)
 
 static void stbi_gif_parse_colortable(stbi *s, uint8 pal[256][4], int num_entries, int transp)
 {
-   int i;
-   for (i=0; i < num_entries; ++i) {
+   for (int i=0; i < num_entries; ++i) {
       pal[i][2] = get8u(s);
       pal[i][1] = get8u(s);
       pal[i][0] = get8u(s);
@@ -4057,10 +4046,9 @@ static uint8 *stbi_process_gif_raster(stbi *s, stbi_gif *g)
 
 static void stbi_fill_gif_background(stbi_gif *g)
 {
-   int i;
    uint8 *c = g->pal[g->bgindex];
    // @OPTIMIZE: write a dword at a time
-   for (i = 0; i < g->w * g->h * 4; i += 4) {
+   for (int i = 0; i < g->w * g->h * 4; i += 4) {
       uint8 *p  = &g->out[i];
       p[0] = c[2];
       p[1] = c[1];
@@ -4072,7 +4060,6 @@ static void stbi_fill_gif_background(stbi_gif *g)
 // this function is designed to support animated gifs, although stb_image doesn't support it
 static uint8 *stbi_gif_load_next(stbi *s, stbi_gif *g, int *comp, int req_comp)
 {
-   int i;
    uint8 *old_out = 0;
 
    if (g->out == 0) {
@@ -4126,7 +4113,7 @@ static uint8 *stbi_gif_load_next(stbi *s, stbi_gif *g, int *comp, int req_comp)
                stbi_gif_parse_colortable(s,g->lpal, 2 << (g->lflags & 7), g->eflags & 0x01 ? g->transparent : -1);
                g->color_table = (uint8 *) g->lpal;       
             } else if (g->flags & 0x80) {
-               for (i=0; i < 256; ++i)  // @OPTIMIZE: reset only the previous transparent
+               for (int i=0; i < 256; ++i)  // @OPTIMIZE: reset only the previous transparent
                   g->pal[i][3] = 255; 
                if (g->transparent >= 0 && (g->eflags & 0x01))
                   g->pal[g->transparent][3] = 0;
@@ -4198,8 +4185,7 @@ static int stbi_gif_info(stbi *s, int *x, int *y, int *comp)
 static int hdr_test(stbi *s)
 {
    const char *signature = "#?RADIANCE\n";
-   int i;
-   for (i=0; signature[i]; ++i)
+   for (int i=0; signature[i]; ++i)
       if (get8(s) != signature[i])
          return 0;
    return 1;

@@ -27,16 +27,15 @@ static partition_info **partition_tables[4096];
 */
 static void gen_canonicalized_partition_table(int texel_count, const uint8_t * partition_table, uint64_t canonicalized[7])
 {
-	int i;
-	for (i = 0; i < 7; i++)
+	for (int i = 0; i < 7; i++)
 		canonicalized[i] = 0;
 
 	int mapped_index[4];
 	int map_weight_count = 0;
-	for (i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 		mapped_index[i] = -1;
 
-	for (i = 0; i < texel_count; i++)
+	for (int i = 0; i < texel_count; i++)
 	{
 		int index = partition_table[i];
 		if (mapped_index[index] == -1)
@@ -281,9 +280,6 @@ void generate_one_partition_table(int xdim, int ydim, int zdim, int partition_co
 
 static void generate_partition_tables(int xdim, int ydim, int zdim)
 {
-	int i;
-
-
 	partition_info *one_partition = new partition_info;
 	partition_info *two_partitions = new partition_info[1024];
 	partition_info *three_partitions = new partition_info[1024];
@@ -297,7 +293,7 @@ static void generate_partition_tables(int xdim, int ydim, int zdim)
 	partition_table[4] = four_partitions;
 
 	generate_one_partition_table(xdim, ydim, zdim, 1, 0, one_partition);
-	for (i = 0; i < 1024; i++)
+	for (int i = 0; i < 1024; i++)
 	{
 		generate_one_partition_table(xdim, ydim, zdim, 2, i, two_partitions + i);
 		generate_one_partition_table(xdim, ydim, zdim, 3, i, three_partitions + i);

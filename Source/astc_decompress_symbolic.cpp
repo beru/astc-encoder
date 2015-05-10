@@ -22,10 +22,9 @@
 
 int compute_value_of_texel_int(int texel_to_get, const decimation_table * it, const int *weights)
 {
-	int i;
 	int summed_value = 8;
 	int weights_to_evaluate = it->texel_num_weights[texel_to_get];
-	for (i = 0; i < weights_to_evaluate; i++)
+	for (int i = 0; i < weights_to_evaluate; i++)
 	{
 		summed_value += weights[it->texel_weights[texel_to_get][i]] * it->texel_weights_int[texel_to_get][i];
 	}
@@ -84,14 +83,12 @@ void decompress_symbolic_block(astc_decode_mode decode_mode,
 	blk->ypos = ypos;
 	blk->zpos = zpos;
 
-	int i;
-
 	// if we detected an error-block, blow up immediately.
 	if (scb->error_block)
 	{
 		if (decode_mode == DECODE_LDR_SRGB)
 		{
-			for (i = 0; i < xdim * ydim * zdim; i++)
+			for (int i = 0; i < xdim * ydim * zdim; i++)
 			{
 				blk->orig_data[4 * i] = 1.0f;
 				blk->orig_data[4 * i + 1] = 0.0f;
@@ -104,7 +101,7 @@ void decompress_symbolic_block(astc_decode_mode decode_mode,
 		}
 		else
 		{
-			for (i = 0; i < xdim * ydim * zdim; i++)
+			for (int i = 0; i < xdim * ydim * zdim; i++)
 			{
 				blk->orig_data[4 * i] = 0.0f;
 				blk->orig_data[4 * i + 1] = 0.0f;
@@ -174,7 +171,7 @@ void decompress_symbolic_block(astc_decode_mode decode_mode,
 			}
 		}
 
-		for (i = 0; i < xdim * ydim * zdim; i++)
+		for (int i = 0; i < xdim * ydim * zdim; i++)
 		{
 			blk->orig_data[4 * i] = red;
 			blk->orig_data[4 * i + 1] = green;
@@ -216,7 +213,7 @@ void decompress_symbolic_block(astc_decode_mode decode_mode,
 	int alpha_hdr_endpoint[4];
 	int nan_endpoint[4];
 
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 		unpack_color_endpoints(decode_mode,
 							   scb->color_formats[i],
 							   scb->color_quantization_level, scb->color_values[i], &(rgb_hdr_endpoint[i]), &(alpha_hdr_endpoint[i]), &(nan_endpoint[i]), &(color_endpoint0[i]), &(color_endpoint1[i]));
@@ -233,13 +230,13 @@ void decompress_symbolic_block(astc_decode_mode decode_mode,
 
 	const quantization_and_transfer_table *qat = &(quant_and_xfer_tables[weight_quantization_level]);
 
-	for (i = 0; i < weight_count; i++)
+	for (int i = 0; i < weight_count; i++)
 	{
 		uq_plane1_weights[i] = qat->unquantized_value[scb->plane1_weights[i]];
 	}
 	if (is_dual_plane)
 	{
-		for (i = 0; i < weight_count; i++)
+		for (int i = 0; i < weight_count; i++)
 			uq_plane2_weights[i] = qat->unquantized_value[scb->plane2_weights[i]];
 	}
 
@@ -250,11 +247,11 @@ void decompress_symbolic_block(astc_decode_mode decode_mode,
 
 
 	int texels_per_block = xdim * ydim * zdim;
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 		weights[i] = compute_value_of_texel_int(i, it, uq_plane1_weights);
 
 	if (is_dual_plane)
-		for (i = 0; i < texels_per_block; i++)
+		for (int i = 0; i < texels_per_block; i++)
 			plane2_weights[i] = compute_value_of_texel_int(i, it, uq_plane2_weights);
 
 
@@ -263,7 +260,7 @@ void decompress_symbolic_block(astc_decode_mode decode_mode,
 
 	// now that we have endpoint colors and weights, we can unpack actual colors for
 	// each texel.
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 	{
 		int partition = pt->partition_of_texel[i];
 
@@ -293,12 +290,11 @@ void decompress_symbolic_block(astc_decode_mode decode_mode,
 
 float compute_imageblock_difference(int xdim, int ydim, int zdim, const imageblock * p1, const imageblock * p2, const error_weight_block * ewb)
 {
-	int i;
 	int texels_per_block = xdim * ydim * zdim;
 	float summa = 0.0f;
 	const float *f1 = p1->work_data;
 	const float *f2 = p2->work_data;
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 	{
 		float rdiff = fabsf(f1[4 * i] - f2[4 * i]);
 		float gdiff = fabs(f1[4 * i + 1] - f2[4 * i + 1]);

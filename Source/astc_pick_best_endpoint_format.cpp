@@ -424,10 +424,9 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 static void one_partition_find_best_combination_for_bitcount(float combined_best_error[21][4],
 															 int formats_of_choice[21][4], int bits_available, int *best_quantization_level, int *best_formats, float *error_of_best_combination)
 {
-	int i;
 	int best_integer_count = -1;
 	float best_integer_count_error = 1e20f;
-	for (i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		// compute the quantization level for a given number of integers and a given number of bits.
 		int quantization_level = quantization_mode_table[i + 1][bits_available];
@@ -498,8 +497,6 @@ static void two_partitions_find_best_combination_for_bitcount(float combined_bes
 															  int formats_of_choice[21][7][2],
 															  int bits_available, int *best_quantization_level, int *best_quantization_level_mod, int *best_formats, float *error_of_best_combination)
 {
-	int i;
-
 	int best_integer_count = 0;
 	float best_integer_count_error = 1e20f;
 	int integer_count;
@@ -526,12 +523,12 @@ static void two_partitions_find_best_combination_for_bitcount(float combined_bes
 	*error_of_best_combination = best_integer_count_error;
 	if (ql >= 0)
 	{
-		for (i = 0; i < 2; i++)
+		for (int i = 0; i < 2; i++)
 			best_formats[i] = formats_of_choice[ql][best_integer_count - 2][i];
 	}
 	else
 	{
-		for (i = 0; i < 2; i++)
+		for (int i = 0; i < 2; i++)
 			best_formats[i] = FMT_LUMINANCE;
 	}
 }
@@ -590,8 +587,6 @@ static void three_partitions_find_best_combination_for_bitcount(float combined_b
 																int formats_of_choice[21][10][3],
 																int bits_available, int *best_quantization_level, int *best_quantization_level_mod, int *best_formats, float *error_of_best_combination)
 {
-	int i;
-
 	int best_integer_count = 0;
 	float best_integer_count_error = 1e20f;
 	int integer_count;
@@ -618,12 +613,12 @@ static void three_partitions_find_best_combination_for_bitcount(float combined_b
 	*error_of_best_combination = best_integer_count_error;
 	if (ql >= 0)
 	{
-		for (i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 			best_formats[i] = formats_of_choice[ql][best_integer_count - 3][i];
 	}
 	else
 	{
-		for (i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 			best_formats[i] = FMT_LUMINANCE;
 	}
 }
@@ -694,7 +689,6 @@ static void four_partitions_find_best_combination_for_bitcount(float combined_be
 															   int formats_of_choice[21][13][4],
 															   int bits_available, int *best_quantization_level, int *best_quantization_level_mod, int *best_formats, float *error_of_best_combination)
 {
-	int i;
 	int best_integer_count = -4;
 	float best_integer_count_error = 1e20f;
 	int integer_count;
@@ -721,12 +715,12 @@ static void four_partitions_find_best_combination_for_bitcount(float combined_be
 	*error_of_best_combination = best_integer_count_error;
 	if (ql >= 0)
 	{
-		for (i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++)
 			best_formats[i] = formats_of_choice[ql][best_integer_count - 4][i];
 	}
 	else
 	{
-		for (i = 0; i < 4; i++)
+		for (int i = 0; i < 4; i++)
 			best_formats[i] = FMT_LUMINANCE;
 	}
 }

@@ -67,18 +67,17 @@ int imageblock_uses_alpha(int xdim, int ydim, int zdim, const imageblock * pb)
 
 static void compute_alpha_minmax(int xdim, int ydim, int zdim, const partition_info * pt, const imageblock * blk, const error_weight_block * ewb, float *alpha_min, float *alpha_max)
 {
-	int i;
 	int partition_count = pt->partition_count;
 
 	int texels_per_block = xdim * ydim * zdim;
 
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 	{
 		alpha_min[i] = 1e38f;
 		alpha_max[i] = -1e38f;
 	}
 
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 	{
 		if (ewb->texel_weight[i] > 1e-10)
 		{
@@ -91,7 +90,7 @@ static void compute_alpha_minmax(int xdim, int ydim, int zdim, const partition_i
 		}
 	}
 
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 	{
 		if (alpha_min[i] >= alpha_max[i])
 		{
@@ -108,11 +107,10 @@ static void compute_rgb_minmax(int xdim,
 							   const partition_info * pt,
 							   const imageblock * blk, const error_weight_block * ewb, float *red_min, float *red_max, float *green_min, float *green_max, float *blue_min, float *blue_max)
 {
-	int i;
 	int partition_count = pt->partition_count;
 	int texels_per_block = xdim * ydim * zdim;
 
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 	{
 		red_min[i] = 1e38f;
 		red_max[i] = -1e38f;
@@ -122,7 +120,7 @@ static void compute_rgb_minmax(int xdim,
 		blue_max[i] = -1e38f;
 	}
 
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 	{
 		if (ewb->texel_weight[i] > 1e-10f)
 		{
@@ -144,7 +142,7 @@ static void compute_rgb_minmax(int xdim,
 				blue_min[partition] = blueval;
 		}
 	}
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 	{
 		if (red_min[i] >= red_max[i])
 		{
@@ -168,21 +166,20 @@ static void compute_rgb_minmax(int xdim,
 
 void compute_partition_error_color_weightings(int xdim, int ydim, int zdim, const error_weight_block * ewb, const partition_info * pi, float4 error_weightings[4], float4 color_scalefactors[4])
 {
-	int i;
 	int texels_per_block = xdim * ydim * zdim;
 	int pcnt = pi->partition_count;
-	for (i = 0; i < pcnt; i++)
+	for (int i = 0; i < pcnt; i++)
 		error_weightings[i] = float4(1e-12f, 1e-12f, 1e-12f, 1e-12f);
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 	{
 		int part = pi->partition_of_texel[i];
 		error_weightings[part] = error_weightings[part] + ewb->error_weights[i];
 	}
-	for (i = 0; i < pcnt; i++)
+	for (int i = 0; i < pcnt; i++)
 	{
 		error_weightings[i] = error_weightings[i] * (1.0f / pi->texels_per_partition[i]);
 	}
-	for (i = 0; i < pcnt; i++)
+	for (int i = 0; i < pcnt; i++)
 	{
 		color_scalefactors[i].x = sqrt(error_weightings[i].x);
 		color_scalefactors[i].y = sqrt(error_weightings[i].y);

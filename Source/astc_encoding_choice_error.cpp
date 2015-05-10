@@ -52,10 +52,9 @@ void merge_endpoints(const endpoints * ep1,	// contains three of the color compo
 					 const endpoints * ep2,	// contains the remaining color component
 					 int separate_component, endpoints * res)
 {
-	int i;
 	int partition_count = ep1->partition_count;
 	res->partition_count = partition_count;
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 	{
 		res->endpt0[i] = ep1->endpt0[i];
 		res->endpt1[i] = ep1->endpt1[i];
@@ -64,28 +63,28 @@ void merge_endpoints(const endpoints * ep1,	// contains three of the color compo
 	switch (separate_component)
 	{
 	case 0:
-		for (i = 0; i < partition_count; i++)
+		for (int i = 0; i < partition_count; i++)
 		{
 			res->endpt0[i].x = ep2->endpt0[i].x;
 			res->endpt1[i].x = ep2->endpt1[i].x;
 		}
 		break;
 	case 1:
-		for (i = 0; i < partition_count; i++)
+		for (int i = 0; i < partition_count; i++)
 		{
 			res->endpt0[i].y = ep2->endpt0[i].y;
 			res->endpt1[i].y = ep2->endpt1[i].y;
 		}
 		break;
 	case 2:
-		for (i = 0; i < partition_count; i++)
+		for (int i = 0; i < partition_count; i++)
 		{
 			res->endpt0[i].z = ep2->endpt0[i].z;
 			res->endpt1[i].z = ep2->endpt1[i].z;
 		}
 		break;
 	case 3:
-		for (i = 0; i < partition_count; i++)
+		for (int i = 0; i < partition_count; i++)
 		{
 			res->endpt0[i].w = ep2->endpt0[i].w;
 			res->endpt1[i].w = ep2->endpt1[i].w;
@@ -109,8 +108,6 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 									int separate_component,	// component that is separated out in 2-plane mode, -1 in 1-plane mode
 									encoding_choice_errors * eci)
 {
-	int i;
-
 	int partition_count = pi->partition_count;
 
 	int texels_per_block = xdim * ydim * zdim;
@@ -147,7 +144,7 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 	processed_line3 proc_luminance_lines[4];
 
 
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 	{
 		inverse_color_scalefactors[i].x = 1.0f / MAX(color_scalefactors[i].x, 1e-7f);
 		inverse_color_scalefactors[i].y = 1.0f / MAX(color_scalefactors[i].y, 1e-7f);
@@ -210,7 +207,7 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 	float luminance_rgb_error[4];
 
 
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 	{
 
 		uncorr_rgb_error[i] = compute_error_squared_rgb_single_partition(i, xdim, ydim, zdim, pi, pb, ewb, &(proc_uncorr_rgb_lines[i]));
@@ -233,12 +230,12 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 	// compute the error that arises from just ditching alpha and RGB
 	float alpha_drop_error[4];
 	float rgb_drop_error[4];
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 	{
 		alpha_drop_error[i] = 0;
 		rgb_drop_error[i] = 0;
 	}
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 	{
 		int partition = pi->partition_of_texel[i];
 		float alpha = pb->work_data[4 * i + 3];
@@ -272,7 +269,7 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 	int eligible_for_offset_encode[4];
 	int eligible_for_blue_contraction[4];
 
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 	{
 		float4 endpt0 = ep.endpt0[i];
 		float4 endpt1 = ep.endpt1[i];
@@ -295,7 +292,7 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 
 
 	// finally, gather up our results
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 	{
 		eci[i].rgb_scale_error = (samechroma_rgb_error[i] - uncorr_rgb_error[i]) * 0.7f;	// empirical
 		eci[i].rgb_luma_error = (rgb_luma_error[i] - uncorr_rgb_error[i]) * 1.5f;	// wild guess

@@ -413,7 +413,6 @@ void encode_astc_image(const astc_codec_image * input_image,
 					   int zdim,
 					   const error_weighting_params * ewp, astc_decode_mode decode_mode, swizzlepattern swz_encode, swizzlepattern swz_decode, uint8_t * buffer, int pack_and_unpack, int threadcount)
 {
-	int i;
 	int *counters = new int[threadcount];
 	int *threads_completed = new int[threadcount];
 
@@ -423,7 +422,7 @@ void encode_astc_image(const astc_codec_image * input_image,
 	get_partition_table(xdim, ydim, zdim, 0);
 
 	encode_astc_image_info *ai = new encode_astc_image_info[threadcount];
-	for (i = 0; i < threadcount; i++)
+	for (int i = 0; i < threadcount; i++)
 	{
 		ai[i].xdim = xdim;
 		ai[i].ydim = ydim;
@@ -449,10 +448,10 @@ void encode_astc_image(const astc_codec_image * input_image,
 	else
 	{
 		pthread_t *threads = new pthread_t[threadcount];
-		for (i = 0; i < threadcount; i++)
+		for (int i = 0; i < threadcount; i++)
 			pthread_create(&(threads[i]), NULL, encode_astc_image_threadfunc, (void *)(&(ai[i])));
 
-		for (i = 0; i < threadcount; i++)
+		for (int i = 0; i < threadcount; i++)
 			pthread_join(threads[i], NULL);
 		delete[]threads;
 	}
@@ -710,8 +709,6 @@ void dump_image(astc_codec_image * img)
 
 int main(int argc, char **argv)
 {
-	int i;
-
 	test_inappropriate_extended_precision();
 	// initialization routines
 	prepare_angular_tables();
@@ -1500,7 +1497,7 @@ int main(int argc, char **argv)
 				exit(1);
 			}
 			int swizzle_components[4];
-			for (i = 0; i < 4; i++)
+			for (int i = 0; i < 4; i++)
 				switch (argv[argidx - 1][i])
 				{
 				case 'r':
@@ -1545,7 +1542,7 @@ int main(int argc, char **argv)
 				exit(1);
 			}
 			int swizzle_components[4];
-			for (i = 0; i < 4; i++)
+			for (int i = 0; i < 4; i++)
 				switch (argv[argidx - 1][i])
 				{
 				case 'r':
@@ -2480,7 +2477,7 @@ int main(int argc, char **argv)
 	{
 		printf("%s ", argv[2]);
 		printf("%d %d  ", xdim_2d, ydim_2d);
-		for (i = 0; i < 2048; i++)
+		for (int i = 0; i < 2048; i++)
 			printf(" %d", block_mode_histogram[i]);
 		printf("\n");
 	}

@@ -40,11 +40,8 @@ void compute_averages_and_directions_rgba(const partition_info * pt,
 										  const float4 * color_scalefactors,
 										  float4 * averages, float4 * directions_rgba, float3 * directions_gba, float3 * directions_rba, float3 * directions_rga, float3 * directions_rgb)
 {
-	int i;
 	int partition_count = pt->partition_count;
-	int partition;
-
-	for (partition = 0; partition < partition_count; partition++)
+	for (int partition = 0; partition < partition_count; partition++)
 	{
 		const uint8_t *weights = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
@@ -52,7 +49,7 @@ void compute_averages_and_directions_rgba(const partition_info * pt,
 		float4 base_sum = float4(0, 0, 0, 0);
 		float partition_weight = 0.0f;
 
-		for (i = 0; i < texelcount; i++)
+		for (int i = 0; i < texelcount; i++)
 		{
 			int iwt = weights[i];
 			float weight = ewb->texel_weight[iwt];
@@ -74,7 +71,7 @@ void compute_averages_and_directions_rgba(const partition_info * pt,
 		float4 sum_zp = float4(0, 0, 0, 0);
 		float4 sum_wp = float4(0, 0, 0, 0);
 
-		for (i = 0; i < texelcount; i++)
+		for (int i = 0; i < texelcount; i++)
 		{
 			int iwt = weights[i];
 			float weight = ewb->texel_weight[iwt];
@@ -133,13 +130,11 @@ void compute_averages_and_directions_rgb(const partition_info * pt,
 										 const error_weight_block * ewb,
 										 const float4 * color_scalefactors, float3 * averages, float3 * directions_rgb, float2 * directions_rg, float2 * directions_rb, float2 * directions_gb)
 {
-	int i;
 	int partition_count = pt->partition_count;
-	int partition;
 
 	const float *texel_weights = ewb->texel_weight_rgb;
 
-	for (partition = 0; partition < partition_count; partition++)
+	for (int partition = 0; partition < partition_count; partition++)
 	{
 		const uint8_t *weights = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
@@ -147,7 +142,7 @@ void compute_averages_and_directions_rgb(const partition_info * pt,
 		float3 base_sum = float3(0, 0, 0);
 		float partition_weight = 0.0f;
 
-		for (i = 0; i < texelcount; i++)
+		for (int i = 0; i < texelcount; i++)
 		{
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
@@ -168,7 +163,7 @@ void compute_averages_and_directions_rgb(const partition_info * pt,
 		float3 sum_yp = float3(0, 0, 0);
 		float3 sum_zp = float3(0, 0, 0);
 
-		for (i = 0; i < texelcount; i++)
+		for (int i = 0; i < texelcount; i++)
 		{
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
@@ -214,9 +209,7 @@ void compute_averages_and_directions_3_components(const partition_info * pt,
 												  const error_weight_block * ewb,
 												  const float3 * color_scalefactors, int component1, int component2, int component3, float3 * averages, float3 * directions)
 {
-	int i;
 	int partition_count = pt->partition_count;
-	int partition;
 
 	const float *texel_weights;
 	if (component1 == 1 && component2 == 2 && component3 == 3)
@@ -234,7 +227,7 @@ void compute_averages_and_directions_3_components(const partition_info * pt,
 	}
 
 
-	for (partition = 0; partition < partition_count; partition++)
+	for (int partition = 0; partition < partition_count; partition++)
 	{
 		const uint8_t *weights = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
@@ -242,7 +235,7 @@ void compute_averages_and_directions_3_components(const partition_info * pt,
 		float3 base_sum = float3(0, 0, 0);
 		float partition_weight = 0.0f;
 
-		for (i = 0; i < texelcount; i++)
+		for (int i = 0; i < texelcount; i++)
 		{
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
@@ -264,7 +257,7 @@ void compute_averages_and_directions_3_components(const partition_info * pt,
 		float3 sum_yp = float3(0, 0, 0);
 		float3 sum_zp = float3(0, 0, 0);
 
-		for (i = 0; i < texelcount; i++)
+		for (int i = 0; i < texelcount; i++)
 		{
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
@@ -312,9 +305,7 @@ void compute_averages_and_directions_2_components(const partition_info * pt,
 												  const imageblock * blk,
 												  const error_weight_block * ewb, const float2 * color_scalefactors, int component1, int component2, float2 * averages, float2 * directions)
 {
-	int i;
 	int partition_count = pt->partition_count;
-	int partition;
 
 	const float *texel_weights;
 	if (component1 == 0 && component2 == 1)
@@ -332,7 +323,7 @@ void compute_averages_and_directions_2_components(const partition_info * pt,
 	}
 
 
-	for (partition = 0; partition < partition_count; partition++)
+	for (int partition = 0; partition < partition_count; partition++)
 	{
 		const uint8_t *weights = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
@@ -340,7 +331,7 @@ void compute_averages_and_directions_2_components(const partition_info * pt,
 		float2 base_sum = float2(0, 0);
 		float partition_weight = 0.0f;
 
-		for (i = 0; i < texelcount; i++)
+		for (int i = 0; i < texelcount; i++)
 		{
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
@@ -360,7 +351,7 @@ void compute_averages_and_directions_2_components(const partition_info * pt,
 		float2 sum_xp = float2(0, 0);
 		float2 sum_yp = float2(0, 0);
 
-		for (i = 0; i < texelcount; i++)
+		for (int i = 0; i < texelcount; i++)
 		{
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
@@ -403,10 +394,8 @@ float funcname( \
 	float *length_of_lines \
 	) \
 	{ \
-	int i; \
 	float errorsum = 0.0f; \
-	int partition; \
-	for(partition=0; partition<pt->partition_count; partition++) \
+	for(int partition=0; partition<pt->partition_count; partition++) \
 		{ \
 		const uint8_t *weights = pt->texels_of_partition[ partition ]; \
 		int texelcount = pt->texels_per_partition[ partition ]; \
@@ -415,7 +404,7 @@ float funcname( \
 		processed_line2 l = plines[partition]; \
 		if( ewb->contains_zeroweight_texels ) \
 			{ \
-			for(i=0;i<texelcount;i++) \
+			for(int i=0;i<texelcount;i++) \
 				{ \
 				int iwt = weights[i]; \
 				float texel_weight = ewb-> PASTE(texel_weight_ , c01_rname) [i]; \
@@ -434,7 +423,7 @@ float funcname( \
 			} \
 		else \
 			{ \
-			for(i=0;i<texelcount;i++) \
+			for(int i=0;i<texelcount;i++) \
 				{ \
 				int iwt = weights[i]; \
 				float2 point = float2(blk->work_data[4*iwt + c0_iwt], blk->work_data[4*iwt + c1_iwt] ); \
@@ -474,10 +463,8 @@ float funcname( \
 	float *length_of_lines \
 	) \
 	{ \
-	int i; \
 	float errorsum = 0.0f; \
-	int partition; \
-	for(partition=0; partition<pt->partition_count; partition++) \
+	for(int partition=0; partition<pt->partition_count; partition++) \
 		{ \
 		const uint8_t *weights = pt->texels_of_partition[ partition ]; \
 		int texelcount = pt->texels_per_partition[ partition ]; \
@@ -486,7 +473,7 @@ float funcname( \
 		processed_line3 l = plines[partition]; \
 		if( ewb->contains_zeroweight_texels ) \
 			{ \
-			for(i=0;i<texelcount;i++) \
+			for(int i=0;i<texelcount;i++) \
 				{ \
 				int iwt = weights[i]; \
 				float texel_weight = ewb-> PASTE(texel_weight_ , c012_rname) [i]; \
@@ -505,7 +492,7 @@ float funcname( \
 			} \
 		else \
 			{ \
-			for(i=0;i<texelcount;i++) \
+			for(int i=0;i<texelcount;i++) \
 				{ \
 				int iwt = weights[i]; \
 				float3 point = float3(blk->work_data[4*iwt + c0_iwt], blk->work_data[4*iwt + c1_iwt], blk->work_data[4*iwt + c2_iwt] ); \
@@ -534,11 +521,8 @@ THREE_COMPONENT_ERROR_FUNC(compute_error_squared_rgb, 0, 1, 2, xyz, rgb)
 float compute_error_squared_rgba(const partition_info * pt,	// the partition that we use when computing the squared-error.
 								 const imageblock * blk, const error_weight_block * ewb, const processed_line4 * plines, float *length_of_lines)
 {
-	int i;
-
 	float errorsum = 0.0f;
-	int partition;
-	for (partition = 0; partition < pt->partition_count; partition++)
+	for (int partition = 0; partition < pt->partition_count; partition++)
 	{
 		const uint8_t *weights = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
@@ -549,7 +533,7 @@ float compute_error_squared_rgba(const partition_info * pt,	// the partition tha
 
 		if (ewb->contains_zeroweight_texels)
 		{
-			for (i = 0; i < texelcount; i++)
+			for (int i = 0; i < texelcount; i++)
 			{
 				int iwt = weights[i];
 				if (ewb->texel_weight[iwt] > 1e-20)
@@ -569,7 +553,7 @@ float compute_error_squared_rgba(const partition_info * pt,	// the partition tha
 		}
 		else
 		{
-			for (i = 0; i < texelcount; i++)
+			for (int i = 0; i < texelcount; i++)
 			{
 				int iwt = weights[i];
 				float4 point = float4(blk->work_data[4 * iwt], blk->work_data[4 * iwt + 1], blk->work_data[4 * iwt + 2], blk->work_data[4 * iwt + 3]);
@@ -602,13 +586,11 @@ float compute_error_squared_rgb_single_partition(int partition_to_test, int xdim
 												 const imageblock * blk, const error_weight_block * ewb, const processed_line3 * lin	// the line for the partition.
 	)
 {
-	int i;
-
 	int texels_per_block = xdim * ydim * zdim;
 
 	float errorsum = 0.0f;
 
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 	{
 		int partition = pt->partition_of_texel[i];
 		float texel_weight = ewb->texel_weight_rgb[i];

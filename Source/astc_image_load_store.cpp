@@ -362,13 +362,11 @@ uint16_t unorm16_to_sf16(uint16_t p)
 
 void imageblock_initialize_deriv_from_work_and_orig(imageblock * pb, int pixelcount)
 {
-	int i;
-
 	const float *fptr = pb->orig_data;
 	const float *wptr = pb->work_data;
 	float *dptr = pb->deriv_data;
 
-	for (i = 0; i < pixelcount; i++)
+	for (int i = 0; i < pixelcount; i++)
 	{
 
 		// compute derivatives for RGB first
@@ -442,11 +440,10 @@ void imageblock_initialize_deriv_from_work_and_orig(imageblock * pb, int pixelco
 // helper function to initialize the work-data from the orig-data
 void imageblock_initialize_work_from_orig(imageblock * pb, int pixelcount)
 {
-	int i;
 	float *fptr = pb->orig_data;
 	float *wptr = pb->work_data;
 
-	for (i = 0; i < pixelcount; i++)
+	for (int i = 0; i < pixelcount; i++)
 	{
 		if (pb->rgb_lns[i])
 		{
@@ -482,11 +479,10 @@ void imageblock_initialize_work_from_orig(imageblock * pb, int pixelcount)
 // helper function to initialize the orig-data from the work-data
 void imageblock_initialize_orig_from_work(imageblock * pb, int pixelcount)
 {
-	int i;
 	float *fptr = pb->orig_data;
 	float *wptr = pb->work_data;
 
-	for (i = 0; i < pixelcount; i++)
+	for (int i = 0; i < pixelcount; i++)
 	{
 		if (pb->rgb_lns[i])
 		{
@@ -942,7 +938,6 @@ void write_imageblock(astc_codec_image * img, const imageblock * pb,	// picture-
 */
 void update_imageblock_flags(imageblock * pb, int xdim, int ydim, int zdim)
 {
-	int i;
 	float red_min = 1e38f, red_max = -1e38f;
 	float green_min = 1e38f, green_max = -1e38f;
 	float blue_min = 1e38f, blue_max = -1e38f;
@@ -952,7 +947,7 @@ void update_imageblock_flags(imageblock * pb, int xdim, int ydim, int zdim)
 
 	int grayscale = 1;
 
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 	{
 		float red = pb->work_data[4 * i];
 		float green = pb->work_data[4 * i + 1];
@@ -1030,9 +1025,8 @@ double mpsnr_operator(double v, int fstop)
 
 double mpsnr_sumdiff(double v1, double v2, int low_fstop, int high_fstop)
 {
-	int i;
 	double summa = 0.0;
-	for (i = low_fstop; i <= high_fstop; i++)
+	for (int i = low_fstop; i <= high_fstop; i++)
 	{
 		double mv1 = mpsnr_operator(v1, i);
 		double mv2 = mpsnr_operator(v2, i);

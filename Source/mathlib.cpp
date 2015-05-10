@@ -59,6 +59,8 @@ float nan(int p)
 	return v.q;
 }
 
+#if _MSC_VER < 1700
+
 float fmax(float p, float q)
 {
 	if (p != p)
@@ -81,6 +83,7 @@ float fmin(float p, float q)
 	return q;
 }
 
+#endif
 
 float2 fmax(float2 p, float2 q)
 {

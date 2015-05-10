@@ -83,7 +83,7 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 	do { \
 	srctype *s = (srctype *)src; \
 	dsttype *d = (dsttype *)dst; \
-	for(i=0;i<pixels;i++)\
+	for(int i=0;i<pixels;i++)\
 		{\
 		d[4*i] = convfunc(s[i]); \
 		d[4*i+1] = 0; \
@@ -97,7 +97,7 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 	do { \
 	srctype *s = (srctype *)src; \
 	dsttype *d = (dsttype *)dst; \
-	for(i=0;i<pixels;i++)\
+	for(int i=0;i<pixels;i++)\
 		{\
 		d[4*i] = convfunc(s[2*i]); \
 		d[4*i+1] = convfunc(s[2*i+1]); \
@@ -111,7 +111,7 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 	do { \
 	srctype *s = (srctype *)src; \
 	dsttype *d = (dsttype *)dst; \
-	for(i=0;i<pixels;i++)\
+	for(int i=0;i<pixels;i++)\
 		{\
 		d[4*i] = convfunc(s[3*i]); \
 		d[4*i+1] = convfunc(s[3*i+1]); \
@@ -125,7 +125,7 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 	do { \
 	srctype *s = (srctype *)src; \
 	dsttype *d = (dsttype *)dst; \
-	for(i=0;i<pixels;i++)\
+	for(int i=0;i<pixels;i++)\
 		{\
 		d[4*i] = convfunc(s[3*i+2]); \
 		d[4*i+1] = convfunc(s[3*i+1]); \
@@ -139,7 +139,7 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 	do { \
 	srctype *s = (srctype *)src; \
 	dsttype *d = (dsttype *)dst; \
-	for(i=0;i<pixels;i++)\
+	for(int i=0;i<pixels;i++)\
 		{\
 		d[4*i] = convfunc(s[4*i]); \
 		d[4*i+1] = convfunc(s[4*i+1]); \
@@ -153,7 +153,7 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 	do { \
 	srctype *s = (srctype *)src; \
 	dsttype *d = (dsttype *)dst; \
-	for(i=0;i<pixels;i++)\
+	for(int i=0;i<pixels;i++)\
 		{\
 		d[4*i] = convfunc(s[4*i+2]); \
 		d[4*i+1] = convfunc(s[4*i+1]); \
@@ -167,7 +167,7 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 	do { \
 	srctype *s = (srctype *)src; \
 	dsttype *d = (dsttype *)dst; \
-	for(i=0;i<pixels;i++)\
+	for(int i=0;i<pixels;i++)\
 		{\
 		d[4*i] = convfunc(s[4*i]); \
 		d[4*i+1] = convfunc(s[4*i+1]); \
@@ -181,7 +181,7 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 	do { \
 	srctype *s = (srctype *)src; \
 	dsttype *d = (dsttype *)dst; \
-	for(i=0;i<pixels;i++)\
+	for(int i=0;i<pixels;i++)\
 		{\
 		d[4*i] = convfunc(s[4*i+2]); \
 		d[4*i+1] = convfunc(s[4*i+1]); \
@@ -195,7 +195,7 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 	do { \
 	srctype *s = (srctype *)src; \
 	dsttype *d = (dsttype *)dst; \
-	for(i=0;i<pixels;i++)\
+	for(int i=0;i<pixels;i++)\
 		{\
 		d[4*i] = convfunc(s[i]); \
 		d[4*i+1] = convfunc(s[i]); \
@@ -209,7 +209,7 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 	do { \
 	srctype *s = (srctype *)src; \
 	dsttype *d = (dsttype *)dst; \
-	for(i=0;i<pixels;i++)\
+	for(int i=0;i<pixels;i++)\
 		{\
 		d[4*i] = convfunc(s[2*i]); \
 		d[4*i+1] = convfunc(s[2*i]); \
@@ -219,7 +219,6 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 	} while(0); \
 	break;
 
-	int i;
 	switch (method)
 	{
 	case R8_TO_RGBA8:
@@ -300,10 +299,9 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 // perform endianness switch on raw data
 static void switch_endianness2(void *dataptr, int bytes)
 {
-	int i;
 	uint8_t *data = (uint8_t *) dataptr;
 
-	for (i = 0; i < bytes / 2; i++)
+	for (int i = 0; i < bytes / 2; i++)
 	{
 		uint8_t d0 = data[0];
 		uint8_t d1 = data[1];
@@ -316,10 +314,9 @@ static void switch_endianness2(void *dataptr, int bytes)
 
 static void switch_endianness4(void *dataptr, int bytes)
 {
-	int i;
 	uint8_t *data = (uint8_t *) dataptr;
 
-	for (i = 0; i < bytes / 4; i++)
+	for (int i = 0; i < bytes / 4; i++)
 	{
 		uint8_t d0 = data[0];
 		uint8_t d1 = data[1];
@@ -1062,7 +1059,6 @@ struct dds_header_dx10
 
 astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding, int *result)
 {
-	int i;
 	int y, z;
 
 	FILE *f = fopen(filename, "rb");
@@ -1188,7 +1184,7 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 
 		int dxgi_modes_supported = sizeof(format_params) / sizeof(format_params[0]);
 		int did_select_format = 0;
-		for (i = 0; i < dxgi_modes_supported; i++)
+		for (int i = 0; i < dxgi_modes_supported; i++)
 		{
 			if (dx10_header.dxgi_format == format_params[i].dxgi_format_number)
 			{

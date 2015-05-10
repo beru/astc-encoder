@@ -742,8 +742,7 @@ void quantize0(float4 color0, float4 color1, int output[8], int quantization_lev
 	IGNORE(output);
 	IGNORE(quantization_level);
 
-	int i;
-	for (i = 0; i < 8; i++)
+	for (int i = 0; i < 8; i++)
 		output[i] = 0;
 }
 
@@ -1174,7 +1173,6 @@ void quantize_hdr_rgbo3(float4 color, int output[4], int quantization_level)
 
 	// failed to encode any of the modes above? In that case,
 	// encode using mode #5.
-	int i;
 
 	float vals[4];
 	int ivals[4];
@@ -1185,7 +1183,7 @@ void quantize_hdr_rgbo3(float4 color, int output[4], int quantization_level)
 
 	float cvals[3];
 
-	for (i = 0; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		if (vals[i] < 0.0f)
 			vals[i] = 0.0f;
@@ -1213,7 +1211,7 @@ void quantize_hdr_rgbo3(float4 color, int output[4], int quantization_level)
 	encvals[2] = (ivals[2] & 0x7f) | 0x80;
 	encvals[3] = (ivals[3] & 0x7f) | ((ivals[0] & 0x40) << 1);
 
-	for (i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		int dummy;
 		quantize_and_unquantize_retain_top_four_bits(quantization_level, encvals[i], &(output[i]), &dummy);
@@ -1603,7 +1601,6 @@ void quantize_hdr_rgb3(float4 color0, float4 color1, int output[6], int quantiza
 	// This gives color accuracy roughly similar to LDR 4:4:3 which is not at all great
 	// but usable. This representation is used if the light color is more than 4x the
 	// color value of the dark color.
-	int i;
 	float vals[6];
 	vals[0] = color0_bak.x;
 	vals[1] = color1_bak.x;
@@ -1613,19 +1610,19 @@ void quantize_hdr_rgb3(float4 color0, float4 color1, int output[6], int quantiza
 	vals[5] = color1_bak.z;
 
 
-	for (i = 0; i < 6; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		if (vals[i] < 0.0f)
 			vals[i] = 0.0f;
 		else if (vals[i] > 65020.0f)
 			vals[i] = 65020.0f;
 	}
-	for (i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		int idx = (int)floor(vals[i] * 1.0f / 256.0f + 0.5f);
 		output[i] = color_quantization_tables[quantization_level][idx];
 	}
-	for (i = 4; i < 6; i++)
+	for (int i = 4; i < 6; i++)
 	{
 		int dummy;
 		int idx = (int)floor(vals[i] * 1.0f / 512.0f + 0.5f) + 128;
@@ -1835,8 +1832,6 @@ int try_quantize_hdr_luminance_small_range3(float4 color0, float4 color1, int ou
 
 void quantize_hdr_alpha3(float alpha0, float alpha1, int output[2], int quantization_level)
 {
-	int i;
-
 	if (alpha0 < 0)
 		alpha0 = 0;
 	else if (alpha0 > 65280)
@@ -1856,7 +1851,7 @@ void quantize_hdr_alpha3(float alpha0, float alpha1, int output[2], int quantiza
 	int v6d, v7d;
 
 	// try to encode one of the delta submodes, in decreasing-precision order.
-	for (i = 2; i >= 0; i--)
+	for (int i = 2; i >= 0; i--)
 	{
 		val0 = (ialpha0 + (128 >> i)) >> (8 - i);
 		val1 = (ialpha1 + (128 >> i)) >> (8 - i);
@@ -2070,11 +2065,10 @@ int pack_color_endpoints(astc_decode_mode decode_mode, float4 color0, float4 col
 	#ifdef DEBUG_PRINT_DIAGNOSTICS
 		if (print_diagnostics)
 		{
-			int i;
 			printf("Quantized to format %d\n", retval);
 			printf("Quantized color:");
 	
-			for (i = 0; i < 8; i++)
+			for (int i = 0; i < 8; i++)
 				printf(" %X", output[i]);
 	
 			ushort4 res0;

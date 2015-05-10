@@ -1016,12 +1016,10 @@ float prepare_error_weight_block(const astc_codec_image * input_image,
 				idx++;
 			}
 
-	int i;
-
 	float4 error_weight_sum = float4(0, 0, 0, 0);
 	int texels_per_block = xdim * ydim * zdim;
 
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 	{
 		error_weight_sum = error_weight_sum + ewb->error_weights[i];
 
@@ -1056,8 +1054,6 @@ float prepare_error_weight_block(const astc_codec_image * input_image,
 // compute averages and covariance matrices for 4 components
 static void compute_covariance_matrix(int xdim, int ydim, int zdim, const imageblock * blk, const error_weight_block * ewb, mat4 * cov_matrix)
 {
-	int i;
-
 	int texels_per_block = xdim * ydim * zdim;
 
 	float r_sum = 0.0f;
@@ -1077,7 +1073,7 @@ static void compute_covariance_matrix(int xdim, int ydim, int zdim, const imageb
 
 	float weight_sum = 0.0f;
 
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 	{
 		float weight = ewb->texel_weight[i];
 		if (weight < 0.0f)
@@ -1120,8 +1116,6 @@ static void compute_covariance_matrix(int xdim, int ydim, int zdim, const imageb
 
 void prepare_block_statistics(int xdim, int ydim, int zdim, const imageblock * blk, const error_weight_block * ewb, int *is_normal_map, float *lowest_correl)
 {
-	int i;
-
 	mat4 cov_matrix;
 
 	compute_covariance_matrix(xdim, ydim, zdim, blk, ewb, &cov_matrix);
@@ -1169,7 +1163,7 @@ void prepare_block_statistics(int xdim, int ydim, int zdim, const imageblock * b
 
 	int texels_per_block = xdim * ydim * zdim;
 
-	for (i = 0; i < texels_per_block; i++)
+	for (int i = 0; i < texels_per_block; i++)
 	{
 		float3 val = float3(blk->orig_data[4 * i],
 							blk->orig_data[4 * i + 1],
@@ -1190,13 +1184,11 @@ void prepare_block_statistics(int xdim, int ydim, int zdim, const imageblock * b
 void compress_constant_color_block(int xdim, int ydim, int zdim, const imageblock * blk, const error_weight_block * ewb, symbolic_compressed_block * scb)
 {
 	int texel_count = xdim * ydim * zdim;
-	int i;
-
 	float4 color_sum = float4(0, 0, 0, 0);
 	float4 color_weight_sum = float4(0, 0, 0, 0);
 
 	const float *clp = blk->work_data;
-	for (i = 0; i < texel_count; i++)
+	for (int i = 0; i < texel_count; i++)
 	{
 		float4 weights = ewb->error_weights[i];
 		float4 color_data = float4(clp[4 * i], clp[4 * i + 1], clp[4 * i + 2], clp[4 * i + 3]);
