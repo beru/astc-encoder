@@ -81,146 +81,135 @@ static void copy_scanline(void *dst, const void *src, int pixels, int method)
 
 #define COPY_R( dsttype, srctype, convfunc, oneval ) \
 	do { \
-	srctype *s = (srctype *)src; \
-	dsttype *d = (dsttype *)dst; \
-	for(int i=0;i<pixels;i++)\
-		{\
-		d[4*i] = convfunc(s[i]); \
-		d[4*i+1] = 0; \
-		d[4*i+2] = 0; \
-		d[4*i+3] = oneval; \
+		srctype *s = (srctype *)src; \
+		dsttype *d = (dsttype *)dst; \
+		for (int i=0;i<pixels;i++) {\
+			d[4*i] = convfunc(s[i]); \
+			d[4*i+1] = 0; \
+			d[4*i+2] = 0; \
+			d[4*i+3] = oneval; \
 		} \
 	} while(0); \
 	break;
 
 #define COPY_RG( dsttype, srctype, convfunc, oneval ) \
 	do { \
-	srctype *s = (srctype *)src; \
-	dsttype *d = (dsttype *)dst; \
-	for(int i=0;i<pixels;i++)\
-		{\
-		d[4*i] = convfunc(s[2*i]); \
-		d[4*i+1] = convfunc(s[2*i+1]); \
-		d[4*i+2] = 0; \
-		d[4*i+3] = oneval; \
+		srctype *s = (srctype *)src; \
+		dsttype *d = (dsttype *)dst; \
+		for (int i=0;i<pixels;i++) {\
+			d[4*i] = convfunc(s[2*i]); \
+			d[4*i+1] = convfunc(s[2*i+1]); \
+			d[4*i+2] = 0; \
+			d[4*i+3] = oneval; \
 		} \
 	} while(0); \
 	break;
 
 #define COPY_RGB( dsttype, srctype, convfunc, oneval ) \
 	do { \
-	srctype *s = (srctype *)src; \
-	dsttype *d = (dsttype *)dst; \
-	for(int i=0;i<pixels;i++)\
-		{\
-		d[4*i] = convfunc(s[3*i]); \
-		d[4*i+1] = convfunc(s[3*i+1]); \
-		d[4*i+2] = convfunc(s[3*i+2]); \
-		d[4*i+3] = oneval; \
+		srctype *s = (srctype *)src; \
+		dsttype *d = (dsttype *)dst; \
+		for (int i=0;i<pixels;i++) {\
+			d[4*i] = convfunc(s[3*i]); \
+			d[4*i+1] = convfunc(s[3*i+1]); \
+			d[4*i+2] = convfunc(s[3*i+2]); \
+			d[4*i+3] = oneval; \
 		} \
 	} while(0); \
 	break;
 
 #define COPY_BGR( dsttype, srctype, convfunc, oneval ) \
 	do { \
-	srctype *s = (srctype *)src; \
-	dsttype *d = (dsttype *)dst; \
-	for(int i=0;i<pixels;i++)\
-		{\
-		d[4*i] = convfunc(s[3*i+2]); \
-		d[4*i+1] = convfunc(s[3*i+1]); \
-		d[4*i+2] = convfunc(s[3*i]); \
-		d[4*i+3] = oneval; \
+		srctype *s = (srctype *)src; \
+		dsttype *d = (dsttype *)dst; \
+		for (int i=0;i<pixels;i++) {\
+			d[4*i] = convfunc(s[3*i+2]); \
+			d[4*i+1] = convfunc(s[3*i+1]); \
+			d[4*i+2] = convfunc(s[3*i]); \
+			d[4*i+3] = oneval; \
 		} \
 	} while(0); \
 	break;
 
 #define COPY_RGBX( dsttype, srctype, convfunc, oneval ) \
 	do { \
-	srctype *s = (srctype *)src; \
-	dsttype *d = (dsttype *)dst; \
-	for(int i=0;i<pixels;i++)\
-		{\
-		d[4*i] = convfunc(s[4*i]); \
-		d[4*i+1] = convfunc(s[4*i+1]); \
-		d[4*i+2] = convfunc(s[4*i+2]); \
-		d[4*i+3] = oneval; \
+		srctype *s = (srctype *)src; \
+		dsttype *d = (dsttype *)dst; \
+		for (int i=0;i<pixels;i++) {\
+			d[4*i] = convfunc(s[4*i]); \
+			d[4*i+1] = convfunc(s[4*i+1]); \
+			d[4*i+2] = convfunc(s[4*i+2]); \
+			d[4*i+3] = oneval; \
 		} \
 	} while(0); \
 	break;
 
 #define COPY_BGRX( dsttype, srctype, convfunc, oneval ) \
 	do { \
-	srctype *s = (srctype *)src; \
-	dsttype *d = (dsttype *)dst; \
-	for(int i=0;i<pixels;i++)\
-		{\
-		d[4*i] = convfunc(s[4*i+2]); \
-		d[4*i+1] = convfunc(s[4*i+1]); \
-		d[4*i+2] = convfunc(s[4*i]); \
-		d[4*i+3] = oneval; \
+		srctype *s = (srctype *)src; \
+		dsttype *d = (dsttype *)dst; \
+		for (int i=0;i<pixels;i++) {\
+			d[4*i] = convfunc(s[4*i+2]); \
+			d[4*i+1] = convfunc(s[4*i+1]); \
+			d[4*i+2] = convfunc(s[4*i]); \
+			d[4*i+3] = oneval; \
 		} \
 	} while(0); \
 	break;
 
 #define COPY_RGBA( dsttype, srctype, convfunc, oneval ) \
 	do { \
-	srctype *s = (srctype *)src; \
-	dsttype *d = (dsttype *)dst; \
-	for(int i=0;i<pixels;i++)\
-		{\
-		d[4*i] = convfunc(s[4*i]); \
-		d[4*i+1] = convfunc(s[4*i+1]); \
-		d[4*i+2] = convfunc(s[4*i+2]); \
-		d[4*i+3] = convfunc(s[4*i+3]); \
+		srctype *s = (srctype *)src; \
+		dsttype *d = (dsttype *)dst; \
+		for(int i=0;i<pixels;i++) {\
+			d[4*i] = convfunc(s[4*i]); \
+			d[4*i+1] = convfunc(s[4*i+1]); \
+			d[4*i+2] = convfunc(s[4*i+2]); \
+			d[4*i+3] = convfunc(s[4*i+3]); \
 		} \
 	} while(0); \
 	break;
 
 #define COPY_BGRA( dsttype, srctype, convfunc, oneval ) \
 	do { \
-	srctype *s = (srctype *)src; \
-	dsttype *d = (dsttype *)dst; \
-	for(int i=0;i<pixels;i++)\
-		{\
-		d[4*i] = convfunc(s[4*i+2]); \
-		d[4*i+1] = convfunc(s[4*i+1]); \
-		d[4*i+2] = convfunc(s[4*i]); \
-		d[4*i+3] = convfunc(s[4*i+3]); \
+		srctype *s = (srctype *)src; \
+		dsttype *d = (dsttype *)dst; \
+		for (int i=0;i<pixels;i++) {\
+			d[4*i] = convfunc(s[4*i+2]); \
+			d[4*i+1] = convfunc(s[4*i+1]); \
+			d[4*i+2] = convfunc(s[4*i]); \
+			d[4*i+3] = convfunc(s[4*i+3]); \
 		} \
 	} while(0); \
 	break;
 
 #define COPY_L( dsttype, srctype, convfunc, oneval ) \
 	do { \
-	srctype *s = (srctype *)src; \
-	dsttype *d = (dsttype *)dst; \
-	for(int i=0;i<pixels;i++)\
-		{\
-		d[4*i] = convfunc(s[i]); \
-		d[4*i+1] = convfunc(s[i]); \
-		d[4*i+2] = convfunc(s[i]); \
-		d[4*i+3] = oneval; \
+		srctype *s = (srctype *)src; \
+		dsttype *d = (dsttype *)dst; \
+		for (int i=0;i<pixels;i++) {\
+			d[4*i] = convfunc(s[i]); \
+			d[4*i+1] = convfunc(s[i]); \
+			d[4*i+2] = convfunc(s[i]); \
+			d[4*i+3] = oneval; \
 		} \
 	} while(0); \
 	break;
 
 #define COPY_LA( dsttype, srctype, convfunc, oneval ) \
 	do { \
-	srctype *s = (srctype *)src; \
-	dsttype *d = (dsttype *)dst; \
-	for(int i=0;i<pixels;i++)\
-		{\
-		d[4*i] = convfunc(s[2*i]); \
-		d[4*i+1] = convfunc(s[2*i]); \
-		d[4*i+2] = convfunc(s[2*i]); \
-		d[4*i+3] = convfunc(s[2*i+1]); \
+		srctype *s = (srctype *)src; \
+		dsttype *d = (dsttype *)dst; \
+		for (int i=0;i<pixels;i++) {\
+			d[4*i] = convfunc(s[2*i]); \
+			d[4*i+1] = convfunc(s[2*i]); \
+			d[4*i+2] = convfunc(s[2*i]); \
+			d[4*i+3] = convfunc(s[2*i+1]); \
 		} \
 	} while(0); \
 	break;
 
-	switch (method)
-	{
+	switch (method) {
 	case R8_TO_RGBA8:
 		COPY_R(uint8_t, uint8_t, id, 0xFF);
 	case RG8_TO_RGBA8:
@@ -301,8 +290,7 @@ static void switch_endianness2(void *dataptr, int bytes)
 {
 	uint8_t *data = (uint8_t *) dataptr;
 
-	for (int i = 0; i < bytes / 2; i++)
-	{
+	for (int i = 0; i < bytes / 2; i++) {
 		uint8_t d0 = data[0];
 		uint8_t d1 = data[1];
 		data[0] = d1;
@@ -316,8 +304,7 @@ static void switch_endianness4(void *dataptr, int bytes)
 {
 	uint8_t *data = (uint8_t *) dataptr;
 
-	for (int i = 0; i < bytes / 4; i++)
-	{
+	for (int i = 0; i < bytes / 4; i++) {
 		uint8_t d0 = data[0];
 		uint8_t d1 = data[1];
 		uint8_t d2 = data[2];
@@ -335,9 +322,6 @@ uint32_t u32_byterev(uint32_t v)
 {
 	return (v >> 24) | ((v >> 8) & 0xFF00) | ((v << 8) & 0xFF0000) | (v << 24);
 }
-
-
-
 
 
 /* 
@@ -441,16 +425,12 @@ static void ktx_header_switch_endianness(ktx_header * kt)
 }
 
 
-
-
-
 astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding, int *result)
 {
 	int y, z;
 
 	FILE *f = fopen(filename, "rb");
-	if (!f)
-	{
+	if (!f) {
 		printf("Failed to open file %s\n", filename);
 		*result = -1;
 		return NULL;
@@ -459,16 +439,14 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 	ktx_header hdr;
 	size_t header_bytes_read = fread(&hdr, 1, sizeof(hdr), f);
 
-	if (header_bytes_read != sizeof(hdr))
-	{
+	if (header_bytes_read != sizeof(hdr)) {
 		printf("Failed to read header of KTX file %s\n", filename);
 		fclose(f);
 		*result = -2;
 		return NULL;
 	}
 
-	if (memcmp(hdr.magic, ktx_magic, 12) != 0 || (hdr.endianness != 0x04030201 && hdr.endianness != 0x01020304))
-	{
+	if (memcmp(hdr.magic, ktx_magic, 12) != 0 || (hdr.endianness != 0x04030201 && hdr.endianness != 0x01020304)) {
 		printf("File %s does not have a valid KTX header\n", filename);
 		fclose(f);
 		*result = -3;
@@ -476,14 +454,12 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 	}
 
 	int switch_endianness = 0;
-	if (hdr.endianness == 0x01020304)
-	{
+	if (hdr.endianness == 0x01020304) {
 		ktx_header_switch_endianness(&hdr);
 		switch_endianness = 1;
 	}
 
-	if (hdr.gl_type == 0 || hdr.gl_format == 0)
-	{
+	if (hdr.gl_type == 0 || hdr.gl_format == 0) {
 		printf("File %s appears to be compressed, not supported as input\n", filename);
 		fclose(f);
 		*result = -4;
@@ -495,8 +471,7 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 	// cartesian product of gl_type=(UNSIGNED_BYTE, UNSIGNED_SHORT, HALF_FLOAT, FLOAT) x gl_format=(RED, RG, RGB, RGBA, BGR, BGRA)
 
 	int components;
-	switch (hdr.gl_format)
-	{
+	switch (hdr.gl_format) {
 	case GL_RED:
 		components = 1;
 		break;
@@ -535,14 +510,12 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 	int bitness = 8;			// internal precision we will use in the codec.
 	scanline_copy_method cm = R8_TO_RGBA8;
 
-	switch (hdr.gl_type)
-	{
+	switch (hdr.gl_type) {
 	case GL_UNSIGNED_BYTE:
 		{
 			bitness = 8;
 			bytes_per_component = 1;
-			switch (hdr.gl_format)
-			{
+			switch (hdr.gl_format) {
 			case GL_RED:
 				cm = R8_TO_RGBA8;
 				break;
@@ -574,8 +547,7 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 		{
 			bitness = 16;
 			bytes_per_component = 2;
-			switch (hdr.gl_format)
-			{
+			switch (hdr.gl_format) {
 			case GL_RED:
 				cm = R16_TO_RGBA16F;
 				break;
@@ -607,8 +579,7 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 		{
 			bitness = 16;
 			bytes_per_component = 2;
-			switch (hdr.gl_format)
-			{
+			switch (hdr.gl_format) {
 			case GL_RED:
 				cm = R16F_TO_RGBA16F;
 				break;
@@ -640,8 +611,7 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 		{
 			bitness = 16;
 			bytes_per_component = 4;
-			switch (hdr.gl_format)
-			{
+			switch (hdr.gl_format) {
 			case GL_RED:
 				cm = R32F_TO_RGBA16F;
 				break;
@@ -700,8 +670,7 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 
 	uint32_t specified_bytes_of_surface = 0;
 	size_t sb_read = fread(&specified_bytes_of_surface, 1, 4, f);
-	if (sb_read != 4)
-	{
+	if (sb_read != 4) {
 		printf("Failed to read header of KTX file %s\n", filename);
 		fclose(f);
 		*result = -2;
@@ -716,8 +685,7 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 	uint32_t xstride = bytes_per_component * components * xsize;
 	uint32_t ystride = xstride * ysize;
 	uint32_t computed_bytes_of_surface = zsize * ystride;
-	if (computed_bytes_of_surface != specified_bytes_of_surface)
-	{
+	if (computed_bytes_of_surface != specified_bytes_of_surface) {
 		fclose(f);
 		printf("%s: KTX file inconsistency: computed surface size is %d bytes, but specified size is %d bytes\n", filename, computed_bytes_of_surface, specified_bytes_of_surface);
 		*result = -5;
@@ -729,8 +697,7 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 	uint8_t *buf = (uint8_t *) malloc(specified_bytes_of_surface);
 	size_t bytes_read = fread(buf, 1, specified_bytes_of_surface, f);
 	fclose(f);
-	if (bytes_read != specified_bytes_of_surface)
-	{
+	if (bytes_read != specified_bytes_of_surface) {
 		free(buf);
 		printf("Failed to read file %s\n", filename);
 		*result = -6;
@@ -738,24 +705,19 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 	}
 
 	// perform an endianness swap on the surface if needed.
-	if (switch_endianness)
-	{
+	if (switch_endianness) {
 		if (hdr.gl_type_size == 2)
 			switch_endianness2(buf, specified_bytes_of_surface);
 		if (hdr.gl_type_size == 4)
 			switch_endianness4(buf, specified_bytes_of_surface);
 	}
 
-
-
 	// then transfer data from the surface to our own image-data-structure.
 	astc_codec_image *astc_img = allocate_image(bitness, xsize, ysize, zsize, padding);
 
-	for (z = 0; z < zsize; z++)
-	{
+	for (z = 0; z < zsize; z++) {
 		int zdst = (zsize == 1) ? z : z + padding;
-		for (y = 0; y < ysize; y++)
-		{
+		for (y = 0; y < ysize; y++) {
 			int ydst = y + padding;
 			void *dst;
 			if (bitness == 16)
@@ -775,13 +737,8 @@ astc_codec_image *load_ktx_uncompressed_image(const char *filename, int padding,
 }
 
 
-
-
 int store_ktx_uncompressed_image(const astc_codec_image * img, const char *ktx_filename, int bitness)
 {
-	int x, y, z;
-	int i, j;
-
 	int xsize = img->xsize;
 	int ysize = img->ysize;
 	int zsize = img->zsize;
@@ -812,51 +769,42 @@ int store_ktx_uncompressed_image(const astc_codec_image * img, const char *ktx_f
 
 	uint8_t ***row_pointers8 = NULL;
 	uint16_t ***row_pointers16 = NULL;
-	if (bitness == 8)
-	{
+	if (bitness == 8) {
 		row_pointers8 = new uint8_t **[zsize];
 		row_pointers8[0] = new uint8_t *[ysize * zsize];
 		row_pointers8[0][0] = new uint8_t[xsize * ysize * zsize * image_channels + 3];
 
-		for (i = 1; i < zsize; i++)
-		{
+		for (int i = 1; i < zsize; i++) {
 			row_pointers8[i] = row_pointers8[0] + ysize * i;
 			row_pointers8[i][0] = row_pointers8[0][0] + ysize * xsize * image_channels * i;
 		}
-		for (i = 0; i < zsize; i++)
-			for (j = 1; j < ysize; j++)
+		for (int i = 0; i < zsize; i++)
+			for (int j = 1; j < ysize; j++)
 				row_pointers8[i][j] = row_pointers8[i][0] + xsize * image_channels * j;
 
-		for (z = 0; z < zsize; z++)
-		{
-			for (y = 0; y < ysize; y++)
-			{
-				switch (image_channels)
-				{
+		for (int z = 0; z < zsize; z++) {
+			for (int y = 0; y < ysize; y++) {
+				switch (image_channels) {
 				case 1:		// single-component, treated as Luminance
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers8[z][y][x] = img->imagedata8[z][y][4 * x];
 					}
 					break;
 				case 2:		// two-component, treated as Luminance-Alpha
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers8[z][y][2 * x] = img->imagedata8[z][y][4 * x];
 						row_pointers8[z][y][2 * x + 1] = img->imagedata8[z][y][4 * x + 3];
 					}
 					break;
 				case 3:		// three-component, treated as RGB
-					for (x = 0; x < xsize; x++)
-					{
+ 					for (int x = 0; x < xsize; x++) {
 						row_pointers8[z][y][3 * x] = img->imagedata8[z][y][4 * x];
 						row_pointers8[z][y][3 * x + 1] = img->imagedata8[z][y][4 * x + 1];
 						row_pointers8[z][y][3 * x + 2] = img->imagedata8[z][y][4 * x + 2];
 					}
 					break;
 				case 4:		// four-component, treated as RGBA
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers8[z][y][4 * x] = img->imagedata8[z][y][4 * x];
 						row_pointers8[z][y][4 * x + 1] = img->imagedata8[z][y][4 * x + 1];
 						row_pointers8[z][y][4 * x + 2] = img->imagedata8[z][y][4 * x + 2];
@@ -866,52 +814,42 @@ int store_ktx_uncompressed_image(const astc_codec_image * img, const char *ktx_f
 				}
 			}
 		}
-	}
-	else						// if bitness == 16
-	{
+	}else {						// if bitness == 16
 		row_pointers16 = new uint16_t **[zsize];
 		row_pointers16[0] = new uint16_t *[ysize * zsize];
 		row_pointers16[0][0] = new uint16_t[xsize * ysize * zsize * image_channels + 1];
 
-		for (i = 1; i < zsize; i++)
-		{
+		for (int i = 1; i < zsize; i++) {
 			row_pointers16[i] = row_pointers16[0] + ysize * i;
 			row_pointers16[i][0] = row_pointers16[0][0] + ysize * xsize * image_channels * i;
 		}
-		for (i = 0; i < zsize; i++)
-			for (j = 1; j < ysize; j++)
+		for (int i = 0; i < zsize; i++)
+			for (int j = 1; j < ysize; j++)
 				row_pointers16[i][j] = row_pointers16[i][0] + xsize * image_channels * j;
 
-		for (z = 0; z < zsize; z++)
-		{
-			for (y = 0; y < ysize; y++)
-			{
-				switch (image_channels)
-				{
+		for (int z = 0; z < zsize; z++) {
+			for (int y = 0; y < ysize; y++) {
+				switch (image_channels) {
 				case 1:		// single-component, treated as Luminance
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers16[z][y][x] = img->imagedata16[z][y][4 * x];
 					}
 					break;
 				case 2:		// two-component, treated as Luminance-Alpha
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers16[z][y][2 * x] = img->imagedata16[z][y][4 * x];
 						row_pointers16[z][y][2 * x + 1] = img->imagedata16[z][y][4 * x + 3];
 					}
 					break;
 				case 3:		// three-component, treated as RGB
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers16[z][y][3 * x] = img->imagedata16[z][y][4 * x];
 						row_pointers16[z][y][3 * x + 1] = img->imagedata16[z][y][4 * x + 1];
 						row_pointers16[z][y][3 * x + 2] = img->imagedata16[z][y][4 * x + 2];
 					}
 					break;
 				case 4:		// four-component, treated as RGBA
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers16[z][y][4 * x] = img->imagedata16[z][y][4 * x];
 						row_pointers16[z][y][4 * x + 1] = img->imagedata16[z][y][4 * x + 1];
 						row_pointers16[z][y][4 * x + 2] = img->imagedata16[z][y][4 * x + 2];
@@ -928,8 +866,7 @@ int store_ktx_uncompressed_image(const astc_codec_image * img, const char *ktx_f
 	uint32_t image_write_bytes = (image_bytes + 3) & ~3;
 
 	FILE *wf = fopen(ktx_filename, "wb");
-	if (wf)
-	{
+	if (wf) {
 		void *dataptr = (bitness == 16) ? (void *)(row_pointers16[0][0]) : (void *)(row_pointers8[0][0]);
 
 		size_t expected_bytes_written = sizeof(ktx_header) + image_write_bytes + 4;
@@ -940,20 +877,16 @@ int store_ktx_uncompressed_image(const astc_codec_image * img, const char *ktx_f
 		if (hdr_bytes_written + bytecount_bytes_written + data_bytes_written != expected_bytes_written)
 			retval = -1;
 
-	}
-	else
-	{
+	}else {
 		retval = -1;
 	}
 
-	if (row_pointers8)
-	{
+	if (row_pointers8) {
 		delete[]row_pointers8[0][0];
 		delete[]row_pointers8[0];
 		delete[]row_pointers8;
 	}
-	if (row_pointers16)
-	{
+	if (row_pointers16) {
 		delete[]row_pointers16[0][0];
 		delete[]row_pointers16[0];
 		delete[]row_pointers16;
@@ -961,8 +894,6 @@ int store_ktx_uncompressed_image(const astc_codec_image * img, const char *ktx_f
 
 	return retval;
 }
-
-
 
 
 /* 
@@ -1059,11 +990,8 @@ struct dds_header_dx10
 
 astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding, int *result)
 {
-	int y, z;
-
 	FILE *f = fopen(filename, "rb");
-	if (!f)
-	{
+	if (!f) {
 		printf("Failed to open file %s\n", filename);
 		*result = -1;
 		return NULL;
@@ -1074,8 +1002,7 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 	dds_header hdr;
 	size_t magic_bytes_read = fread(magic, 1, 4, f);
 	size_t header_bytes_read = fread(&hdr, 1, sizeof(hdr), f);
-	if (magic_bytes_read != 4 || header_bytes_read != sizeof(hdr))
-	{
+	if (magic_bytes_read != 4 || header_bytes_read != sizeof(hdr)) {
 		printf("Failed to read header of DDS file %s\n", filename);
 		fclose(f);
 		*result = -2;
@@ -1084,8 +1011,7 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 
 	uint32_t magicx = magic[0] | (magic[1] << 8) | (magic[2] << 16) | (magic[3] << 24);
 
-	if (magicx != DDS_MAGIC || hdr.size != 124)
-	{
+	if (magicx != DDS_MAGIC || hdr.size != 124) {
 		printf("File %s does not have a valid DDS header\n", filename);
 		fclose(f);
 		*result = -3;
@@ -1093,14 +1019,10 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 	}
 
 	int use_dx10_header = 0;
-	if (hdr.ddspf.flags & 4)
-	{
-		if (hdr.ddspf.fourcc == DX10_MAGIC)
-		{
+	if (hdr.ddspf.flags & 4) {
+		if (hdr.ddspf.fourcc == DX10_MAGIC) {
 			use_dx10_header = 1;
-		}
-		else
-		{
+		}else {
 			printf("DDS file %s is compressed, not supported\n", filename);
 			fclose(f);
 			*result = -4;
@@ -1109,11 +1031,9 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 	}
 
 	dds_header_dx10 dx10_header;
-	if (use_dx10_header)
-	{
+	if (use_dx10_header) {
 		size_t dx10_header_bytes_read = fread(&dx10_header, 1, sizeof(dx10_header), f);
-		if (dx10_header_bytes_read != sizeof(dx10_header))
-		{
+		if (dx10_header_bytes_read != sizeof(dx10_header)) {
 			printf("Failed to read header of DDS file %s\n", filename);
 			fclose(f);
 			*result = -2;
@@ -1121,11 +1041,9 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 		}
 	}
 
-
 	int xsize = hdr.width;
 	int ysize = hdr.height;
 	int zsize = (hdr.flags & 0x800000) ? hdr.depth : 1;
-
 
 	int bitness;				// the bitcount that we will use internally in the codec
 	int bytes_per_component;	// the bytes per component in the DDS file itself
@@ -1133,8 +1051,7 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 	int copy_method;
 
 	// figure out the format actually used in the DDS file.
-	if (use_dx10_header)
-	{
+	if (use_dx10_header) {
 
 		// DX10 header present; use the DXGI format.
 		
@@ -1184,10 +1101,8 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 
 		int dxgi_modes_supported = sizeof(format_params) / sizeof(format_params[0]);
 		int did_select_format = 0;
-		for (int i = 0; i < dxgi_modes_supported; i++)
-		{
-			if (dx10_header.dxgi_format == format_params[i].dxgi_format_number)
-			{
+		for (int i = 0; i < dxgi_modes_supported; i++) {
+			if (dx10_header.dxgi_format == format_params[i].dxgi_format_number) {
 				bitness = format_params[i].bitness;
 				bytes_per_component = format_params[i].bytes_per_component;
 				components = format_params[i].components;
@@ -1197,17 +1112,13 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 			}
 		}
 
-		if (did_select_format == 0)
-		{
+		if (did_select_format == 0) {
 			printf("DDS file %s: DXGI format not supported by codec\n", filename);
 			fclose(f);
 			*result = -4;
 			return NULL;
 		}
-	}
-
-	else
-	{
+	}else {
 		// No DX10 header present. Then try to match the bitcount and bitmask against
 		// a set of prepared patterns.
 		uint32_t flags = hdr.ddspf.flags;
@@ -1217,79 +1128,67 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 		uint32_t bmask = hdr.ddspf.bbitmask;
 		uint32_t amask = hdr.ddspf.abitmask;
 
-
 		// RGBA-unorm8
-		if ((flags & 0x41) == 0x41 && bitcount == 32 && rmask == 0xFF && gmask == 0xFF00 && bmask == 0xFF0000 && amask == 0xFF000000)
-		{
+		if ((flags & 0x41) == 0x41 && bitcount == 32 && rmask == 0xFF && gmask == 0xFF00 && bmask == 0xFF0000 && amask == 0xFF000000) {
 			bytes_per_component = 1;
 			components = 4;
 			copy_method = RGBA8_TO_RGBA8;
 		}
 		// BGRA-unorm8
-		else if ((flags & 0x41) == 0x41 && bitcount == 32 && rmask == 0xFF0000 && gmask == 0xFF00 && bmask == 0xFF && amask == 0xFF000000)
-		{
+		else if ((flags & 0x41) == 0x41 && bitcount == 32 && rmask == 0xFF0000 && gmask == 0xFF00 && bmask == 0xFF && amask == 0xFF000000) {
 			bytes_per_component = 1;
 			components = 4;
 			copy_method = BGRA8_TO_RGBA8;
 		}
 		// RGBX-unorm8
-		else if ((flags & 0x40) && bitcount == 32 && rmask == 0xFF && gmask == 0xFF00 && bmask == 0xFF0000)
-		{
+		else if ((flags & 0x40) && bitcount == 32 && rmask == 0xFF && gmask == 0xFF00 && bmask == 0xFF0000) {
 			bytes_per_component = 1;
 			components = 4;
 			copy_method = RGBX8_TO_RGBA8;
 		}
 		// BGRX-unorm8
-		else if ((flags & 0x40) && bitcount == 32 && rmask == 0xFF0000 && gmask == 0xFF00 && bmask == 0xFF)
-		{
+		else if ((flags & 0x40) && bitcount == 32 && rmask == 0xFF0000 && gmask == 0xFF00 && bmask == 0xFF) {
 			bytes_per_component = 1;
 			components = 4;
 			copy_method = BGRX8_TO_RGBA8;
 		}
 		// RGB-unorm8
-		else if ((flags & 0x40) && bitcount == 24 && rmask == 0xFF && gmask == 0xFF00 && bmask == 0xFF0000)
-		{
+		else if ((flags & 0x40) && bitcount == 24 && rmask == 0xFF && gmask == 0xFF00 && bmask == 0xFF0000) {
 			bytes_per_component = 1;
 			components = 3;
 			copy_method = RGB8_TO_RGBA8;
 		}
 		// BGR-unorm8
-		else if ((flags & 0x40) && bitcount == 24 && rmask == 0xFF0000 && gmask == 0xFF00 && bmask == 0xFF)
-		{
+		else if ((flags & 0x40) && bitcount == 24 && rmask == 0xFF0000 && gmask == 0xFF00 && bmask == 0xFF) {
 			bytes_per_component = 1;
 			components = 3;
 			copy_method = BGR8_TO_RGBA8;
 		}
 		// RG-unorm16
-		else if ((flags & 0x40) && bitcount == 16 && rmask == 0xFFFF && gmask == 0xFFFF0000)
-		{
+		else if ((flags & 0x40) && bitcount == 16 && rmask == 0xFFFF && gmask == 0xFFFF0000) {
 			bytes_per_component = 2;
 			components = 2;
 			copy_method = RG16_TO_RGBA16F;
 		}
 		// A8L8
-		else if ((flags & 0x20001) == 0x20001 && bitcount == 16 && rmask == 0xFF && amask == 0xFF00)
-		{
+		else if ((flags & 0x20001) == 0x20001 && bitcount == 16 && rmask == 0xFF && amask == 0xFF00) {
 			bytes_per_component = 1;
 			components = 2;
 			copy_method = LA8_TO_RGBA8;
 		}
 		// L8
-		else if ((flags & 0x20000) && bitcount == 8 && rmask == 0xFF)
-		{
+		else if ((flags & 0x20000) && bitcount == 8 && rmask == 0xFF) {
 			bytes_per_component = 1;
 			components = 1;
 			copy_method = L8_TO_RGBA8;
 		}
 		// L16
-		else if ((flags & 0x20000) && bitcount == 16 && rmask == 0xFFFF)
-		{
+		else if ((flags & 0x20000) && bitcount == 16 && rmask == 0xFFFF) {
 			bytes_per_component = 2;
 			components = 1;
 			copy_method = L16_TO_RGBA16F;
 		}
-		else
-		{
+		else {
 			printf("DDS file %s: Non-DXGI format not supported by codec\n", filename);
 			fclose(f);
 			*result = -4;
@@ -1308,8 +1207,7 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 	uint8_t *buf = (uint8_t *) malloc(bytes_of_surface);
 	size_t bytes_read = fread(buf, 1, bytes_of_surface, f);
 	fclose(f);
-	if (bytes_read != bytes_of_surface)
-	{
+	if (bytes_read != bytes_of_surface) {
 		free(buf);
 		printf("Failed to read file %s\n", filename);
 		*result = -6;
@@ -1319,11 +1217,9 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 	// then transfer data from the surface to our own image-data-structure.
 	astc_codec_image *astc_img = allocate_image(bitness, xsize, ysize, zsize, padding);
 
-	for (z = 0; z < zsize; z++)
-	{
+	for (int z = 0; z < zsize; z++) {
 		int zdst = zsize == 1 ? z : z + padding;
-		for (y = 0; y < ysize; y++)
-		{
+		for (int y = 0; y < ysize; y++) {
 			int ydst = y + padding;
 			void *dst;
 			if (bitness == 16)
@@ -1343,18 +1239,13 @@ astc_codec_image *load_dds_uncompressed_image(const char *filename, int padding,
 }
 
 
-
 int store_dds_uncompressed_image(const astc_codec_image * img, const char *dds_filename, int bitness)
 {
-	int i, j;
-	int x, y, z;
-
 	int xsize = img->xsize;
 	int ysize = img->ysize;
 	int zsize = img->zsize;
 
 	int image_channels = (bitness == 16) ? 4 : determine_image_channels(img);
-
 
 	// DDS-pixel-format structures to use when storing LDR image with 1,2,3 or 4 components.
 	static const dds_pixelformat format_of_image_channels[4] =
@@ -1371,7 +1262,6 @@ int store_dds_uncompressed_image(const astc_codec_image * img, const char *dds_f
 		32, 4, DX10_MAGIC, 0, 0, 0, 0, 0
 	};
 
-
 	// header handling. We will write:
 	// * DDS magic value
 	// * DDS header
@@ -1387,7 +1277,7 @@ int store_dds_uncompressed_image(const astc_codec_image * img, const char *dds_f
 	hdr.pitch_or_linear_size = image_channels * (bitness / 8) * xsize;
 	hdr.depth = zsize;
 	hdr.mipmapcount = 1;
-	for (i = 0; i < 11; i++)
+	for (int i = 0; i < 11; i++)
 		hdr.reserved1[i] = 0;
 	hdr.caps = 0x1000;
 	hdr.caps2 = (zsize > 1) ? 0x200000 : 0;
@@ -1408,56 +1298,46 @@ int store_dds_uncompressed_image(const astc_codec_image * img, const char *dds_f
 	dx10.array_size = 1;
 	dx10.reserved = 0;
 
-
 	// collect image data to write
 
 	uint8_t ***row_pointers8 = NULL;
 	uint16_t ***row_pointers16 = NULL;
-	if (bitness == 8)
-	{
+	if (bitness == 8) {
 		row_pointers8 = new uint8_t **[zsize];
 		row_pointers8[0] = new uint8_t *[ysize * zsize];
 		row_pointers8[0][0] = new uint8_t[xsize * ysize * zsize * image_channels];
 
-		for (i = 1; i < zsize; i++)
-		{
+		for (int i = 1; i < zsize; i++) {
 			row_pointers8[i] = row_pointers8[0] + ysize * i;
 			row_pointers8[i][0] = row_pointers8[0][0] + ysize * xsize * image_channels * i;
 		}
-		for (i = 0; i < zsize; i++)
-			for (j = 1; j < ysize; j++)
+		for (int i = 0; i < zsize; i++)
+			for (int j = 1; j < ysize; j++)
 				row_pointers8[i][j] = row_pointers8[i][0] + xsize * image_channels * j;
 
-		for (z = 0; z < zsize; z++)
-		{
-			for (y = 0; y < ysize; y++)
-			{
-				switch (image_channels)
-				{
+		for (int z = 0; z < zsize; z++) {
+			for (int y = 0; y < ysize; y++) {
+				switch (image_channels) {
 				case 1:		// single-component, treated as Luminance
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers8[z][y][x] = img->imagedata8[z][y][4 * x];
 					}
 					break;
 				case 2:		// two-component, treated as Luminance-Alpha
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers8[z][y][2 * x] = img->imagedata8[z][y][4 * x];
 						row_pointers8[z][y][2 * x + 1] = img->imagedata8[z][y][4 * x + 3];
 					}
 					break;
 				case 3:		// three-component, treated as RGB
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers8[z][y][3 * x] = img->imagedata8[z][y][4 * x];
 						row_pointers8[z][y][3 * x + 1] = img->imagedata8[z][y][4 * x + 1];
 						row_pointers8[z][y][3 * x + 2] = img->imagedata8[z][y][4 * x + 2];
 					}
 					break;
 				case 4:		// four-component, treated as RGBA
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers8[z][y][4 * x] = img->imagedata8[z][y][4 * x];
 						row_pointers8[z][y][4 * x + 1] = img->imagedata8[z][y][4 * x + 1];
 						row_pointers8[z][y][4 * x + 2] = img->imagedata8[z][y][4 * x + 2];
@@ -1467,52 +1347,42 @@ int store_dds_uncompressed_image(const astc_codec_image * img, const char *dds_f
 				}
 			}
 		}
-	}
-	else						// if bitness == 16
-	{
+	}else {						// if bitness == 16
 		row_pointers16 = new uint16_t **[zsize];
 		row_pointers16[0] = new uint16_t *[ysize * zsize];
 		row_pointers16[0][0] = new uint16_t[xsize * ysize * zsize * image_channels];
 
-		for (i = 1; i < zsize; i++)
-		{
+		for (int i = 1; i < zsize; i++) {
 			row_pointers16[i] = row_pointers16[0] + ysize * i;
 			row_pointers16[i][0] = row_pointers16[0][0] + ysize * xsize * image_channels * i;
 		}
-		for (i = 0; i < zsize; i++)
-			for (j = 1; j < ysize; j++)
+		for (int i = 0; i < zsize; i++) 
+			for (int j = 1; j < ysize; j++)
 				row_pointers16[i][j] = row_pointers16[i][0] + xsize * image_channels * j;
 
-		for (z = 0; z < zsize; z++)
-		{
-			for (y = 0; y < ysize; y++)
-			{
-				switch (image_channels)
-				{
+		for (int z = 0; z < zsize; z++) {
+			for (int y = 0; y < ysize; y++) {
+				switch (image_channels) {
 				case 1:		// single-component, treated as Luminance
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers16[z][y][x] = img->imagedata16[z][y][4 * x];
 					}
 					break;
 				case 2:		// two-component, treated as Luminance-Alpha
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers16[z][y][2 * x] = img->imagedata16[z][y][4 * x];
 						row_pointers16[z][y][2 * x + 1] = img->imagedata16[z][y][4 * x + 3];
 					}
 					break;
 				case 3:		// three-component, treated as RGB
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers16[z][y][3 * x] = img->imagedata16[z][y][4 * x];
 						row_pointers16[z][y][3 * x + 1] = img->imagedata16[z][y][4 * x + 1];
 						row_pointers16[z][y][3 * x + 2] = img->imagedata16[z][y][4 * x + 2];
 					}
 					break;
 				case 4:		// four-component, treated as RGBA
-					for (x = 0; x < xsize; x++)
-					{
+					for (int x = 0; x < xsize; x++) {
 						row_pointers16[z][y][4 * x] = img->imagedata16[z][y][4 * x];
 						row_pointers16[z][y][4 * x + 1] = img->imagedata16[z][y][4 * x + 1];
 						row_pointers16[z][y][4 * x + 2] = img->imagedata16[z][y][4 * x + 2];
@@ -1530,8 +1400,7 @@ int store_dds_uncompressed_image(const astc_codec_image * img, const char *dds_f
 	uint32_t dds_magic = DDS_MAGIC;
 
 	FILE *wf = fopen(dds_filename, "wb");
-	if (wf)
-	{
+	if (wf) {
 		void *dataptr = (bitness == 16) ? (void *)(row_pointers16[0][0]) : (void *)(row_pointers8[0][0]);
 
 		size_t expected_bytes_written = 4 + sizeof(dds_header) + (bitness > 8 ? sizeof(dds_header_dx10) : 0) + image_bytes;
@@ -1550,20 +1419,16 @@ int store_dds_uncompressed_image(const astc_codec_image * img, const char *dds_f
 		fclose(wf);
 		if (magic_bytes_written + hdr_bytes_written + dx10_bytes_written + data_bytes_written != expected_bytes_written)
 			retval = -1;
-	}
-	else
-	{
+	}else {
 		retval = -1;
 	}
 
-	if (row_pointers8)
-	{
+	if (row_pointers8) {
 		delete[]row_pointers8[0][0];
 		delete[]row_pointers8[0];
 		delete[]row_pointers8;
 	}
-	if (row_pointers16)
-	{
+	if (row_pointers16) {
 		delete[]row_pointers16[0][0];
 		delete[]row_pointers16[0];
 		delete[]row_pointers16;
@@ -1571,3 +1436,4 @@ int store_dds_uncompressed_image(const astc_codec_image * img, const char *dds_f
 
 	return retval;
 }
+

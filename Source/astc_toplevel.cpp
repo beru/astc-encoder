@@ -35,7 +35,6 @@
 		return (double)tv.tv_sec + (double)tv.tv_usec * 1.0e-6;
 	}
 	
-	
 	int astc_codec_unlink(const char *filename)
 	{
 		return unlink(filename);
@@ -191,7 +190,6 @@ int perform_srgb_transform = 0;
 
 astc_codec_image *load_astc_file(const char *filename, int bitness, astc_decode_mode decode_mode, swizzlepattern swz_decode)
 {
-	int x, y, z;
 	FILE *f = fopen(filename, "rb");
 	if (!f)
 	{
@@ -200,8 +198,7 @@ astc_codec_image *load_astc_file(const char *filename, int bitness, astc_decode_
 	}
 	astc_header hdr;
 	size_t hdr_bytes_read = fread(&hdr, 1, sizeof(astc_header), f);
-	if (hdr_bytes_read != sizeof(astc_header))
-	{
+	if (hdr_bytes_read != sizeof(astc_header)) {
 		fclose(f);
 		printf("Failed to read file %s\n", filename);
 		exit(1);
@@ -209,8 +206,7 @@ astc_codec_image *load_astc_file(const char *filename, int bitness, astc_decode_
 
 	uint32_t magicval = hdr.magic[0] + 256 * (uint32_t) (hdr.magic[1]) + 65536 * (uint32_t) (hdr.magic[2]) + 16777216 * (uint32_t) (hdr.magic[3]);
 
-	if (magicval != MAGIC_FILE_CONSTANT)
-	{
+	if (magicval != MAGIC_FILE_CONSTANT) {
 		fclose(f);
 		printf("File %s not recognized\n", filename);
 		exit(1);
@@ -220,8 +216,7 @@ astc_codec_image *load_astc_file(const char *filename, int bitness, astc_decode_
 	int ydim = hdr.blockdim_y;
 	int zdim = hdr.blockdim_z;
 
-	if (xdim < 3 || xdim > 12 || ydim < 3 || ydim > 12 || (zdim < 3 && zdim != 1) || zdim > 12)
-	{
+	if (xdim < 3 || xdim > 12 || ydim < 3 || ydim > 12 || (zdim < 3 && zdim != 1) || zdim > 12) {
 		fclose(f);
 		printf("File %s not recognized %d %d %d\n", filename, xdim, ydim, zdim);
 		exit(1);
@@ -232,14 +227,12 @@ astc_codec_image *load_astc_file(const char *filename, int bitness, astc_decode_
 	int ysize = hdr.ysize[0] + 256 * hdr.ysize[1] + 65536 * hdr.ysize[2];
 	int zsize = hdr.zsize[0] + 256 * hdr.zsize[1] + 65536 * hdr.zsize[2];
 
-
 	int xblocks = (xsize + xdim - 1) / xdim;
 	int yblocks = (ysize + ydim - 1) / ydim;
 	int zblocks = (zsize + zdim - 1) / zdim;
 
 	uint8_t *buffer = (uint8_t *) malloc(xblocks * yblocks * zblocks * 16);
-	if (!buffer)
-	{
+	if (!buffer) {
 		fclose(f);
 		printf("Ran out of memory\n");
 		exit(1);
@@ -247,8 +240,7 @@ astc_codec_image *load_astc_file(const char *filename, int bitness, astc_decode_
 	size_t bytes_to_read = xblocks * yblocks * zblocks * 16;
 	size_t bytes_read = fread(buffer, 1, bytes_to_read, f);
 	fclose(f);
-	if (bytes_read != bytes_to_read)
-	{
+	if (bytes_read != bytes_to_read) {
 		printf("Failed to read file %s\n", filename);
 		exit(1);
 	}
@@ -258,10 +250,9 @@ astc_codec_image *load_astc_file(const char *filename, int bitness, astc_decode_
 	initialize_image(img);
 
 	imageblock pb;
-	for (z = 0; z < zblocks; z++)
-		for (y = 0; y < yblocks; y++)
-			for (x = 0; x < xblocks; x++)
-			{
+	for (int z = 0; z < zblocks; z++)
+		for (int y = 0; y < yblocks; y++)
+			for (int x = 0; x < xblocks; x++) {
 				int offset = (((z * yblocks + y) * xblocks) + x) * 16;
 				uint8_t *bp = buffer + offset;
 				physical_compressed_block pcb = *(physical_compressed_block *) bp;
@@ -275,7 +266,6 @@ astc_codec_image *load_astc_file(const char *filename, int bitness, astc_decode_
 
 	return img;
 }
-
 
 
 struct encode_astc_image_info
@@ -296,7 +286,6 @@ struct encode_astc_image_info
 	const astc_codec_image *input_image;
 	astc_codec_image *output_image;
 };
-
 
 
 void *encode_astc_image_threadfunc(void *vblk)
@@ -322,7 +311,6 @@ void *encode_astc_image_threadfunc(void *vblk)
 	int ctr = thread_id;
 	int pctr = 0;
 
-	int x, y, z, i;
 	int xsize = input_image->xsize;
 	int ysize = input_image->ysize;
 	int zsize = input_image->zsize;
@@ -332,29 +320,23 @@ void *encode_astc_image_threadfunc(void *vblk)
 
 	int owns_progress_counter = 0;
 
-	for (z = 0; z < zblocks; z++)
-		for (y = 0; y < yblocks; y++)
-			for (x = 0; x < xblocks; x++)
-			{
-				if (ctr == 0)
-				{
+	for (int z = 0; z < zblocks; z++)
+		for (int y = 0; y < yblocks; y++)
+			for (int x = 0; x < xblocks; x++) {
+				if (ctr == 0) {
 					int offset = ((z * yblocks + y) * xblocks + x) * 16;
 					uint8_t *bp = buffer + offset;
 				#ifdef DEBUG_PRINT_DIAGNOSTICS
-					if (diagnostics_tile < 0 || diagnostics_tile == pctr)
-					{
+					if (diagnostics_tile < 0 || diagnostics_tile == pctr) {
 						print_diagnostics = (diagnostics_tile == pctr) ? 1 : 0;
 				#endif
 						fetch_imageblock(input_image, &pb, xdim, ydim, zdim, x * xdim, y * ydim, z * zdim, swz_encode);
 						symbolic_compressed_block scb;
 						compress_symbolic_block(input_image, decode_mode, xdim, ydim, zdim, ewp, &pb, &scb);
-						if (pack_and_unpack)
-						{
+						if (pack_and_unpack) {
 							decompress_symbolic_block(decode_mode, xdim, ydim, zdim, x * xdim, y * ydim, z * zdim, &scb, &pb);
 							write_imageblock(output_image, &pb, xdim, ydim, zdim, x * xdim, y * ydim, z * zdim, swz_decode);
-						}
-						else
-						{
+						}else {
 							physical_compressed_block pcb;
 							pcb = symbolic_to_physical(xdim, ydim, zdim, &scb);
 							*(physical_compressed_block *) bp = pcb;
@@ -369,36 +351,30 @@ void *encode_astc_image_threadfunc(void *vblk)
 					pctr++;
 
 					// routine to print the progress counter.
-					if (suppress_progress_counter == 0 && (pctr % progress_counter_divider) == 0 && print_tile_errors == 0 && print_statistics == 0)
-					{
+					if (suppress_progress_counter == 0 && (pctr % progress_counter_divider) == 0 && print_tile_errors == 0 && print_statistics == 0) {
 						int do_print = 1;
 						// the current thread has the responsibility for printing the progress counter
 						// if every previous thread has completed. Also, if we have ever received the
 						// responsibility to print the progress counter, we are going to keep it
 						// until the thread is completed.
-						if (!owns_progress_counter)
-						{
-							for (i = thread_id - 1; i >= 0; i--)
-							{
-								if (threads_completed[i] == 0)
-								{
+						if (!owns_progress_counter) {
+							for (int i = thread_id - 1; i >= 0; i--) {
+								if (threads_completed[i] == 0) {
 									do_print = 0;
 									break;
 								}
 							}
 						}
-						if (do_print)
-						{
+						if (do_print) {
 							owns_progress_counter = 1;
 							int summa = 0;
-							for (i = 0; i < threadcount; i++)
+							for (int i = 0; i < threadcount; i++)
 								summa += counters[i];
 							printf("\r%d", summa);
 							fflush(stdout);
 						}
 					}
-				}
-				else
+				}else
 					ctr--;
 			}
 	threads_completed[thread_id] = 1;
@@ -411,7 +387,13 @@ void encode_astc_image(const astc_codec_image * input_image,
 					   int xdim,
 					   int ydim,
 					   int zdim,
-					   const error_weighting_params * ewp, astc_decode_mode decode_mode, swizzlepattern swz_encode, swizzlepattern swz_decode, uint8_t * buffer, int pack_and_unpack, int threadcount)
+					   const error_weighting_params * ewp,
+					   astc_decode_mode decode_mode,
+					   swizzlepattern swz_encode,
+					   swizzlepattern swz_decode,
+					   uint8_t * buffer,
+					   int pack_and_unpack,
+					   int threadcount)
 {
 	int *counters = new int[threadcount];
 	int *threads_completed = new int[threadcount];
@@ -422,8 +404,7 @@ void encode_astc_image(const astc_codec_image * input_image,
 	get_partition_table(xdim, ydim, zdim, 0);
 
 	encode_astc_image_info *ai = new encode_astc_image_info[threadcount];
-	for (int i = 0; i < threadcount; i++)
-	{
+	for (int i = 0; i < threadcount; i++) {
 		ai[i].xdim = xdim;
 		ai[i].ydim = ydim;
 		ai[i].zdim = zdim;
@@ -445,8 +426,7 @@ void encode_astc_image(const astc_codec_image * input_image,
 
 	if (threadcount == 1)
 		encode_astc_image_threadfunc(&ai[0]);
-	else
-	{
+	else {
 		pthread_t *threads = new pthread_t[threadcount];
 		for (int i = 0; i < threadcount; i++)
 			pthread_create(&(threads[i]), NULL, encode_astc_image_threadfunc, (void *)(&(ai[i])));
@@ -463,7 +443,12 @@ void encode_astc_image(const astc_codec_image * input_image,
 
 
 void store_astc_file(const astc_codec_image * input_image,
-					 const char *filename, int xdim, int ydim, int zdim, const error_weighting_params * ewp, astc_decode_mode decode_mode, swizzlepattern swz_encode, int threadcount)
+					 const char *filename,
+					 int xdim, int ydim, int zdim,
+					 const error_weighting_params * ewp,
+					 astc_decode_mode decode_mode,
+					 swizzlepattern swz_encode,
+					 int threadcount)
 {
 	int xsize = input_image->xsize;
 	int ysize = input_image->ysize;
@@ -474,8 +459,7 @@ void store_astc_file(const astc_codec_image * input_image,
 	int zblocks = (zsize + zdim - 1) / zdim;
 
 	uint8_t *buffer = (uint8_t *) malloc(xblocks * yblocks * zblocks * 16);
-	if (!buffer)
-	{
+	if (!buffer) {
 		printf("Ran out of memory\n");
 		exit(1);
 	}
@@ -513,12 +497,16 @@ void store_astc_file(const astc_codec_image * input_image,
 }
 
 
-
 astc_codec_image *pack_and_unpack_astc_image(const astc_codec_image * input_image,
 											 int xdim,
 											 int ydim,
 											 int zdim,
-											 const error_weighting_params * ewp, astc_decode_mode decode_mode, swizzlepattern swz_encode, swizzlepattern swz_decode, int bitness, int threadcount)
+											 const error_weighting_params * ewp,
+											 astc_decode_mode decode_mode,
+											 swizzlepattern swz_encode,
+											 swizzlepattern swz_decode,
+											 int bitness,
+											 int threadcount)
 {
 	int xsize = input_image->xsize;
 	int ysize = input_image->ysize;
@@ -551,24 +539,19 @@ void find_closest_blockdim_2d(float target_bitrate, int *x, int *y, int consider
 
 	float best_error = 1000;
 	float aspect_of_best = 1;
-	int i, j;
 
 	// Y dimension
-	for (i = 0; i < 6; i++)
-	{
+	for (int i = 0; i < 6; i++) {
 		// X dimension
-		for (j = i; j < 6; j++)
-		{
+		for (int j = i; j < 6; j++) {
 			//              NxN       MxN         8x5               10x5              10x6
 			int is_legal = (j==i) || (j==i+1) || (j==3 && j==1) || (j==4 && j==1) || (j==4 && j==2);
 
-			if(consider_illegal || is_legal)
-			{
+			if (consider_illegal || is_legal) {
 				float bitrate = 128.0f / (blockdims[i] * blockdims[j]);
 				float bitrate_error = fabs(bitrate - target_bitrate);
 				float aspect = (float)blockdims[j] / blockdims[i];
-				if (bitrate_error < best_error || (bitrate_error == best_error && aspect < aspect_of_best))
-				{
+				if (bitrate_error < best_error || (bitrate_error == best_error && aspect < aspect_of_best)) {
 					*x = blockdims[j];
 					*y = blockdims[i];
 					best_error = bitrate_error;
@@ -580,30 +563,25 @@ void find_closest_blockdim_2d(float target_bitrate, int *x, int *y, int consider
 }
 
 
-
 void find_closest_blockdim_3d(float target_bitrate, int *x, int *y, int *z, int consider_illegal)
 {
 	int blockdims[4] = { 3, 4, 5, 6 };
 
 	float best_error = 1000;
 	float aspect_of_best = 1;
-	int i, j, k;
 
-	for (i = 0; i < 4; i++)	// Z
-		for (j = i; j < 4; j++) // Y
-			for (k = j; k < 4; k++) // X
-			{
+	for (int i = 0; i < 4; i++)	// Z
+		for (int j = i; j < 4; j++) // Y
+			for (int k = j; k < 4; k++) { // X
 				//              NxNxN              MxNxN                  MxMxN
 				int is_legal = ((k==j)&&(j==i)) || ((k==j+1)&&(j==i)) || ((k==j)&&(j==i+1));
 
-				if(consider_illegal || is_legal)
-				{
+				if (consider_illegal || is_legal) {
 					float bitrate = 128.0f / (blockdims[i] * blockdims[j] * blockdims[k]);
 					float bitrate_error = fabs(bitrate - target_bitrate);
 					float aspect = (float)blockdims[k] / blockdims[j] + (float)blockdims[j] / blockdims[i] + (float)blockdims[k] / blockdims[i];
 
-					if (bitrate_error < best_error || (bitrate_error == best_error && aspect < aspect_of_best))
-					{
+					if (bitrate_error < best_error || (bitrate_error == best_error && aspect < aspect_of_best)) {
 						*x = blockdims[k];
 						*y = blockdims[j];
 						*z = blockdims[i];
@@ -620,14 +598,12 @@ void compare_two_files(const char *filename1, const char *filename2, int low_fst
 	int load_result1;
 	int load_result2;
 	astc_codec_image *img1 = astc_codec_load_image(filename1, 0, &load_result1);
-	if (load_result1 < 0)
-	{
+	if (load_result1 < 0) {
 		printf("Failed to load file %s.\n", filename1);
 		exit(1);
 	}
 	astc_codec_image *img2 = astc_codec_load_image(filename2, 0, &load_result2);
-	if (load_result2 < 0)
-	{
+	if (load_result2 < 0) {
 		printf("Failed to load file %s.\n", filename2);
 		exit(1);
 	}
@@ -667,8 +643,7 @@ void test_inappropriate_extended_precision(void)
 	if32 p;
 	p.f = xprec_testval + 12582912.0f;
 	float q = p.f - 12582912.0f;
-	if (q != 3.0f)
-	{
+	if (q != 3.0f) {
 		printf("Single-precision test failed; please recompile with proper IEEE-754 support.\n");
 		exit(1);
 	}
@@ -677,7 +652,7 @@ void test_inappropriate_extended_precision(void)
 // Debug routine to dump the entire image if requested.
 void dump_image(astc_codec_image * img)
 {
-	int x, y, z, xdim, ydim, zdim;
+	int xdim, ydim, zdim;
 
 	printf("\n\nDumping image ( %d x %d x %d + %d)...\n\n", img->xsize, img->ysize, img->zsize, img->padding);
 
@@ -689,16 +664,13 @@ void dump_image(astc_codec_image * img)
 	ydim = img->ysize + 2 * img->padding;
 	xdim = img->xsize + 2 * img->padding;
 
-	for (z = 0; z < zdim; z++)
-	{
+	for (int z = 0; z < zdim; z++) {
 		if (z != 0)
 			printf("\n\n");
-		for (y = 0; y < ydim; y++)
-		{
+		for (int y = 0; y < ydim; y++) {
 			if (y != 0)
 				printf("\n");
-			for (x = 0; x < xdim; x++)
-			{
+			for (int x = 0; x < xdim; x++) {
 				printf("  0x%08X", *(int unsigned *)&img->imagedata8[z][y][x]);
 			}
 		}
@@ -720,8 +692,7 @@ int main(int argc, char **argv)
 		feenableexcept(FE_DIVBYZERO | FE_INVALID);
 	#endif
 
-	if (argc < 4)
-	{
+	if (argc < 4) {
 
 		printf(	"ASTC codec version 1.3\n"
 				"Copyright (C) 2011-2013 ARM Limited\n"
@@ -1168,58 +1139,37 @@ int main(int argc, char **argv)
 
 	astc_decode_mode decode_mode = DECODE_HDR;
 	int opmode;					// 0=compress, 1=decompress, 2=do both, 4=compare
-	if (!strcmp(argv[1], "-c"))
-	{
+	if (!strcmp(argv[1], "-c")) {
 		opmode = 0;
 		decode_mode = DECODE_HDR;
-	}
-	else if (!strcmp(argv[1], "-d"))
-	{
+	}else if (!strcmp(argv[1], "-d")) {
 		opmode = 1;
 		decode_mode = DECODE_HDR;
-	}
-	else if (!strcmp(argv[1], "-t"))
-	{
+	}else if (!strcmp(argv[1], "-t")) {
 		opmode = 2;
 		decode_mode = DECODE_HDR;
-	}
-	else if (!strcmp(argv[1], "-cs"))
-	{
+	}else if (!strcmp(argv[1], "-cs")) {
 		opmode = 0;
 		decode_mode = DECODE_LDR_SRGB;
-	}
-	else if (!strcmp(argv[1], "-ds"))
-	{
+	}else if (!strcmp(argv[1], "-ds")) {
 		opmode = 1;
 		decode_mode = DECODE_LDR_SRGB;
-	}
-	else if (!strcmp(argv[1], "-ts"))
-	{
+	}else if (!strcmp(argv[1], "-ts")) {
 		opmode = 2;
 		decode_mode = DECODE_LDR_SRGB;
-	}
-	else if (!strcmp(argv[1], "-cl"))
-	{
+	}else if (!strcmp(argv[1], "-cl")) {
 		opmode = 0;
 		decode_mode = DECODE_LDR;
-	}
-	else if (!strcmp(argv[1], "-dl"))
-	{
+	}else if (!strcmp(argv[1], "-dl")) {
 		opmode = 1;
 		decode_mode = DECODE_LDR;
-	}
-	else if (!strcmp(argv[1], "-tl"))
-	{
+	}else if (!strcmp(argv[1], "-tl")) {
 		opmode = 2;
 		decode_mode = DECODE_LDR;
-	}
-	else if (!strcmp(argv[1], "-compare"))
-	{
+	}else if (!strcmp(argv[1], "-compare")) {
 		opmode = 4;
 		decode_mode = DECODE_HDR;
-	}
-	else
-	{
+	}else {
 		printf("Unrecognized operation\n");
 		exit(1);
 	}
@@ -1312,27 +1262,20 @@ int main(int argc, char **argv)
 
 	// parse the commandline's encoding options.
 	int argidx;
-	if (opmode == 0 || opmode == 2)
-	{
-		if (argc < 5)
-		{
+	if (opmode == 0 || opmode == 2) {
+		if (argc < 5) {
 			printf("Cannot encode without specifying blocksize\n");
 			exit(1);
 		}
 
-		if (strchr(argv[4], '.') != NULL)
-		{
+		if (strchr(argv[4], '.') != NULL) {
 			target_bitrate = static_cast < float >(atof(argv[4]));
 			target_bitrate_set = 1;
 			find_closest_blockdim_2d(target_bitrate, &xdim_2d, &ydim_2d, DEBUG_ALLOW_ILLEGAL_BLOCK_SIZES);
 			find_closest_blockdim_3d(target_bitrate, &xdim_3d, &ydim_3d, &zdim_3d, DEBUG_ALLOW_ILLEGAL_BLOCK_SIZES);
-		}
-
-		else
-		{
+		}else {
 			int dimensions = sscanf(argv[4], "%dx%dx%d", &xdim_3d, &ydim_3d, &zdim_3d);
-			switch (dimensions)
-			{
+			switch (dimensions) {
 			case 0:
 			case 1:
 				// failed to parse the blocksize argument at all.
@@ -1344,8 +1287,8 @@ int main(int argc, char **argv)
 
 					// Check 2D constraints
 					if(!(xdim_3d ==4 || xdim_3d == 5 || xdim_3d == 6 || xdim_3d == 8 || xdim_3d == 10 || xdim_3d == 12) ||
-					   !(ydim_3d ==4 || ydim_3d == 5 || ydim_3d == 6 || ydim_3d == 8 || ydim_3d == 10 || ydim_3d == 12) )
-					{
+					   !(ydim_3d ==4 || ydim_3d == 5 || ydim_3d == 6 || ydim_3d == 8 || ydim_3d == 10 || ydim_3d == 12)
+					) {
 						printf("Block dimensions %d x %d unsupported\n", xdim_3d, ydim_3d);
 						exit(1);
 					}
@@ -1353,8 +1296,7 @@ int main(int argc, char **argv)
 					int is_legal_2d = (xdim_3d==ydim_3d) || (xdim_3d==ydim_3d+1) || ((xdim_3d==ydim_3d+2) && !(xdim_3d==6 && ydim_3d==4)) ||
 									  (xdim_3d==8 && ydim_3d==5) || (xdim_3d==10 && ydim_3d==5) || (xdim_3d==10 && ydim_3d==6);
 
-					if(!DEBUG_ALLOW_ILLEGAL_BLOCK_SIZES && !is_legal_2d)
-					{
+					if (!DEBUG_ALLOW_ILLEGAL_BLOCK_SIZES && !is_legal_2d) {
 						printf("Block dimensions %d x %d disallowed\n", xdim_3d, ydim_3d);
 						exit(1);
 					}
@@ -1364,16 +1306,14 @@ int main(int argc, char **argv)
 			default:
 				{
 					// Check 3D constraints
-					if(xdim_3d < 3 || xdim_3d > 6 || ydim_3d < 3 || ydim_3d > 6 || zdim_3d < 3 || zdim_3d > 6)
-					{
+					if (xdim_3d < 3 || xdim_3d > 6 || ydim_3d < 3 || ydim_3d > 6 || zdim_3d < 3 || zdim_3d > 6) {
 						printf("Block dimensions %d x %d x %d unsupported\n", xdim_3d, ydim_3d, zdim_3d);
 						exit(1);
 					}
 
 					int is_legal_3d = ((xdim_3d==ydim_3d)&&(ydim_3d==zdim_3d)) || ((xdim_3d==ydim_3d+1)&&(ydim_3d==zdim_3d)) || ((xdim_3d==ydim_3d)&&(ydim_3d==zdim_3d+1));
 
-					if(!DEBUG_ALLOW_ILLEGAL_BLOCK_SIZES && !is_legal_3d)
-					{
+					if (!DEBUG_ALLOW_ILLEGAL_BLOCK_SIZES && !is_legal_3d) {
 						printf("Block dimensions %d x %d x %d disallowed\n", xdim_3d, ydim_3d, zdim_3d);
 						exit(1);
 					}
@@ -1388,37 +1328,25 @@ int main(int argc, char **argv)
 		log10_texels_2d = log((float)(xdim_2d * ydim_2d)) / log(10.0f);
 		log10_texels_3d = log((float)(xdim_3d * ydim_3d * zdim_3d)) / log(10.0f);
 		argidx = 5;
-	}
-	else
-	{
+	}else {
 		// for decode and comparison, block size is not needed.
 		argidx = 4;
 	}
 
-
-	while (argidx < argc)
-	{
-		if (!strcmp(argv[argidx], "-silentmode"))
-		{
+	while (argidx < argc) {
+		if (!strcmp(argv[argidx], "-silentmode")) {
 			argidx++;
 			silentmode = 1;
 			suppress_progress_counter = 1;
-		}
-		else if (!strcmp(argv[argidx], "-time"))
-		{
+		}else if (!strcmp(argv[argidx], "-time")) {
 			argidx++;
 			timemode = 1;
-		}
-		else if (!strcmp(argv[argidx], "-showpsnr"))
-		{
+		}else if (!strcmp(argv[argidx], "-showpsnr")) {
 			argidx++;
 			psnrmode = 1;
-		}
-		else if (!strcmp(argv[argidx], "-v"))
-		{
+		}else if (!strcmp(argv[argidx], "-v")) {
 			argidx += 7;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-v switch with less than 6 arguments, quitting\n");
 				exit(1);
 			}
@@ -1428,12 +1356,9 @@ int main(int argc, char **argv)
 			ewp.rgb_mean_weight = static_cast < float >(atof(argv[argidx - 3]));
 			ewp.rgb_stdev_weight = static_cast < float >(atof(argv[argidx - 2]));
 			ewp.rgb_mean_and_stdev_mixing = static_cast < float >(atof(argv[argidx - 1]));
-		}
-		else if (!strcmp(argv[argidx], "-va"))
-		{
+		}else if (!strcmp(argv[argidx], "-va")) {
 			argidx += 5;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-va switch with less than 4 arguments, quitting\n");
 				exit(1);
 			}
@@ -1441,12 +1366,9 @@ int main(int argc, char **argv)
 			ewp.alpha_base_weight = static_cast < float >(atof(argv[argidx - 3]));
 			ewp.alpha_mean_weight = static_cast < float >(atof(argv[argidx - 2]));
 			ewp.alpha_stdev_weight = static_cast < float >(atof(argv[argidx - 1]));
-		}
-		else if (!strcmp(argv[argidx], "-ch"))
-		{
+		}else if (!strcmp(argv[argidx], "-ch")) {
 			argidx += 5;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-ch switch with less than 4 arguments\n");
 				exit(1);
 			}
@@ -1454,52 +1376,37 @@ int main(int argc, char **argv)
 			ewp.rgba_weights[1] = static_cast < float >(atof(argv[argidx - 3]));
 			ewp.rgba_weights[2] = static_cast < float >(atof(argv[argidx - 2]));
 			ewp.rgba_weights[3] = static_cast < float >(atof(argv[argidx - 1]));
-		}
-		else if (!strcmp(argv[argidx], "-a"))
-		{
+		}else if (!strcmp(argv[argidx], "-a")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-a switch with no argument\n");
 				exit(1);
 			}
 			ewp.enable_rgb_scale_with_alpha = 1;
 			ewp.alpha_radius = atoi(argv[argidx - 1]);
-		}
-		else if (!strcmp(argv[argidx], "-rn"))
-		{
+		}else if (!strcmp(argv[argidx], "-rn")) {
 			argidx++;
 			ewp.ra_normal_angular_scale = 1;
-		}
-
-		else if (!strcmp(argv[argidx], "-b"))
-		{
+		}else if (!strcmp(argv[argidx], "-b")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-b switch with no argument\n");
 				exit(1);
 			}
 			ewp.block_artifact_suppression = static_cast < float >(atof(argv[argidx - 1]));
-		}
-
-		else if (!strcmp(argv[argidx], "-esw"))
-		{
+		}else if (!strcmp(argv[argidx], "-esw")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-esw switch with no argument\n");
 				exit(1);
 			}
-			if (strlen(argv[argidx - 1]) != 4)
-			{
+			if (strlen(argv[argidx - 1]) != 4) {
 				printf("Swizzle pattern for the -esw switch must have exactly 4 characters\n");
 				exit(1);
 			}
 			int swizzle_components[4];
 			for (int i = 0; i < 4; i++)
-				switch (argv[argidx - 1][i])
-				{
+				switch (argv[argidx - 1][i]) {
 				case 'r':
 					swizzle_components[i] = 0;
 					break;
@@ -1526,25 +1433,19 @@ int main(int argc, char **argv)
 			swz_encode.g = swizzle_components[1];
 			swz_encode.b = swizzle_components[2];
 			swz_encode.a = swizzle_components[3];
-		}
-
-		else if (!strcmp(argv[argidx], "-dsw"))
-		{
+		}else if (!strcmp(argv[argidx], "-dsw")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-dsw switch with no argument\n");
 				exit(1);
 			}
-			if (strlen(argv[argidx - 1]) != 4)
-			{
+			if (strlen(argv[argidx - 1]) != 4) {
 				printf("Swizzle pattern for the -dsw switch must have exactly 4 characters\n");
 				exit(1);
 			}
 			int swizzle_components[4];
 			for (int i = 0; i < 4; i++)
-				switch (argv[argidx - 1][i])
-				{
+				switch (argv[argidx - 1][i]) {
 				case 'r':
 					swizzle_components[i] = 0;
 					break;
@@ -1575,11 +1476,8 @@ int main(int argc, char **argv)
 			swz_decode.b = swizzle_components[2];
 			swz_decode.a = swizzle_components[3];
 		}
-
-
 		// presets begin here
-		else if (!strcmp(argv[argidx], "-normal_psnr"))
-		{
+		else if (!strcmp(argv[argidx], "-normal_psnr")) {
 			argidx++;
 			ewp.rgba_weights[0] = 1.0f;
 			ewp.rgba_weights[1] = 0.0f;
@@ -1599,10 +1497,7 @@ int main(int argc, char **argv)
 			oplimit_set_by_user = 1;
 			mincorrel_user_specified = 0.99f;
 			mincorrel_set_by_user = 1;
-		}
-
-		else if (!strcmp(argv[argidx], "-normal_percep"))
-		{
+		}else if (!strcmp(argv[argidx], "-normal_percep")) {
 			argidx++;
 			ewp.rgba_weights[0] = 1.0f;
 			ewp.rgba_weights[1] = 0.0f;
@@ -1633,11 +1528,7 @@ int main(int argc, char **argv)
 			ewp.rgb_mean_and_stdev_mixing = 0.0;
 			ewp.alpha_mean_weight = 0;
 			ewp.alpha_stdev_weight = 50;
-		}
-
-
-		else if (!strcmp(argv[argidx], "-mask"))
-		{
+		}else if (!strcmp(argv[argidx], "-mask")) {
 			argidx++;
 			ewp.mean_stdev_radius = 3;
 			ewp.rgb_mean_weight = 0.0f;
@@ -1645,19 +1536,12 @@ int main(int argc, char **argv)
 			ewp.rgb_mean_and_stdev_mixing = 0.03f;
 			ewp.alpha_mean_weight = 0.0f;
 			ewp.alpha_stdev_weight = 25.0f;
-		}
-
-		else if (!strcmp(argv[argidx], "-alphablend"))
-		{
+		}else if (!strcmp(argv[argidx], "-alphablend")) {
 			argidx++;
 			ewp.enable_rgb_scale_with_alpha = 1;
 			ewp.alpha_radius = 1;
-		}
-
-		else if (!strcmp(argv[argidx], "-hdra"))
-		{
-			if(decode_mode != DECODE_HDR)
-			{
+		}else if (!strcmp(argv[argidx], "-hdra")) {
+			if (decode_mode != DECODE_HDR) {
 				printf("The option -hdra is only available in HDR mode\n");
 				exit(1);
 			}
@@ -1674,12 +1558,8 @@ int main(int argc, char **argv)
 			alpha_force_use_of_hdr = 1;
 			dblimit_user_specified = 999;
 			dblimit_set_by_user = 1;
-		}
-
-		else if (!strcmp(argv[argidx], "-hdr"))
-		{
-			if(decode_mode != DECODE_HDR)
-			{
+		}else if (!strcmp(argv[argidx], "-hdr")) {
+			if (decode_mode != DECODE_HDR) {
 				printf("The option -hdr is only available in HDR mode\n");
 				exit(1);
 			}
@@ -1694,12 +1574,8 @@ int main(int argc, char **argv)
 			alpha_force_use_of_hdr = 0;
 			dblimit_user_specified = 999;
 			dblimit_set_by_user = 1;
-		}
-
-		else if (!strcmp(argv[argidx], "-hdra_log"))
-		{
-			if(decode_mode != DECODE_HDR)
-			{
+		}else if (!strcmp(argv[argidx], "-hdra_log")) {
+			if (decode_mode != DECODE_HDR) {
 				printf("The option -hdra_log is only available in HDR mode\n");
 				exit(1);
 			}
@@ -1716,10 +1592,7 @@ int main(int argc, char **argv)
 			alpha_force_use_of_hdr = 1;
 			dblimit_user_specified = 999;
 			dblimit_set_by_user = 1;
-		}
-
-		else if (!strcmp(argv[argidx], "-hdr_log"))
-		{
+		}else if (!strcmp(argv[argidx], "-hdr_log")) {
 			argidx++;
 			ewp.mean_stdev_radius = 0;
 			ewp.rgb_power = 1;
@@ -1731,40 +1604,25 @@ int main(int argc, char **argv)
 			dblimit_user_specified = 999;
 			dblimit_set_by_user = 1;
 		}
-
-
 		// presets end here
-
-		else if (!strcmp(argv[argidx], "-forcehdr_rgb"))
-		{
-			if(decode_mode != DECODE_HDR)
-			{
+		else if (!strcmp(argv[argidx], "-forcehdr_rgb")) {
+ 			if (decode_mode != DECODE_HDR) {
 				printf("The option -forcehdr_rgb is only available in HDR mode\n");
 				exit(1);
 			}
-
 			argidx++;
 			rgb_force_use_of_hdr = 1;
-		}
-
-		else if (!strcmp(argv[argidx], "-forcehdr_rgba"))
-		{
-			if(decode_mode != DECODE_HDR)
-			{
+		}else if (!strcmp(argv[argidx], "-forcehdr_rgba")) {
+			if (decode_mode != DECODE_HDR) {
 				printf("The option -forcehdr_rgbs is only available in HDR mode\n");
 				exit(1);
 			}
-
 			argidx++;
 			rgb_force_use_of_hdr = 1;
 			alpha_force_use_of_hdr = 1;
-		}
-
-		else if (!strcmp(argv[argidx], "-bmc"))
-		{
+		}else if (!strcmp(argv[argidx], "-bmc")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-bmc switch with no argument\n");
 				exit(1);
 			}
@@ -1773,67 +1631,47 @@ int main(int argc, char **argv)
 				cutoff = 100;
 			bmc_user_specified = cutoff;
 			bmc_set_by_user = 1;
-		}
-
-		else if (!strcmp(argv[argidx], "-plimit"))
-		{
+		}else if (!strcmp(argv[argidx], "-plimit")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-plimit switch with no argument\n");
 				exit(1);
 			}
 			plimit_user_specified = atoi(argv[argidx - 1]);
 			plimit_set_by_user = 1;
-		}
-		else if (!strcmp(argv[argidx], "-dblimit"))
-		{
+		}else if (!strcmp(argv[argidx], "-dblimit")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-dblimit switch with no argument\n");
 				exit(1);
 			}
 			dblimit_user_specified = static_cast < float >(atof(argv[argidx - 1]));
 			dblimit_set_by_user = 1;
-		}
-		else if (!strcmp(argv[argidx], "-oplimit"))
-		{
+		}else if (!strcmp(argv[argidx], "-oplimit")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-oplimit switch with no argument\n");
 				exit(1);
 			}
 			oplimit_user_specified = static_cast < float >(atof(argv[argidx - 1]));
 			oplimit_set_by_user = 1;
-		}
-		else if (!strcmp(argv[argidx], "-mincorrel"))
-		{
+		}else if (!strcmp(argv[argidx], "-mincorrel")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-oplimit switch with no argument\n");
 				exit(1);
 			}
 			mincorrel_user_specified = static_cast < float >(atof(argv[argidx - 1]));
 			mincorrel_set_by_user = 1;
-		}
-		else if (!strcmp(argv[argidx], "-maxiters"))
-		{
+		}else if (!strcmp(argv[argidx], "-maxiters")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-maxiters switch with no argument\n");
 				exit(1);
 			}
 			maxiters_user_specified = atoi(argv[argidx - 1]);
 			maxiters_set_by_user = 1;
-		}
-
-
-		else if (!strcmp(argv[argidx], "-veryfast"))
-		{
+		}else if (!strcmp(argv[argidx], "-veryfast")) {
 			argidx++;
 			plimit_autoset = 2;
 			oplimit_autoset = 1.0;
@@ -1843,8 +1681,7 @@ int main(int argc, char **argv)
 			mincorrel_autoset = 0.5;
 			maxiters_autoset = 1;
 
-			switch (ydim_2d)
-			{
+			switch (ydim_2d) {
 			case 4:
 				pcdiv = 240;
 				break;
@@ -1868,10 +1705,7 @@ int main(int argc, char **argv)
 				break;
 			}
 			preset_has_been_set++;
-		}
-
-		else if (!strcmp(argv[argidx], "-fast"))
-		{
+		}else if (!strcmp(argv[argidx], "-fast")) {
 			argidx++;
 			plimit_autoset = 4;
 			oplimit_autoset = 1.0;
@@ -1880,10 +1714,7 @@ int main(int argc, char **argv)
 			dblimit_autoset_2d = MAX(85 - 35 * log10_texels_3d, 63 - 19 * log10_texels_3d);
 			bmc_autoset = 50;
 			maxiters_autoset = 1;
-
-
-			switch (ydim_2d)
-			{
+			switch (ydim_2d) {
 			case 4:
 				pcdiv = 60;
 				break;
@@ -1907,9 +1738,7 @@ int main(int argc, char **argv)
 				break;
 			};
 			preset_has_been_set++;
-		}
-		else if (!strcmp(argv[argidx], "-medium"))
-		{
+		}else if (!strcmp(argv[argidx], "-medium")) {
 			argidx++;
 			plimit_autoset = 25;
 			oplimit_autoset = 1.2f;
@@ -1919,8 +1748,7 @@ int main(int argc, char **argv)
 			bmc_autoset = 75;
 			maxiters_autoset = 2;
 
-			switch (ydim_2d)
-			{
+			switch (ydim_2d) {
 			case 4:
 				pcdiv = 25;
 				break;
@@ -1944,9 +1772,7 @@ int main(int argc, char **argv)
 				break;
 			};
 			preset_has_been_set++;
-		}
-		else if (!strcmp(argv[argidx], "-thorough"))
-		{
+		}else if (!strcmp(argv[argidx], "-thorough")) {
 			argidx++;
 			plimit_autoset = 100;
 			oplimit_autoset = 2.5f;
@@ -1956,8 +1782,7 @@ int main(int argc, char **argv)
 			bmc_autoset = 95;
 			maxiters_autoset = 4;
 
-			switch (ydim_2d)
-			{
+			switch (ydim_2d) {
 			case 4:
 				pcdiv = 12;
 				break;
@@ -1981,9 +1806,7 @@ int main(int argc, char **argv)
 				break;
 			};
 			preset_has_been_set++;
-		}
-		else if (!strcmp(argv[argidx], "-exhaustive"))
-		{
+		}else if (!strcmp(argv[argidx], "-exhaustive")) {
 			argidx++;
 			plimit_autoset = PARTITION_COUNT;
 			oplimit_autoset = 1000.0f;
@@ -1994,8 +1817,7 @@ int main(int argc, char **argv)
 			maxiters_autoset = 4;
 
 			preset_has_been_set++;
-			switch (ydim_2d)
-			{
+			switch (ydim_2d) {
 			case 4:
 				pcdiv = 3;
 				break;
@@ -2018,48 +1840,33 @@ int main(int argc, char **argv)
 				pcdiv = 1;
 				break;
 			}
-		}
-		else if (!strcmp(argv[argidx], "-j"))
-		{
+		}else if (!strcmp(argv[argidx], "-j")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-j switch with no argument\n");
 				exit(1);
 			}
 			thread_count = atoi(argv[argidx - 1]);
-		}
-
-		else if (!strcmp(argv[argidx], "-srgb"))
-		{
+		}else if (!strcmp(argv[argidx], "-srgb")) {
 			argidx++;
 			perform_srgb_transform = 1;
 			dblimit_user_specified = 60;
 			dblimit_set_by_user = 1;
-		}
-
-		else if (!strcmp(argv[argidx], "-mpsnr"))
-		{
+		}else if (!strcmp(argv[argidx], "-mpsnr")) {
 			argidx += 3;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-mpsnr switch with less than 2 arguments\n");
 				exit(1);
 			}
 			low_fstop = atoi(argv[argidx - 2]);
 			high_fstop = atoi(argv[argidx - 1]);
-			if (high_fstop < low_fstop)
-			{
+			if (high_fstop < low_fstop) {
 				printf("For -mpsnr switch, the <low> argument cannot be greater than the\n" "high argument.\n");
 				exit(1);
 			}
-		}
-
-		else if (!strcmp(argv[argidx], "-diag"))
-		{
+		}else if (!strcmp(argv[argidx], "-diag")) {
 			argidx += 2;
-			if (argidx > argc)
-			{
+			if (argidx > argc) {
 				printf("-diag switch with no argument\n");
 				exit(1);
 			}
@@ -2070,74 +1877,54 @@ int main(int argc, char **argv)
 				printf("-diag switch given, but codec has been compiled without\n" "DEBUG_PRINT_DIAGNOSTICS enabled; please recompile.\n");
 				exit(1);
 			#endif
-		}
-		else if (!strcmp(argv[argidx], "-bmstat"))
-		{
+		}else if (!strcmp(argv[argidx], "-bmstat")) {
 			argidx++;
 			print_block_mode_histogram = 1;
-		}
-		else if (!strcmp(argv[argidx], "-pte"))
-		{
+		}else if (!strcmp(argv[argidx], "-pte")) {
 			argidx++;
 			print_tile_errors = 1;
-		}
-		else if (!strcmp(argv[argidx], "-stats"))
-		{
+		}else if (!strcmp(argv[argidx], "-stats")) {
 			argidx++;
 			print_statistics = 1;
 		}
-
 		// Option: Encode a 3D image from an array of 2D images.
-		else if (!strcmp(argv[argidx], "-array"))
-		{
+		else if (!strcmp(argv[argidx], "-array")) {
 			// Only supports compressing (not decompressing or comparison).
-			if (opmode != 0)
-			{
+			if (opmode != 0) {
 				printf("-array switch given when not compressing files - decompression and comparison of arrays not supported.\n");
 				exit(1);
 			}
-
 			// Image depth must be specified.
-			if (argidx + 2 > argc)
-			{
+			if (argidx + 2 > argc) {
 				printf("-array switch given, but no array size (image depth) given.\n");
 				exit(1);
 			}
 			argidx++;
 
 			// Read array size (image depth).
-			if (!sscanf(argv[argidx], "%u", &array_size) || array_size == 0)
-			{
+			if (!sscanf(argv[argidx], "%u", &array_size) || array_size == 0) {
 				printf("Invalid array size (image depth) given with -array option: \"%s\".\n", argv[argidx]);
 				exit(1);
 			}
 			argidx++;
-		}
-
-		else
-		{
+		}else {
 			printf("Commandline argument \"%s\" not recognized\n", argv[argidx]);
 			exit(1);
 		}
 	}
 
-
-	if (opmode == 4)
-	{
+	if (opmode == 4) {
 		compare_two_files(input_filename, output_filename, low_fstop, high_fstop, psnrmode);
 		exit(0);
 	}
 
-
 	float texel_avg_error_limit_2d = 0.0f;
 	float texel_avg_error_limit_3d = 0.0f;
 
-	if (opmode == 0 || opmode == 2)
-	{
+	if (opmode == 0 || opmode == 2) {
 		// if encode, process the parsed commandline values
 
-		if (preset_has_been_set != 1)
-		{
+		if (preset_has_been_set != 1) {
 			printf("For encoding, need to specify exactly one performace-quality\n"
 				   "tradeoff preset option. The available presets are:\n" " -veryfast\n" " -fast\n" " -medium\n" " -thorough\n" " -exhaustive\n");
 			exit(1);
@@ -2156,13 +1943,10 @@ int main(int argc, char **argv)
 
 		ewp.block_mode_cutoff = (bmc_set_by_user ? bmc_user_specified : bmc_autoset) / 100.0f;
 
-		if (rgb_force_use_of_hdr == 0)
-		{
+		if (rgb_force_use_of_hdr == 0) {
 			texel_avg_error_limit_2d = pow(0.1f, dblimit_2d * 0.1f) * 65535.0f * 65535.0f;
 			texel_avg_error_limit_3d = pow(0.1f, dblimit_3d * 0.1f) * 65535.0f * 65535.0f;
-		}
-		else
-		{
+		}else {
 			texel_avg_error_limit_2d = 0.0f;
 			texel_avg_error_limit_3d = 0.0f;
 		}
@@ -2180,18 +1964,16 @@ int main(int argc, char **argv)
 			#ifdef DEBUG_PRINT_DIAGNOSTICS
 			   diagnostics_tile >= 0 ||
 			#endif
-			   print_tile_errors > 0 || print_statistics > 0)
-		{
+			   print_tile_errors > 0 || print_statistics > 0
+		) {
 			thread_count = 1;
 			thread_count_autodetected = 0;
 		}
 
-		if (thread_count < 1)
-		{
+		if (thread_count < 1) {
 			thread_count = get_number_of_cpus();
 			thread_count_autodetected = 1;
 		}
-
 
 		// Specifying the error weight of a color component as 0 is not allowed.
 		// If weights are 0, then they are instead set to a small positive value.
@@ -2203,10 +1985,8 @@ int main(int argc, char **argv)
 		ewp.rgba_weights[2] = MAX(ewp.rgba_weights[2], max_color_component_weight / 1000.0f);
 		ewp.rgba_weights[3] = MAX(ewp.rgba_weights[3], max_color_component_weight / 1000.0f);
 
-
 		// print all encoding settings unless specifically told otherwise.
-		if (!silentmode)
-		{
+		if (!silentmode) {
 			printf("Encoding settings:\n\n");
 			if (target_bitrate_set)
 				printf("Target bitrate provided: %.2f bpp\n", target_bitrate);
@@ -2242,15 +2022,13 @@ int main(int argc, char **argv)
 
 	}
 
-
 	int padding = MAX(ewp.mean_stdev_radius, ewp.alpha_radius);
 
 	// determine encoding bitness as follows:
 	// if enforced by the output format, follow the output format's result
 	// else use decode_mode to pick bitness.
 	int bitness = get_output_filename_enforced_bitness(output_filename);
-	if (bitness == -1)
-	{
+	if (bitness == -1) {
 		bitness = (decode_mode == DECODE_HDR) ? 16 : 8;
 	}
 
@@ -2270,29 +2048,23 @@ int main(int argc, char **argv)
 	int input_image_is_hdr = 0;
 
 	// load image
-	if (opmode == 0 || opmode == 2 || opmode == 3)
-	{
+	if (opmode == 0 || opmode == 2 || opmode == 3) {
 		// Allocate arrays for image data and load results.
 		load_results = new int[array_size];
 		input_images = new astc_codec_image *[array_size];
 
 		// Iterate over all input images.
-		for (int image_index = 0; image_index < array_size; image_index++)
-		{
+		for (int image_index = 0; image_index < array_size; image_index++) {
 			// 2D input data.
-			if (array_size == 1)
-			{
+			if (array_size == 1) {
 				input_images[image_index] = astc_codec_load_image(input_filename, padding, &load_results[image_index]);
 			}
-
 			// 3D input data - multiple 2D images.
-			else
-			{
+			else {
 				char new_input_filename[256];
 
 				// Check for extension: <name>.<extension>
-				if (NULL == strrchr(input_filename, '.'))
-				{
+				if (NULL == strrchr(input_filename, '.')) {
 					printf("Unable to determine file type from extension: %s\n", input_filename);
 					exit(1);
 				}
@@ -2303,8 +2075,7 @@ int main(int argc, char **argv)
 				input_images[image_index] = astc_codec_load_image(new_input_filename, padding, &load_results[image_index]);
 
 				// Check image is not 3D.
-				if (input_images[image_index]->zsize != 1)
-				{
+				if (input_images[image_index]->zsize != 1) {
 					printf("3D source images not supported with -array option: %s\n", new_input_filename);
 					exit(1);
 				}
@@ -2316,15 +2087,13 @@ int main(int argc, char **argv)
 			}
 
 			// Check load result.
-			if (load_results[image_index] < 0)
-			{
+			if (load_results[image_index] < 0) {
 				printf("Failed to load image %s\n", input_filename);
 				exit(1);
 			}
 
 			// Check format matches other slices.
-			if (load_results[image_index] != load_results[0])
-			{
+			if (load_results[image_index] != load_results[0]) {
 				printf("Mismatching image format - image 0 and %d are a different format\n", image_index);
 				exit(1);
 			}
@@ -2333,15 +2102,12 @@ int main(int argc, char **argv)
 		load_result = load_results[0];
 
 		// Assign input image.
-		if (array_size == 1)
-		{
+		if (array_size == 1) {
 			input_image = input_images[0];
 		}
-
 		// Merge input image data.
-		else
-		{
-			int i, z, xsize, ysize, zsize, bitness, slice_size;
+		else {
+			int xsize, ysize, zsize, bitness, slice_size;
 
 			xsize = input_images[0]->xsize;
 			ysize = input_images[0]->ysize;
@@ -2353,21 +2119,16 @@ int main(int argc, char **argv)
 			input_image = allocate_image(bitness, xsize, ysize, zsize, padding);
 
 			// Combine 2D source images into one 3D image (skip padding slices as these don't exist in 2D textures).
-			for (z = padding; z < zsize + padding; z++)
-			{
-				if (bitness == 8)
-				{
+			for (int z = padding; z < zsize + padding; z++) {
+				if (bitness == 8) {
 					memcpy(*input_image->imagedata8[z], *input_images[z - padding]->imagedata8[0], slice_size * 4 * sizeof(uint8_t));
-				}
-				else
-				{
+				}else {
 					memcpy(*input_image->imagedata16[z], *input_images[z - padding]->imagedata16[0], slice_size * 4 * sizeof(uint16_t));
 				}
 			}
 
 			// Clean up temporary images.
-			for (i = 0; i < array_size; i++)
-			{
+			for (int i = 0; i < array_size; i++) {
 				destroy_image(input_images[i]);
 			}
 			input_images = NULL;
@@ -2382,15 +2143,12 @@ int main(int argc, char **argv)
 		input_components = load_result & 7;
 		input_image_is_hdr = (load_result & 0x80) ? 1 : 0;
 
-		if (input_image->zsize > 1)
-		{
+		if (input_image->zsize > 1) {
 			xdim = xdim_3d;
 			ydim = ydim_3d;
 			zdim = zdim_3d;
 			ewp.texel_avg_error_limit = texel_avg_error_limit_3d;
-		}
-		else
-		{
+		}else {
 			xdim = xdim_2d;
 			ydim = ydim_2d;
 			zdim = 1;
@@ -2399,82 +2157,63 @@ int main(int argc, char **argv)
 		expand_block_artifact_suppression(xdim, ydim, zdim, &ewp);
 
 
-		if (!silentmode)
-		{
+		if (!silentmode) {
 			printf("%s: %dD %s image, %d x %d x %d, %d components\n\n",
 				   input_filename, input_image->zsize > 1 ? 3 : 2, input_image_is_hdr ? "HDR" : "LDR", input_image->xsize, input_image->ysize, input_image->zsize, load_result & 7);
 		}
 
-		if (padding > 0 || ewp.rgb_mean_weight != 0.0f || ewp.rgb_stdev_weight != 0.0f || ewp.alpha_mean_weight != 0.0f || ewp.alpha_stdev_weight != 0.0f)
-		{
-			if (!silentmode)
-			{
+		if (padding > 0 || ewp.rgb_mean_weight != 0.0f || ewp.rgb_stdev_weight != 0.0f || ewp.alpha_mean_weight != 0.0f || ewp.alpha_stdev_weight != 0.0f) {
+			if (!silentmode) {
 				printf("Computing texel-neigborhood means and variances ... ");
 				fflush(stdout);
 			}
 			compute_averages_and_variances(input_image, ewp.rgb_power, ewp.alpha_power, ewp.mean_stdev_radius, ewp.alpha_radius, swz_encode);
-			if (!silentmode)
-			{
+			if (!silentmode) {
 				printf("done\n");
 				fflush(stdout);
 			}
 		}
 	}
 
-
 	start_coding_time = get_time();
 
 	if (opmode == 1)
 		output_image = load_astc_file(input_filename, bitness, decode_mode, swz_decode);
 
-
 	// process image, if relevant
 	if (opmode == 2)
 		output_image = pack_and_unpack_astc_image(input_image, xdim, ydim, zdim, &ewp, decode_mode, swz_encode, swz_decode, bitness, thread_count);
 
-
 	end_coding_time = get_time();
 
-
 	// print PSNR if encoding
-	if (opmode == 2)
-	{
-		if (psnrmode == 1)
-		{
+	if (opmode == 2) {
+		if (psnrmode == 1) {
 			compute_error_metrics(input_image_is_hdr, input_components, input_image, output_image, low_fstop, high_fstop, psnrmode);
 		}
 	}
 
-
 	// store image
-	if (opmode == 1 || opmode == 2)
-	{
+	if (opmode == 1 || opmode == 2) {
 		int store_result = -1;
 		const char *format_string = "";
 
 		store_result = astc_codec_store_image(output_image, output_filename, bitness, &format_string);
 
-		if (store_result < 0)
-		{
+		if (store_result < 0) {
 			printf("Failed to store image %s\n", output_filename);
 			exit(1);
-		}
-		else
-		{
-			if (!silentmode)
-			{
+		}else {
+			if (!silentmode) {
 				printf("Stored %s image %s with %d color channels\n", format_string, output_filename, store_result);
 			}
 		}
 	}
-	if (opmode == 0)
-	{
+	if (opmode == 0) {
 		store_astc_file(input_image, output_filename, xdim, ydim, zdim, &ewp, decode_mode, swz_encode, thread_count);
 	}
 
-
-	if (print_block_mode_histogram)
-	{
+	if (print_block_mode_histogram) {
 		printf("%s ", argv[2]);
 		printf("%d %d  ", xdim_2d, ydim_2d);
 		for (int i = 0; i < 2048; i++)
@@ -2482,13 +2221,12 @@ int main(int argc, char **argv)
 		printf("\n");
 	}
 
-
 	end_time = get_time();
 
-	if (timemode)
-	{
+	if (timemode) {
 		printf("\nElapsed time: %.2lf seconds, of which coding time: %.2lf seconds\n", end_time - start_time, end_coding_time - start_coding_time);
 	}
 
 	return 0;
 }
+

@@ -71,16 +71,13 @@ static void compute_alpha_minmax(int xdim, int ydim, int zdim, const partition_i
 
 	int texels_per_block = xdim * ydim * zdim;
 
-	for (int i = 0; i < partition_count; i++)
-	{
+	for (int i = 0; i < partition_count; i++) {
 		alpha_min[i] = 1e38f;
 		alpha_max[i] = -1e38f;
 	}
 
-	for (int i = 0; i < texels_per_block; i++)
-	{
-		if (ewb->texel_weight[i] > 1e-10)
-		{
+	for (int i = 0; i < texels_per_block; i++) {
+		if (ewb->texel_weight[i] > 1e-10) {
 			int partition = pt->partition_of_texel[i];
 			float alphaval = blk->work_data[4 * i + 3];
 			if (alphaval > alpha_max[partition])
@@ -90,10 +87,8 @@ static void compute_alpha_minmax(int xdim, int ydim, int zdim, const partition_i
 		}
 	}
 
-	for (int i = 0; i < partition_count; i++)
-	{
-		if (alpha_min[i] >= alpha_max[i])
-		{
+	for (int i = 0; i < partition_count; i++) {
+		if (alpha_min[i] >= alpha_max[i]) {
 			alpha_min[i] = 0;
 			alpha_max[i] = 1e-10f;
 		}
@@ -105,13 +100,19 @@ static void compute_rgb_minmax(int xdim,
 							   int ydim,
 							   int zdim,
 							   const partition_info * pt,
-							   const imageblock * blk, const error_weight_block * ewb, float *red_min, float *red_max, float *green_min, float *green_max, float *blue_min, float *blue_max)
+							   const imageblock * blk,
+							   const error_weight_block * ewb,
+							   float *red_min,
+							   float *red_max,
+							   float *green_min,
+							   float *green_max,
+							   float *blue_min,
+							   float *blue_max)
 {
 	int partition_count = pt->partition_count;
 	int texels_per_block = xdim * ydim * zdim;
 
-	for (int i = 0; i < partition_count; i++)
-	{
+	for (int i = 0; i < partition_count; i++) {
 		red_min[i] = 1e38f;
 		red_max[i] = -1e38f;
 		green_min[i] = 1e38f;
@@ -120,10 +121,8 @@ static void compute_rgb_minmax(int xdim,
 		blue_max[i] = -1e38f;
 	}
 
-	for (int i = 0; i < texels_per_block; i++)
-	{
-		if (ewb->texel_weight[i] > 1e-10f)
-		{
+	for (int i = 0; i < texels_per_block; i++) {
+		if (ewb->texel_weight[i] > 1e-10f) {
 			int partition = pt->partition_of_texel[i];
 			float redval = blk->work_data[4 * i];
 			float greenval = blk->work_data[4 * i + 1];
@@ -142,26 +141,21 @@ static void compute_rgb_minmax(int xdim,
 				blue_min[partition] = blueval;
 		}
 	}
-	for (int i = 0; i < partition_count; i++)
-	{
-		if (red_min[i] >= red_max[i])
-		{
+	for (int i = 0; i < partition_count; i++) {
+		if (red_min[i] >= red_max[i]) {
 			red_min[i] = 0.0f;
 			red_max[i] = 1e-10f;
 		}
-		if (green_min[i] >= green_max[i])
-		{
+		if (green_min[i] >= green_max[i]) {
 			green_min[i] = 0.0f;
 			green_max[i] = 1e-10f;
 		}
-		if (blue_min[i] >= blue_max[i])
-		{
+		if (blue_min[i] >= blue_max[i]) {
 			blue_min[i] = 0.0f;
 			blue_max[i] = 1e-10f;
 		}
 	}
 }
-
 
 
 void compute_partition_error_color_weightings(int xdim, int ydim, int zdim, const error_weight_block * ewb, const partition_info * pi, float4 error_weightings[4], float4 color_scalefactors[4])
@@ -170,17 +164,14 @@ void compute_partition_error_color_weightings(int xdim, int ydim, int zdim, cons
 	int pcnt = pi->partition_count;
 	for (int i = 0; i < pcnt; i++)
 		error_weightings[i] = float4(1e-12f, 1e-12f, 1e-12f, 1e-12f);
-	for (int i = 0; i < texels_per_block; i++)
-	{
+	for (int i = 0; i < texels_per_block; i++) {
 		int part = pi->partition_of_texel[i];
 		error_weightings[part] = error_weightings[part] + ewb->error_weights[i];
 	}
-	for (int i = 0; i < pcnt; i++)
-	{
+	for (int i = 0; i < pcnt; i++) {
 		error_weightings[i] = error_weightings[i] * (1.0f / pi->texels_per_partition[i]);
 	}
-	for (int i = 0; i < pcnt; i++)
-	{
+	for (int i = 0; i < pcnt; i++) {
 		color_scalefactors[i].x = sqrt(error_weightings[i].x);
 		color_scalefactors[i].y = sqrt(error_weightings[i].y);
 		color_scalefactors[i].z = sqrt(error_weightings[i].z);
@@ -203,10 +194,6 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 							 // best partitionings to use if using dual plane of weightss
 							 int *best_partitions_dual_weight_planes)
 {
-
-
-	int i, j;
-
 	int texels_per_block = xdim * ydim * zdim;
 
 	// constant used to estimate quantization error for a given partitioning;
@@ -224,11 +211,9 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 	else
 		weight_imprecision_estim = 0.055f;
 
-
 	int partition_sequence[PARTITION_COUNT];
 
 	kmeans_compute_partition_ordering(xdim, ydim, zdim, partition_count, pb, partition_sequence);
-
 
 	float weight_imprecision_estim_squared = weight_imprecision_estim * weight_imprecision_estim;
 
@@ -258,21 +243,18 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 
 	int defacto_search_limit = PARTITION_COUNT - 1;
 
-	if (uses_alpha)
-	{
+	if (uses_alpha) {
 
 		#ifdef DEBUG_PRINT_DIAGNOSTICS
 			if (print_diagnostics)
 				printf("Partition testing with alpha, %d partitions\n\n", partition_count);
 		#endif
 
-		for (i = 0; i < PARTITION_COUNT; i++)
-		{
+		for (int i = 0; i < PARTITION_COUNT; i++) {
 			int partition = partition_sequence[i];
 			int bk_partition_count = ptab[partition].partition_count;
 
-			if (bk_partition_count < partition_count)
-			{
+			if (bk_partition_count < partition_count) {
 				#ifdef DEBUG_PRINT_DIAGNOSTICS
 					if (print_diagnostics)
 						printf("Partitioning %d-%d: invalid\n", partition_count, partition);
@@ -288,8 +270,7 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 			}
 			// the sentinel value for partitions above the search limit must be smaller
 			// than the sentinel value for invalid partitions
-			if (i >= partition_search_limit)
-			{
+			if (i >= partition_search_limit) {
 				#ifdef DEBUG_PRINT_DIAGNOSTICS
 					if (print_diagnostics)
 						printf("Partitioning %d-%d: excluded from testing\n", partition_count, partition);
@@ -313,8 +294,7 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 			float4 inverse_color_scalefactors[4];
 			compute_partition_error_color_weightings(xdim, ydim, zdim, ewb, ptab + partition, error_weightings, color_scalefactors);
 
-			for (j = 0; j < partition_count; j++)
-			{
+			for (int j = 0; j < partition_count; j++) {
 				inverse_color_scalefactors[j].x = 1.0f / MAX(color_scalefactors[j].x, 1e-7f);
 				inverse_color_scalefactors[j].y = 1.0f / MAX(color_scalefactors[j].y, 1e-7f);
 				inverse_color_scalefactors[j].z = 1.0f / MAX(color_scalefactors[j].z, 1e-7f);
@@ -351,10 +331,7 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 			float separate_blue_linelengths[4];
 			float separate_alpha_linelengths[4];
 
-
-
-			for (j = 0; j < partition_count; j++)
-			{
+			for (int j = 0; j < partition_count; j++) {
 				uncorr_lines[j].a = averages[j];
 				if (dot(directions_rgba[j], directions_rgba[j]) == 0.0f)
 					uncorr_lines[j].b = normalize(float4(1, 1, 1, 1));
@@ -477,8 +454,7 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 			      then multiply by the number of texels.
 			 */
 
-			for (j = 0; j < partition_count; j++)
-			{
+			for (int j = 0; j < partition_count; j++) {
 				float tpp = (float)(ptab[partition].texels_per_partition[j]);
 
 				float4 ics = inverse_color_scalefactors[j];
@@ -531,25 +507,19 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 					printf("Partitioning %d-%d errors: uncorr=%g, samechroma=%g, sep-alpha=%g\n", partition_count, i, uncorr_error, samechroma_error, separate_alpha_error);
 			#endif
 		}
-	}
-	else
-	{
+	}else {
 
 		#ifdef DEBUG_PRINT_DIAGNOSTICS
 			if (print_diagnostics)
 				printf("Partition testing without alpha, %d partitions\n", partition_count);
 		#endif
 
-
-
-		for (i = 0; i < PARTITION_COUNT; i++)
-		{
+		for (int i = 0; i < PARTITION_COUNT; i++) {
 
 			int partition = partition_sequence[i];
 
 			int bk_partition_count = ptab[partition].partition_count;
-			if (bk_partition_count < partition_count)
-			{
+			if (bk_partition_count < partition_count) {
 				#ifdef DEBUG_PRINT_DIAGNOSTICS
 					if (print_diagnostics)
 						printf("Partitioning %d-%d: invalid\n", partition_count, i);
@@ -564,8 +534,7 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 			}
 			// the sentinel value for valid partitions above the search limit must be smaller
 			// than the sentinel value for invalid partitions
-			if (i >= partition_search_limit)
-			{
+			if (i >= partition_search_limit) {
 				#ifdef DEBUG_PRINT_DIAGNOSTICS
 					if (print_diagnostics)
 						printf(" Partitioning %d-%d: excluded from testing\n", partition_count, partition);
@@ -589,8 +558,7 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 
 			compute_partition_error_color_weightings(xdim, ydim, zdim, ewb, ptab + partition, error_weightings, color_scalefactors);
 
-			for (j = 0; j < partition_count; j++)
-			{
+			for (int j = 0; j < partition_count; j++) {
 				inverse_color_scalefactors[j].x = 1.0f / MAX(color_scalefactors[j].x, 1e-7f);
 				inverse_color_scalefactors[j].y = 1.0f / MAX(color_scalefactors[j].y, 1e-7f);
 				inverse_color_scalefactors[j].z = 1.0f / MAX(color_scalefactors[j].z, 1e-7f);
@@ -624,14 +592,12 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 			float separate_green_linelengths[4];
 			float separate_blue_linelengths[4];
 
-			for (j = 0; j < partition_count; j++)
-			{
+			for (int j = 0; j < partition_count; j++) {
 				uncorr_lines[j].a = averages[j];
 				if (dot(directions_rgb[j], directions_rgb[j]) == 0.0f)
 					uncorr_lines[j].b = normalize(float3(1, 1, 1));
 				else
 					uncorr_lines[j].b = normalize(directions_rgb[j]);
-
 
 				samechroma_lines[j].a = float3(0, 0, 0);
 
@@ -732,8 +698,7 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 			 */
 
 
-			for (j = 0; j < partition_count; j++)
-			{
+			for (int j = 0; j < partition_count; j++) {
 				float tpp = (float)(ptab[partition].texels_per_partition[j]);
 
 				float3 ics = inverse_color_scalefactors[j].xyz;
@@ -787,17 +752,13 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 		}
 	}
 
-
-	for (i = 0; i < candidates_to_return; i++)
-	{
+	for (int i = 0; i < candidates_to_return; i++) {
 		int best_uncorr_partition = 0;
 		int best_samechroma_partition = 0;
 		float best_uncorr_error = 1e30f;
 		float best_samechroma_error = 1e30f;
-		for (j = 0; j <= defacto_search_limit; j++)
-		{
-			if (uncorr_errors[j] < best_uncorr_error)
-			{
+		for (int j = 0; j <= defacto_search_limit; j++) {
+			if (uncorr_errors[j] < best_uncorr_error) {
 				best_uncorr_partition = j;
 				best_uncorr_error = uncorr_errors[j];
 			}
@@ -806,10 +767,8 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 		uncorr_errors[best_uncorr_partition] = 1e30f;
 		samechroma_errors[best_uncorr_partition] = 1e30f;
 
-		for (j = 0; j <= defacto_search_limit; j++)
-		{
-			if (samechroma_errors[j] < best_samechroma_error)
-			{
+		for (int j = 0; j <= defacto_search_limit; j++) {
+			if (samechroma_errors[j] < best_samechroma_error) {
 				best_samechroma_partition = j;
 				best_samechroma_error = samechroma_errors[j];
 			}
@@ -819,35 +778,27 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 		uncorr_errors[best_samechroma_partition] = 1e30f;
 	}
 
-	for (i = 0; i < 2 * candidates_to_return; i++)
-	{
+	for (int i = 0; i < 2 * candidates_to_return; i++) {
 		int best_partition = 0;
 		float best_partition_error = 1e30f;
 
-		for (j = 0; j < defacto_search_limit; j++)
-		{
-			if (1 || !uses_alpha)
-			{
-				if (separate_errors[j] < best_partition_error)
-				{
+		for (int j = 0; j < defacto_search_limit; j++) {
+			if (1 || !uses_alpha) {
+				if (separate_errors[j] < best_partition_error) {
 					best_partition = j;
 					best_partition_error = separate_errors[j];
 				}
-				if (separate_errors[j + PARTITION_COUNT] < best_partition_error)
-				{
+				if (separate_errors[j + PARTITION_COUNT] < best_partition_error) {
 					best_partition = j + PARTITION_COUNT;
 					best_partition_error = separate_errors[j + PARTITION_COUNT];
 				}
-				if (separate_errors[j + 2 * PARTITION_COUNT] < best_partition_error)
-				{
+				if (separate_errors[j + 2 * PARTITION_COUNT] < best_partition_error) {
 					best_partition = j + 2 * PARTITION_COUNT;
 					best_partition_error = separate_errors[j + 2 * PARTITION_COUNT];
 				}
 			}
-			if (uses_alpha)
-			{
-				if (separate_errors[j + 3 * PARTITION_COUNT] < best_partition_error)
-				{
+			if (uses_alpha) {
+				if (separate_errors[j + 3 * PARTITION_COUNT] < best_partition_error) {
 					best_partition = j + 3 * PARTITION_COUNT;
 					best_partition_error = separate_errors[j + 3 * PARTITION_COUNT];
 				}
@@ -860,3 +811,4 @@ void find_best_partitionings(int partition_search_limit, int xdim, int ydim, int
 	}
 
 }
+

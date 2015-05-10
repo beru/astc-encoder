@@ -261,7 +261,9 @@ float determinant(mat4 p)
 {
 	return dot(p.v[0],
 			   float4(dot(p.v[1].yzw, cross(p.v[2].yzw, p.v[3].yzw)),
-					  -dot(p.v[1].xzw, cross(p.v[2].xzw, p.v[3].xzw)), dot(p.v[1].xyw, cross(p.v[2].xyw, p.v[3].xyw)), -dot(p.v[1].xyz, cross(p.v[2].xyz, p.v[3].xyz))));
+					  -dot(p.v[1].xzw, cross(p.v[2].xzw, p.v[3].xzw)),
+					  dot(p.v[1].xyw, cross(p.v[2].xyw, p.v[3].xyw)),
+					  -dot(p.v[1].xyz, cross(p.v[2].xyz, p.v[3].xyz))));
 }
 
 
@@ -289,7 +291,8 @@ float4 characteristic_poly(mat4 p)
 
 	return float4(determinant(p),
 				  -dot(p.v[1].yzw, cross(p.v[2].yzw, p.v[3].yzw))
-				  - dot(p.v[0].xzw, cross(p.v[2].xzw, p.v[3].xzw)) - dot(p.v[0].xyw, cross(p.v[1].xyw, p.v[3].xyw)) - dot(p.v[0].xyz, cross(p.v[1].xyz, p.v[2].xyz)), v1.x - v1.y, -trace(p));
+				  - dot(p.v[0].xzw, cross(p.v[2].xzw, p.v[3].xzw)) - dot(p.v[0].xyw, cross(p.v[1].xyw, p.v[3].xyw)) - dot(p.v[0].xyz, cross(p.v[1].xyz, p.v[2].xyz)),
+				  v1.x - v1.y, -trace(p));
 }
 
 
@@ -340,16 +343,13 @@ float3 solve_monic(float3 p)
 	float nq3 = nq * nq * nq;	// div scal^6
 	float r2 = r * r;			// div scal^6
 
-	if (nq3 < r2)
-	{
+	if (nq3 < r2) {
 		// one root
 		float root = sqrt(r2 - nq3);	// div scal^3
 		float s = static_cast < float >(cbrt(r + root));	// div scal
 		float t = static_cast < float >(cbrt(r - root));	// div scal
 		return float3((s + t) * scal - pz, nan(0), nan(0));
-	}
-	else
-	{
+	}else {
 		// three roots
 		float phi_r = inversesqrt(nq3);	// div scal ^ -3
 		float phi_root = static_cast < float >(cbrt(phi_r * nq3));	// div scal

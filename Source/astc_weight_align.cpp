@@ -104,15 +104,12 @@ static float cos_table[SINCOS_STEPS][ANGULAR_STEPS];
 
 void prepare_angular_tables(void)
 {
-	int i, j;
 	int max_angular_steps_needed_for_quant_steps[40];
-	for (i = 0; i < ANGULAR_STEPS; i++)
-	{
+	for (int i = 0; i < ANGULAR_STEPS; i++) {
 		stepsizes[i] = 1.0f / angular_steppings[i];
 		stepsizes_sqr[i] = stepsizes[i] * stepsizes[i];
 
-		for (j = 0; j < SINCOS_STEPS; j++)
-		{
+		for (int j = 0; j < SINCOS_STEPS; j++) {
 			sin_table[j][i] = static_cast < float >(sin((2.0f * M_PI / (SINCOS_STEPS - 1.0f)) * angular_steppings[i] * j));
 			cos_table[j][i] = static_cast < float >(cos((2.0f * M_PI / (SINCOS_STEPS - 1.0f)) * angular_steppings[i] * j));
 		}
@@ -127,7 +124,7 @@ void prepare_angular_tables(void)
 	// weight space, so we are better off matching 33 weights than 32.
 	static const int steps_of_level[] = { 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 33, 36 };
 
-	for (i = 0; i < 13; i++)
+	for (int i = 0; i < 13; i++)
 		max_angular_steps_needed_for_quant_level[i] = max_angular_steps_needed_for_quant_steps[steps_of_level[i]];
 
 }
@@ -147,21 +144,17 @@ union if32
 /* static inline */
 void compute_angular_offsets(int samplecount, const float *samples, const float *sample_weights, int max_angular_steps, float *offsets)
 {
-	int i, j;
-
 	float anglesum_x[ANGULAR_STEPS];
 	float anglesum_y[ANGULAR_STEPS];
 
-	for (i = 0; i < max_angular_steps; i++)
-	{
+	for (int i = 0; i < max_angular_steps; i++) {
 		anglesum_x[i] = 0;
 		anglesum_y[i] = 0;
 	}
 
 
 	// compute the angle-sums.
-	for (i = 0; i < samplecount; i++)
-	{
+	for (int i = 0; i < samplecount; i++) {
 		float sample = samples[i];
 		float sample_weight = sample_weights[i];
 		if32 p;
@@ -171,8 +164,7 @@ void compute_angular_offsets(int samplecount, const float *samples, const float 
 		const float *sinptr = sin_table[isample];
 		const float *cosptr = cos_table[isample];
 
-		for (j = 0; j < max_angular_steps; j++)
-		{
+		for (int j = 0; j < max_angular_steps; j++) {
 			float cp = cosptr[j];
 			float sp = sinptr[j];
 
@@ -182,13 +174,11 @@ void compute_angular_offsets(int samplecount, const float *samples, const float 
 	}
 
 	// postprocess the angle-sums
-	for (i = 0; i < max_angular_steps; i++)
-	{
+	for (int i = 0; i < max_angular_steps; i++) {
 		float angle = atan2(anglesum_y[i], anglesum_x[i]);	// positive angle -> positive offset
 		offsets[i] = angle * (stepsizes[i] * (1.0f / (2.0f * (float)M_PI)));
 	}
 }
-
 
 
 // for a given step-size and a given offset, compute the
@@ -202,12 +192,9 @@ void compute_lowest_and_highest_weight(int samplecount, const float *samples, co
 									  int8_t * lowest_weight, int8_t * highest_weight,
 									  float *error, float *cut_low_weight_error, float *cut_high_weight_error)
 {
-	int sp;
-
 	float error_from_forcing_weight_down[60];
 	float error_from_forcing_weight_either_way[60];
-	for (int i = 0; i < 60; i++)
-	{
+	for (int i = 0; i < 60; i++) {
 		error_from_forcing_weight_down[i] = 0;
 		error_from_forcing_weight_either_way[i] = 0;
 	}
@@ -250,10 +237,7 @@ void compute_lowest_and_highest_weight(int samplecount, const float *samples, co
 		4, 5, 6, 7, 8, 9, 10, 11
 	};
 
-
-
-	for (sp = 0; sp < max_angular_steps; sp++)
-	{
+ 	for (int sp = 0; sp < max_angular_steps; sp++) {
 		unsigned int minidx_bias12 = 55;
 		unsigned int maxidx_bias12 = 0;
 
@@ -264,9 +248,7 @@ void compute_lowest_and_highest_weight(int samplecount, const float *samples, co
 
 		float scaled_offset = rcp_stepsize * offset;
 
-
-		for (int i = 0; i < samplecount - 1; i += 2)
-		{
+		for (int i = 0; i < samplecount - 1; i += 2) {
 			float wt1 = sample_weights[i];
 			float wt2 = sample_weights[i + 1];
 			if32 p1, p2;
@@ -302,8 +284,7 @@ void compute_lowest_and_highest_weight(int samplecount, const float *samples, co
 			error_from_forcing_weight_down[idx2_bias12] += (dif2 * wt2);
 		}
 
-		if (samplecount & 1)
-		{
+		if (samplecount & 1) {
 			int i = samplecount - 1;
 			float wt = sample_weights[i];
 			if32 p;
@@ -325,7 +306,6 @@ void compute_lowest_and_highest_weight(int samplecount, const float *samples, co
 			error_from_forcing_weight_down[idx_bias12] += dif * wt;
 		}
 
-
 		lowest_weight[sp] = (int)minidx_bias12 - 12;
 		highest_weight[sp] = (int)maxidx_bias12 - 12;
 		error[sp] = errval;
@@ -339,8 +319,7 @@ void compute_lowest_and_highest_weight(int samplecount, const float *samples, co
 		// clear out the error-from-forcing values we actually used in this pass
 		// so that these are clean for the next pass.
 		unsigned int ui;
-		for (ui = minidx_bias12 & ~0x3; ui <= maxidx_bias12; ui += 4)
-		{
+		for (ui = minidx_bias12 & ~0x3; ui <= maxidx_bias12; ui += 4) {
 			error_from_forcing_weight_either_way[ui] = 0;
 			error_from_forcing_weight_down[ui] = 0;
 			error_from_forcing_weight_either_way[ui + 1] = 0;
@@ -352,8 +331,7 @@ void compute_lowest_and_highest_weight(int samplecount, const float *samples, co
 		}
 	}
 
-
-	for (sp = 0; sp < max_angular_steps; sp++)
+	for (int sp = 0; sp < max_angular_steps; sp++)
 	{
 		float errscale = stepsizes_sqr[sp];
 		error[sp] *= errscale;
@@ -363,9 +341,7 @@ void compute_lowest_and_highest_weight(int samplecount, const float *samples, co
 }
 
 
-
 // main function for running the angular algorithm.
-
 
 void compute_angular_endpoints_for_quantization_levels(int samplecount, const float *samples, const float *sample_weights, int max_quantization_level, float low_value[12], float high_value[12])
 {
@@ -380,7 +356,6 @@ void compute_angular_endpoints_for_quantization_levels(int samplecount, const fl
 
 	compute_angular_offsets(samplecount, samples, sample_weights, max_angular_steps, offsets);
 
-
 	// the +4 offsets are to allow for vectorization within compute_lowest_and_highest_weight().
 	int8_t lowest_weight[ANGULAR_STEPS + 4];
 	int8_t highest_weight[ANGULAR_STEPS + 4];
@@ -391,17 +366,14 @@ void compute_angular_endpoints_for_quantization_levels(int samplecount, const fl
 
 	compute_lowest_and_highest_weight(samplecount, samples, sample_weights, max_angular_steps, offsets, lowest_weight, highest_weight, error, cut_low_weight_error, cut_high_weight_error);
 
-
 	#ifdef DEBUG_PRINT_DIAGNOSTICS
-		if (print_diagnostics)
-		{
+		if (print_diagnostics) {
 			printf("%s : max-angular-steps=%d \n", __func__, max_angular_steps);
 			printf("Samplecount=%d, max_quantization_level=%d\n", samplecount, max_quantization_level);
 			for (int i = 0; i < samplecount; i++)
 				printf("Sample %d : %f (weight %f)\n", i, samples[i], sample_weights[i]);
 	
-			for (int i = 0; i < max_angular_steps; i++)
-			{
+			for (int i = 0; i < max_angular_steps; i++) {
 				printf("%d: offset=%f error=%f lowest=%d highest=%d cl=%f ch=%f\n", i, offsets[i], error[i], lowest_weight[i], highest_weight[i], cut_low_weight_error[i], cut_high_weight_error[i]);
 			}
 			printf("\n");
@@ -413,27 +385,21 @@ void compute_angular_endpoints_for_quantization_levels(int samplecount, const fl
 	int best_scale[40];
 	uint8_t cut_low_weight[40];
 
-	for (int i = 0; i < (max_quantization_steps + 4); i++)
-	{
+	for (int i = 0; i < (max_quantization_steps + 4); i++) {
 		best_errors[i] = 1e30f;
 		best_scale[i] = -1;	// Indicates no solution found
 		cut_low_weight[i] = 0;
 	}
 
-
-
-	for (int i = 0; i < max_angular_steps; i++)
-	{
+	for (int i = 0; i < max_angular_steps; i++) {
 		int samplecount = highest_weight[i] - lowest_weight[i] + 1;
-		if (samplecount >= (max_quantization_steps + 4))
-		{
+		if (samplecount >= (max_quantization_steps + 4)) {
 			continue;
 		}
 		if (samplecount < 2)
 			samplecount = 2;
 
-		if (best_errors[samplecount] > error[i])
-		{
+		if (best_errors[samplecount] > error[i]) {
 			best_errors[samplecount] = error[i];
 			best_scale[samplecount] = i;
 			cut_low_weight[samplecount] = 0;
@@ -443,22 +409,19 @@ void compute_angular_endpoints_for_quantization_levels(int samplecount, const fl
 		float error_cut_high = error[i] + cut_high_weight_error[i];
 		float error_cut_low_high = error[i] + cut_low_weight_error[i] + cut_high_weight_error[i];
 
-		if (best_errors[samplecount - 1] > error_cut_low)
-		{
+		if (best_errors[samplecount - 1] > error_cut_low) {
 			best_errors[samplecount - 1] = error_cut_low;
 			best_scale[samplecount - 1] = i;
 			cut_low_weight[samplecount - 1] = 1;
 		}
 
-		if (best_errors[samplecount - 1] > error_cut_high)
-		{
+		if (best_errors[samplecount - 1] > error_cut_high) {
 			best_errors[samplecount - 1] = error_cut_high;
 			best_scale[samplecount - 1] = i;
 			cut_low_weight[samplecount - 1] = 0;
 		}
 
-		if (best_errors[samplecount - 2] > error_cut_low_high)
-		{
+		if (best_errors[samplecount - 2] > error_cut_low_high) {
 			best_errors[samplecount - 2] = error_cut_low_high;
 			best_scale[samplecount - 2] = i;
 			cut_low_weight[samplecount - 2] = 1;
@@ -468,28 +431,23 @@ void compute_angular_endpoints_for_quantization_levels(int samplecount, const fl
 
 	// if we got a better error-value for a low samplecount than for a high one,
 	// use the low-samplecount error value for the higher samplecount as well.
-	for (int i = 3; i <= max_quantization_steps; i++)
-	{
-		if (best_errors[i] > best_errors[i - 1])
-		{
+	for (int i = 3; i <= max_quantization_steps; i++) {
+		if (best_errors[i] > best_errors[i - 1]) {
 			best_errors[i] = best_errors[i - 1];
 			best_scale[i] = best_scale[i - 1];
 			cut_low_weight[i] = cut_low_weight[i - 1];
 		}
 	}
 
-
 	max_quantization_level--;	// Decrease level again (see corresponding ++, above)
 
 	static const int ql_weights[12] = { 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 33 };
-	for (int i = 0; i <= max_quantization_level; i++)
-	{
+	for (int i = 0; i <= max_quantization_level; i++) {
 		int q = ql_weights[i];
 		int bsi = best_scale[q];
 
 		// Did we find anything?
-		if(bsi < 0)
-		{
+		if (bsi < 0) {
 			printf("ERROR: Unable to find an encoding within the specified error limits. Please revise the error limit values and try again.\n");
 			exit(1);
 		}
@@ -516,8 +474,7 @@ void compute_angular_endpoints_1plane(float mode_cutoff, const block_size_descri
 	float low_values[MAX_DECIMATION_MODES][12];
 	float high_values[MAX_DECIMATION_MODES][12];
 
-	for (int i = 0; i < MAX_DECIMATION_MODES; i++)
-	{
+	for (int i = 0; i < MAX_DECIMATION_MODES; i++) {
 		int samplecount = bsd->decimation_mode_samples[i];
 		int quant_mode = bsd->decimation_mode_maxprec_1plane[i];
 		float percentile = bsd->decimation_mode_percentile[i];
@@ -525,14 +482,12 @@ void compute_angular_endpoints_1plane(float mode_cutoff, const block_size_descri
 		if (permit_encode == 0 || samplecount < 1 || quant_mode < 0 || percentile > mode_cutoff)
 			continue;
 
-
 		compute_angular_endpoints_for_quantization_levels(samplecount,
 														  decimated_quantized_weights + i * MAX_WEIGHTS_PER_BLOCK,
 														  decimated_weights + i * MAX_WEIGHTS_PER_BLOCK, quant_mode, low_values[i], high_values[i]);
 	}
 
-	for (int i = 0; i < MAX_WEIGHT_MODES; i++)
-	{
+	for (int i = 0; i < MAX_WEIGHT_MODES; i++) {
 		if (bsd->block_modes[i].is_dual_plane != 0 || bsd->block_modes[i].percentile > mode_cutoff)
 			continue;
 		int quant_mode = bsd->block_modes[i].quantization_mode;
@@ -545,20 +500,19 @@ void compute_angular_endpoints_1plane(float mode_cutoff, const block_size_descri
 }
 
 
-
 void compute_angular_endpoints_2planes(float mode_cutoff,
 									   const block_size_descriptor * bsd,
 									   const float *decimated_quantized_weights,
 									   const float *decimated_weights,
-									   float low_value1[MAX_WEIGHT_MODES], float high_value1[MAX_WEIGHT_MODES], float low_value2[MAX_WEIGHT_MODES], float high_value2[MAX_WEIGHT_MODES])
+									   float low_value1[MAX_WEIGHT_MODES], float high_value1[MAX_WEIGHT_MODES],
+									   float low_value2[MAX_WEIGHT_MODES], float high_value2[MAX_WEIGHT_MODES])
 {
 	float low_values1[MAX_DECIMATION_MODES][12];
 	float high_values1[MAX_DECIMATION_MODES][12];
 	float low_values2[MAX_DECIMATION_MODES][12];
 	float high_values2[MAX_DECIMATION_MODES][12];
 
-	for (int i = 0; i < MAX_DECIMATION_MODES; i++)
-	{
+	for (int i = 0; i < MAX_DECIMATION_MODES; i++) {
 		int samplecount = bsd->decimation_mode_samples[i];
 		int quant_mode = bsd->decimation_mode_maxprec_2planes[i];
 		float percentile = bsd->decimation_mode_percentile[i];
@@ -576,8 +530,7 @@ void compute_angular_endpoints_2planes(float mode_cutoff,
 
 	}
 
-	for (int i = 0; i < MAX_WEIGHT_MODES; i++)
-	{
+	for (int i = 0; i < MAX_WEIGHT_MODES; i++) {
 		if (bsd->block_modes[i].is_dual_plane != 1 || bsd->block_modes[i].percentile > mode_cutoff)
 			continue;
 		int quant_mode = bsd->block_modes[i].quantization_mode;
@@ -589,3 +542,4 @@ void compute_angular_endpoints_2planes(float mode_cutoff,
 		high_value2[i] = high_values2[decim_mode][quant_mode];
 	}
 }
+

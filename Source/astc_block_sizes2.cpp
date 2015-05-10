@@ -55,11 +55,9 @@ extern const float percentile_table_12x12[2048];
 
 const float *get_2d_percentile_table(int blockdim_x, int blockdim_y)
 {
-	switch (blockdim_x)
-	{
+	switch (blockdim_x) {
 	case 4:
-		switch (blockdim_y)
-		{
+		switch (blockdim_y) {
 		case 4:
 			return percentile_table_4x4;
 		case 5:
@@ -75,8 +73,7 @@ const float *get_2d_percentile_table(int blockdim_x, int blockdim_y)
 		}
 		break;
 	case 5:
-		switch (blockdim_y)
-		{
+		switch (blockdim_y) {
 		case 4:
 			return percentile_table_5x4;
 		case 5:
@@ -93,8 +90,7 @@ const float *get_2d_percentile_table(int blockdim_x, int blockdim_y)
 		break;
 
 	case 6:
-		switch (blockdim_y)
-		{
+		switch (blockdim_y) {
 		case 4:
 			return percentile_table_6x4;
 		case 5:
@@ -111,8 +107,7 @@ const float *get_2d_percentile_table(int blockdim_x, int blockdim_y)
 		break;
 
 	case 8:
-		switch (blockdim_y)
-		{
+		switch (blockdim_y) {
 		case 4:
 			return percentile_table_8x4;
 		case 5:
@@ -129,8 +124,7 @@ const float *get_2d_percentile_table(int blockdim_x, int blockdim_y)
 		break;
 
 	case 10:
-		switch (blockdim_y)
-		{
+		switch (blockdim_y) {
 		case 4:
 			return percentile_table_10x4;
 		case 5:
@@ -147,8 +141,7 @@ const float *get_2d_percentile_table(int blockdim_x, int blockdim_y)
 		break;
 
 	case 12:
-		switch (blockdim_y)
-		{
+		switch (blockdim_y) {
 		case 4:
 			return percentile_table_12x4;
 		case 5:
@@ -193,12 +186,10 @@ static int decode_block_mode_2d(int blockmode, int *Nval, int *Mval, int *dual_w
 
 	int N = 0, M = 0;
 
-	if ((blockmode & 3) != 0)
-	{
+	if ((blockmode & 3) != 0) {
 		base_quant_mode |= (blockmode & 3) << 1;
 		int B = (blockmode >> 7) & 3;
-		switch ((blockmode >> 2) & 3)
-		{
+		switch ((blockmode >> 2) & 3) {
 		case 0:
 			N = B + 4;
 			M = A + 2;
@@ -213,27 +204,21 @@ static int decode_block_mode_2d(int blockmode, int *Nval, int *Mval, int *dual_w
 			break;
 		case 3:
 			B &= 1;
-			if (blockmode & 0x100)
-			{
+			if (blockmode & 0x100) {
 				N = B + 2;
 				M = A + 2;
-			}
-			else
-			{
+			}else {
 				N = A + 2;
 				M = B + 6;
 			}
 			break;
 		}
-	}
-	else
-	{
+	}else {
 		base_quant_mode |= ((blockmode >> 2) & 3) << 1;
 		if (((blockmode >> 2) & 3) == 0)
 			return 0;
 		int B = (blockmode >> 9) & 3;
-		switch ((blockmode >> 7) & 3)
-		{
+		switch ((blockmode >> 7) & 3) {
 		case 0:
 			N = 12;
 			M = A + 2;
@@ -249,8 +234,7 @@ static int decode_block_mode_2d(int blockmode, int *Nval, int *Mval, int *dual_w
 			H = 0;
 			break;
 		case 3:
-			switch ((blockmode >> 5) & 3)
-			{
+			switch ((blockmode >> 5) & 3) {
 			case 0:
 				N = 6;
 				M = 10;
@@ -292,28 +276,23 @@ static int decode_block_mode_3d(int blockmode, int *Nval, int *Mval, int *Qval, 
 
 	int N = 0, M = 0, Q = 0;
 
-	if ((blockmode & 3) != 0)
-	{
+	if ((blockmode & 3) != 0) {
 		base_quant_mode |= (blockmode & 3) << 1;
 		int B = (blockmode >> 7) & 3;
 		int C = (blockmode >> 2) & 0x3;
 		N = A + 2;
 		M = B + 2;
 		Q = C + 2;
-	}
-	else
-	{
+	}else {
 		base_quant_mode |= ((blockmode >> 2) & 3) << 1;
 		if (((blockmode >> 2) & 3) == 0)
 			return 0;
 		int B = (blockmode >> 9) & 3;
-		if (((blockmode >> 7) & 3) != 3)
-		{
+		if (((blockmode >> 7) & 3) != 3) {
 			D = 0;
 			H = 0;
 		}
-		switch ((blockmode >> 7) & 3)
-		{
+		switch ((blockmode >> 7) & 3) {
 		case 0:
 			N = 6;
 			M = B + 2;
@@ -333,8 +312,7 @@ static int decode_block_mode_3d(int blockmode, int *Nval, int *Mval, int *Qval, 
 			N = 2;
 			M = 2;
 			Q = 2;
-			switch ((blockmode >> 5) & 3)
-			{
+			switch ((blockmode >> 5) & 3) {
 			case 0:
 				N = 6;
 				break;
@@ -367,8 +345,6 @@ static int decode_block_mode_3d(int blockmode, int *Nval, int *Mval, int *Qval, 
 }
 
 
-
-
 static void initialize_decimation_table_2d(
 											  // dimensions of the block
 											  int xdim, int ydim,
@@ -392,8 +368,7 @@ static void initialize_decimation_table_2d(
 		weightcount_of_texel[i] = 0;
 
 	for (int y = 0; y < ydim; y++)
-		for (int x = 0; x < xdim; x++)
-		{
+		for (int x = 0; x < xdim; x++) {
 			int texel = y * xdim + x;
 
 			int x_weight = (((1024 + xdim / 2) / (xdim - 1)) * x * (x_weights - 1) + 32) >> 6;
@@ -419,8 +394,7 @@ static void initialize_decimation_table_2d(
 			weight[0] = 16 - x_weight_frac - y_weight_frac + weight[3];
 
 			for (int i = 0; i < 4; i++)
-				if (weight[i] != 0)
-				{
+				if (weight[i] != 0) {
 					grid_weights_of_texel[texel][weightcount_of_texel[texel]] = qweight[i];
 					weights_of_texel[texel][weightcount_of_texel[texel]] = weight[i];
 					weightcount_of_texel[texel]++;
@@ -430,34 +404,28 @@ static void initialize_decimation_table_2d(
 				}
 		}
 
-	for (int i = 0; i < texels_per_block; i++)
-	{
+	for (int i = 0; i < texels_per_block; i++) {
 		dt->texel_num_weights[i] = weightcount_of_texel[i];
 
 		// ensure that all 4 entries are actually initialized.
 		// This allows a branch-free implemntation of compute_value_of_texel_flt()
-		for (int j = 0; j < 4; j++)
-		{
+		for (int j = 0; j < 4; j++) {
 			dt->texel_weights_int[i][j] = 0;
 			dt->texel_weights_float[i][j] = 0.0f;
 			dt->texel_weights[i][j] = 0;
 		}
 
-		for (int j = 0; j < weightcount_of_texel[i]; j++)
-		{
+		for (int j = 0; j < weightcount_of_texel[i]; j++) {
 			dt->texel_weights_int[i][j] = weights_of_texel[i][j];
 			dt->texel_weights_float[i][j] = static_cast < float >(weights_of_texel[i][j]) * (1.0f / TEXEL_WEIGHT_SUM);
 			dt->texel_weights[i][j] = grid_weights_of_texel[i][j];
 		}
 	}
 
-	for (int i = 0; i < weights_per_block; i++)
-	{
+	for (int i = 0; i < weights_per_block; i++) {
 		dt->weight_num_texels[i] = texelcount_of_weight[i];
 
-
-		for (int j = 0; j < texelcount_of_weight[i]; j++)
-		{
+		for (int j = 0; j < texelcount_of_weight[i]; j++) {
 			dt->weight_texel[i][j] = texels_of_weight[i][j];
 			dt->weights_int[i][j] = texelweights_of_weight[i][j];
 			dt->weights_flt[i][j] = static_cast < float >(texelweights_of_weight[i][j]);
@@ -467,10 +435,7 @@ static void initialize_decimation_table_2d(
 	dt->num_texels = texels_per_block;
 	dt->num_weights = weights_per_block;
 
-
 }
-
-
 
 
 static void initialize_decimation_table_3d(
@@ -497,8 +462,7 @@ static void initialize_decimation_table_3d(
 
 	for (int z = 0; z < zdim; z++)
 		for (int y = 0; y < ydim; y++)
-			for (int x = 0; x < xdim; x++)
-			{
+			for (int x = 0; x < xdim; x++) {
 				int texel = (z * ydim + y) * xdim + x;
 
 				int x_weight = (((1024 + xdim / 2) / (xdim - 1)) * x * (x_weights - 1) + 32) >> 6;
@@ -526,8 +490,7 @@ static void initialize_decimation_table_3d(
 				int NM = x_weights * y_weights;
 
 				int s1, s2, w0, w1, w2, w3;
-				switch (cas)
-				{
+				switch (cas) {
 				case 7:
 					s1 = 1;
 					s2 = N;
@@ -598,8 +561,7 @@ static void initialize_decimation_table_3d(
 				   for(i=0;i<4;i++) weight[i] <<= 4; */
 
 				for (int i = 0; i < 4; i++)
-					if (weight[i] != 0)
-					{
+					if (weight[i] != 0) {
 						grid_weights_of_texel[texel][weightcount_of_texel[texel]] = qweight[i];
 						weights_of_texel[texel][weightcount_of_texel[texel]] = weight[i];
 						weightcount_of_texel[texel]++;
@@ -609,32 +571,27 @@ static void initialize_decimation_table_3d(
 					}
 			}
 
-	for (int i = 0; i < texels_per_block; i++)
-	{
+	for (int i = 0; i < texels_per_block; i++) {
 		dt->texel_num_weights[i] = weightcount_of_texel[i];
 
 		// ensure that all 4 entries are actually initialized.
 		// This allows a branch-free implemntation of compute_value_of_texel_flt()
-		for (int j = 0; j < 4; j++)
-		{
+		for (int j = 0; j < 4; j++) {
 			dt->texel_weights_int[i][j] = 0;
 			dt->texel_weights_float[i][j] = 0.0f;
 			dt->texel_weights[i][j] = 0;
 		}
 
-		for (int j = 0; j < weightcount_of_texel[i]; j++)
-		{
+		for (int j = 0; j < weightcount_of_texel[i]; j++) {
 			dt->texel_weights_int[i][j] = weights_of_texel[i][j];
 			dt->texel_weights_float[i][j] = static_cast < float >(weights_of_texel[i][j]) * (1.0f / TEXEL_WEIGHT_SUM);
 			dt->texel_weights[i][j] = grid_weights_of_texel[i][j];
 		}
 	}
 
-	for (int i = 0; i < weights_per_block; i++)
-	{
+	for (int i = 0; i < weights_per_block; i++) {
 		dt->weight_num_texels[i] = texelcount_of_weight[i];
-		for (int j = 0; j < texelcount_of_weight[i]; j++)
-		{
+		for (int j = 0; j < texelcount_of_weight[i]; j++) {
 			dt->weight_texel[i][j] = texels_of_weight[i][j];
 			dt->weights_int[i][j] = texelweights_of_weight[i][j];
 			dt->weights_flt[i][j] = static_cast < float >(texelweights_of_weight[i][j]);
@@ -646,21 +603,18 @@ static void initialize_decimation_table_3d(
 }
 
 
-
 void construct_block_size_descriptor_2d(int xdim, int ydim, block_size_descriptor * bsd)
 {
 	int decimation_mode_index[256];	// for each of the 256 entries in the decim_table_array, its index
 	int decimation_mode_count = 0;
 
-	for (int i = 0; i < 256; i++)
-	{
+	for (int i = 0; i < 256; i++) {
 		decimation_mode_index[i] = -1;
 	}
 
 	// gather all the infill-modes that can be used with the current block size
 	for (int x_weights = 2; x_weights <= 12; x_weights++)
-		for (int y_weights = 2; y_weights <= 12; y_weights++)
-		{
+		for (int y_weights = 2; y_weights <= 12; y_weights++) {
 			if (x_weights * y_weights > MAX_WEIGHTS_PER_BLOCK)
 				continue;
 			decimation_table *dt = new decimation_table;
@@ -671,8 +625,7 @@ void construct_block_size_descriptor_2d(int xdim, int ydim, block_size_descripto
 
 			int maxprec_1plane = -1;
 			int maxprec_2planes = -1;
-			for (int i = 0; i < 12; i++)
-			{
+			for (int i = 0; i < 12; i++) {
 				int bits_1plane = compute_ise_bitcount(weight_count, (quantization_method) i);
 				int bits_2planes = compute_ise_bitcount(2 * weight_count, (quantization_method) i);
 				if (bits_1plane >= MIN_WEIGHT_BITS_PER_BLOCK && bits_1plane <= MAX_WEIGHT_BITS_PER_BLOCK)
@@ -691,13 +644,11 @@ void construct_block_size_descriptor_2d(int xdim, int ydim, block_size_descripto
 			decimation_mode_count++;
 		}
 
-	for (int i = 0; i < MAX_DECIMATION_MODES; i++)
-	{
+	for (int i = 0; i < MAX_DECIMATION_MODES; i++) {
 		bsd->decimation_mode_percentile[i] = 1.0f;
 	}
 
-	for (int i = decimation_mode_count; i < MAX_DECIMATION_MODES; i++)
-	{
+	for (int i = decimation_mode_count; i < MAX_DECIMATION_MODES; i++) {
 		bsd->permit_encode[i] = 0;
 		bsd->decimation_mode_samples[i] = 0;
 		bsd->decimation_mode_maxprec_1plane[i] = -1;
@@ -709,36 +660,29 @@ void construct_block_size_descriptor_2d(int xdim, int ydim, block_size_descripto
 	const float *percentiles = get_2d_percentile_table(xdim, ydim);
 
 	// then construct the list of block formats
-	for (int i = 0; i < 2048; i++)
-	{
+	for (int i = 0; i < 2048; i++) {
 		int x_weights, y_weights;
 		int is_dual_plane;
 		int quantization_mode;
 		int fail = 0;
 		int permit_encode = 1;
 
-		if (decode_block_mode_2d(i, &x_weights, &y_weights, &is_dual_plane, &quantization_mode))
-		{
+		if (decode_block_mode_2d(i, &x_weights, &y_weights, &is_dual_plane, &quantization_mode)) {
 			if (x_weights > xdim || y_weights > ydim)
 				permit_encode = 0;
-		}
-		else
-		{
+		}else {
 			fail = 1;
 			permit_encode = 0;
 		}
 
-		if (fail)
-		{
+		if (fail) {
 			bsd->block_modes[i].decimation_mode = -1;
 			bsd->block_modes[i].quantization_mode = -1;
 			bsd->block_modes[i].is_dual_plane = -1;
 			bsd->block_modes[i].permit_encode = 0;
 			bsd->block_modes[i].permit_decode = 0;
 			bsd->block_modes[i].percentile = 1.0f;
-		}
-		else
-		{
+		}else {
 			int decimation_mode = decimation_mode_index[y_weights * 16 + x_weights];
 			bsd->block_modes[i].decimation_mode = decimation_mode;
 			bsd->block_modes[i].quantization_mode = quantization_mode;
@@ -753,33 +697,26 @@ void construct_block_size_descriptor_2d(int xdim, int ydim, block_size_descripto
 
 	}
 
-	if (xdim * ydim <= 64)
-	{
+	if (xdim * ydim <= 64) {
 		bsd->texelcount_for_bitmap_partitioning = xdim * ydim;
 		for (int i = 0; i < xdim * ydim; i++)
 			bsd->texels_for_bitmap_partitioning[i] = i;
-	}
-
-	else
-	{
+	}else {
 		// pick 64 random texels for use with bitmap partitioning.
 		int arr[MAX_TEXELS_PER_BLOCK];
 		for (int i = 0; i < xdim * ydim; i++)
 			arr[i] = 0;
 		int arr_elements_set = 0;
-		while (arr_elements_set < 64)
-		{
+		while (arr_elements_set < 64) {
 			int idx = rand() % (xdim * ydim);
-			if (arr[idx] == 0)
-			{
+			if (arr[idx] == 0) {
 				arr_elements_set++;
 				arr[idx] = 1;
 			}
 		}
 		int texel_weights_written = 0;
 		int idx = 0;
-		while (texel_weights_written < 64)
-		{
+		while (texel_weights_written < 64) {
 			if (arr[idx])
 				bsd->texels_for_bitmap_partitioning[texel_weights_written++] = idx;
 			idx++;
@@ -790,22 +727,19 @@ void construct_block_size_descriptor_2d(int xdim, int ydim, block_size_descripto
 }
 
 
-
 void construct_block_size_descriptor_3d(int xdim, int ydim, int zdim, block_size_descriptor * bsd)
 {
 	int decimation_mode_index[512];	// for each of the 512 entries in the decim_table_array, its index
 	int decimation_mode_count = 0;
 
-	for (int i = 0; i < 512; i++)
-	{
+	for (int i = 0; i < 512; i++) {
 		decimation_mode_index[i] = -1;
 	}
 
 	// gather all the infill-modes that can be used with the current block size
 	for (int x_weights = 2; x_weights <= 6; x_weights++)
 		for (int y_weights = 2; y_weights <= 6; y_weights++)
-			for (int z_weights = 2; z_weights <= 6; z_weights++)
-			{
+			for (int z_weights = 2; z_weights <= 6; z_weights++) {
 				if ((x_weights * y_weights * z_weights) > MAX_WEIGHTS_PER_BLOCK)
 					continue;
 				decimation_table *dt = new decimation_table;
@@ -816,8 +750,7 @@ void construct_block_size_descriptor_3d(int xdim, int ydim, int zdim, block_size
 
 				int maxprec_1plane = -1;
 				int maxprec_2planes = -1;
-				for (int i = 0; i < 12; i++)
-				{
+				for (int i = 0; i < 12; i++) {
 					int bits_1plane = compute_ise_bitcount(weight_count, (quantization_method) i);
 					int bits_2planes = compute_ise_bitcount(2 * weight_count, (quantization_method) i);
 					if (bits_1plane >= MIN_WEIGHT_BITS_PER_BLOCK && bits_1plane <= MAX_WEIGHT_BITS_PER_BLOCK)
@@ -835,13 +768,11 @@ void construct_block_size_descriptor_3d(int xdim, int ydim, int zdim, block_size
 				decimation_mode_count++;
 			}
 
-	for (int i = 0; i < MAX_DECIMATION_MODES; i++)
-	{
+	for (int i = 0; i < MAX_DECIMATION_MODES; i++) {
 		bsd->decimation_mode_percentile[i] = 1.0f;
 	}
 
-	for (int i = decimation_mode_count; i < MAX_DECIMATION_MODES; i++)
-	{
+	for (int i = decimation_mode_count; i < MAX_DECIMATION_MODES; i++) {
 		bsd->permit_encode[i] = 0;
 		bsd->decimation_mode_samples[i] = 0;
 		bsd->decimation_mode_maxprec_1plane[i] = -1;
@@ -853,35 +784,28 @@ void construct_block_size_descriptor_3d(int xdim, int ydim, int zdim, block_size
 	const float *percentiles = get_3d_percentile_table(xdim, ydim, zdim);
 
 	// then construct the list of block formats
-	for (int i = 0; i < 2048; i++)
-	{
+	for (int i = 0; i < 2048; i++) {
 		int x_weights, y_weights, z_weights;
 		int is_dual_plane;
 		int quantization_mode;
 		int fail = 0;
 		int permit_encode = 1;
 
-		if (decode_block_mode_3d(i, &x_weights, &y_weights, &z_weights, &is_dual_plane, &quantization_mode))
-		{
+		if (decode_block_mode_3d(i, &x_weights, &y_weights, &z_weights, &is_dual_plane, &quantization_mode)) {
 			if (x_weights > xdim || y_weights > ydim || z_weights > zdim)
 				permit_encode = 0;
-		}
-		else
-		{
+		}else {
 			fail = 1;
 			permit_encode = 0;
 		}
-		if (fail)
-		{
+		if (fail) {
 			bsd->block_modes[i].decimation_mode = -1;
 			bsd->block_modes[i].quantization_mode = -1;
 			bsd->block_modes[i].is_dual_plane = -1;
 			bsd->block_modes[i].permit_encode = 0;
 			bsd->block_modes[i].permit_decode = 0;
 			bsd->block_modes[i].percentile = 1.0f;
-		}
-		else
-		{
+		}else {
 			int decimation_mode = decimation_mode_index[z_weights * 64 + y_weights * 8 + x_weights];
 			bsd->block_modes[i].decimation_mode = decimation_mode;
 			bsd->block_modes[i].quantization_mode = quantization_mode;
@@ -896,33 +820,26 @@ void construct_block_size_descriptor_3d(int xdim, int ydim, int zdim, block_size
 
 	}
 
-	if (xdim * ydim * zdim <= 64)
-	{
+	if (xdim * ydim * zdim <= 64) {
 		bsd->texelcount_for_bitmap_partitioning = xdim * ydim * zdim;
 		for (int i = 0; i < xdim * ydim * zdim; i++)
 			bsd->texels_for_bitmap_partitioning[i] = i;
-	}
-
-	else
-	{
+	}else {
 		// pick 64 random texels for use with bitmap partitioning.
 		int arr[MAX_TEXELS_PER_BLOCK];
 		for (int i = 0; i < xdim * ydim * zdim; i++)
 			arr[i] = 0;
 		int arr_elements_set = 0;
-		while (arr_elements_set < 64)
-		{
+		while (arr_elements_set < 64) {
 			int idx = rand() % (xdim * ydim * zdim);
-			if (arr[idx] == 0)
-			{
+			if (arr[idx] == 0) {
 				arr_elements_set++;
 				arr[idx] = 1;
 			}
 		}
 		int texel_weights_written = 0;
 		int idx = 0;
-		while (texel_weights_written < 64)
-		{
+		while (texel_weights_written < 64) {
 			if (arr[idx])
 				bsd->texels_for_bitmap_partitioning[texel_weights_written++] = idx;
 			idx++;
@@ -939,8 +856,7 @@ static block_size_descriptor *bsd_pointers[4096];
 const block_size_descriptor *get_block_size_descriptor(int xdim, int ydim, int zdim)
 {
 	int bsd_index = xdim + (ydim << 4) + (zdim << 8);
-	if (bsd_pointers[bsd_index] == NULL)
-	{
+	if (bsd_pointers[bsd_index] == NULL) {
 		block_size_descriptor *bsd = new block_size_descriptor;
 		if (zdim > 1)
 			construct_block_size_descriptor_3d(xdim, ydim, zdim, bsd);
@@ -951,3 +867,4 @@ const block_size_descriptor *get_block_size_descriptor(int xdim, int ydim, int z
 	}
 	return bsd_pointers[bsd_index];
 }
+

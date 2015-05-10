@@ -35,8 +35,7 @@ static void gen_canonicalized_partition_table(int texel_count, const uint8_t * p
 	for (int i = 0; i < 4; i++)
 		mapped_index[i] = -1;
 
-	for (int i = 0; i < texel_count; i++)
-	{
+	for (int i = 0; i < texel_count; i++) {
 		int index = partition_table[i];
 		if (mapped_index[index] == -1)
 			mapped_index[index] = map_weight_count++;
@@ -75,21 +74,15 @@ static void partition_table_zap_equal_elements(int xdim, int ydim, int zdim, par
 
 	int texel_count = xdim * ydim * zdim;
 
-	int i, j;
 	uint64_t *canonicalizeds = new uint64_t[PARTITION_COUNT * 7];
 
-
-	for (i = 0; i < PARTITION_COUNT; i++)
-	{
+	for (int i = 0; i < PARTITION_COUNT; i++) {
 		gen_canonicalized_partition_table(texel_count, pi[i].partition_of_texel, canonicalizeds + i * 7);
 	}
 
-	for (i = 0; i < PARTITION_COUNT; i++)
-	{
-		for (j = 0; j < i; j++)
-		{
-			if (compare_canonicalized_partition_tables(canonicalizeds + 7 * i, canonicalizeds + 7 * j))
-			{
+	for (int i = 0; i < PARTITION_COUNT; i++) {
+		for (int j = 0; j < i; j++) {
+			if (compare_canonicalized_partition_tables(canonicalizeds + 7 * i, canonicalizeds + 7 * j)) {
 				pi[i].partition_count = 0;
 				partition_tables_zapped++;
 				break;
@@ -98,7 +91,6 @@ static void partition_table_zap_equal_elements(int xdim, int ydim, int zdim, par
 	}
 	delete[]canonicalizeds;
 }
-
 
 uint32_t hash52(uint32_t inp)
 {
@@ -115,11 +107,9 @@ uint32_t hash52(uint32_t inp)
 }
 
 
-
 int select_partition(int seed, int x, int y, int z, int partitioncount, int small_block)
 {
-	if (small_block)
-	{
+	if (small_block) {
 		x <<= 1;
 		y <<= 1;
 		z <<= 1;
@@ -159,13 +149,10 @@ int select_partition(int seed, int x, int y, int z, int partitioncount, int smal
 
 
 	int sh1, sh2, sh3;
-	if (seed & 1)
-	{
+	if (seed & 1) {
 		sh1 = (seed & 2 ? 4 : 5);
 		sh2 = (partitioncount == 3 ? 6 : 5);
-	}
-	else
-	{
+	}else {
 		sh1 = (partitioncount == 3 ? 6 : 5);
 		sh2 = (seed & 2 ? 4 : 5);
 	}
@@ -185,13 +172,10 @@ int select_partition(int seed, int x, int y, int z, int partitioncount, int smal
 	seed11 >>= sh3;
 	seed12 >>= sh3;
 
-
-
 	int a = seed1 * x + seed2 * y + seed11 * z + (rnum >> 14);
 	int b = seed3 * x + seed4 * y + seed12 * z + (rnum >> 10);
 	int c = seed5 * x + seed6 * y + seed9 * z + (rnum >> 6);
 	int d = seed7 * x + seed8 * y + seed10 * z + (rnum >> 2);
-
 
 	// apply the saw
 	a &= 0x3F;
@@ -220,19 +204,15 @@ int select_partition(int seed, int x, int y, int z, int partitioncount, int smal
 }
 
 
-
 void generate_one_partition_table(int xdim, int ydim, int zdim, int partition_count, int partition_index, partition_info * pt)
 {
 	int small_block = (xdim * ydim * zdim) < 32;
 
 	uint8_t *partition_of_texel = pt->partition_of_texel;
-	int x, y, z, i;
 
-
-	for (z = 0; z < zdim; z++)
-		for (y = 0; y < ydim; y++)
-			for (x = 0; x < xdim; x++)
-			{
+	for (int z = 0; z < zdim; z++)
+		for (int y = 0; y < ydim; y++)
+			for (int x = 0; x < xdim; x++) {
 				uint8_t part = select_partition(partition_index, x, y, z, partition_count, small_block);
 				*partition_of_texel++ = part;
 			}
@@ -241,16 +221,15 @@ void generate_one_partition_table(int xdim, int ydim, int zdim, int partition_co
 	int texels_per_block = xdim * ydim * zdim;
 
 	int counts[4];
-	for (i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 		counts[i] = 0;
 
-	for (i = 0; i < texels_per_block; i++)
-	{
+	for (int i = 0; i < texels_per_block; i++) {
 		int partition = pt->partition_of_texel[i];
 		pt->texels_of_partition[partition][counts[partition]++] = i;
 	}
 
-	for (i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 		pt->texels_per_partition[i] = counts[i];
 
 	if (counts[0] == 0)
@@ -264,15 +243,12 @@ void generate_one_partition_table(int xdim, int ydim, int zdim, int partition_co
 	else
 		pt->partition_count = 4;
 
-
-
-	for (i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 		pt->coverage_bitmaps[i] = 0ULL;
 
 	const block_size_descriptor *bsd = get_block_size_descriptor(xdim, ydim, zdim);
 	int texels_to_process = bsd->texelcount_for_bitmap_partitioning;
-	for (i = 0; i < texels_to_process; i++)
-	{
+	for (int i = 0; i < texels_to_process; i++) {
 		pt->coverage_bitmaps[pt->partition_of_texel[i]] |= 1ULL << i;
 	}
 
@@ -293,8 +269,7 @@ static void generate_partition_tables(int xdim, int ydim, int zdim)
 	partition_table[4] = four_partitions;
 
 	generate_one_partition_table(xdim, ydim, zdim, 1, 0, one_partition);
-	for (int i = 0; i < 1024; i++)
-	{
+	for (int i = 0; i < 1024; i++) {
 		generate_one_partition_table(xdim, ydim, zdim, 2, i, two_partitions + i);
 		generate_one_partition_table(xdim, ydim, zdim, 3, i, three_partitions + i);
 		generate_one_partition_table(xdim, ydim, zdim, 4, i, four_partitions + i);
@@ -316,3 +291,4 @@ const partition_info *get_partition_table(int xdim, int ydim, int zdim, int part
 
 	return partition_tables[ptindex][partition_count];
 }
+

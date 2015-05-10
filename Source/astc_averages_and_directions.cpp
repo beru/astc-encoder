@@ -38,19 +38,22 @@ void compute_averages_and_directions_rgba(const partition_info * pt,
 										  const imageblock * blk,
 										  const error_weight_block * ewb,
 										  const float4 * color_scalefactors,
-										  float4 * averages, float4 * directions_rgba, float3 * directions_gba, float3 * directions_rba, float3 * directions_rga, float3 * directions_rgb)
+										  float4 * averages,
+										  float4 * directions_rgba,
+										  float3 * directions_gba,
+										  float3 * directions_rba,
+										  float3 * directions_rga,
+										  float3 * directions_rgb)
 {
 	int partition_count = pt->partition_count;
-	for (int partition = 0; partition < partition_count; partition++)
-	{
+	for (int partition = 0; partition < partition_count; partition++) {
 		const uint8_t *weights = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
 
 		float4 base_sum = float4(0, 0, 0, 0);
 		float partition_weight = 0.0f;
 
-		for (int i = 0; i < texelcount; i++)
-		{
+		for (int i = 0; i < texelcount; i++) {
 			int iwt = weights[i];
 			float weight = ewb->texel_weight[iwt];
 			float4 texel_datum = float4(blk->work_data[4 * iwt],
@@ -71,8 +74,7 @@ void compute_averages_and_directions_rgba(const partition_info * pt,
 		float4 sum_zp = float4(0, 0, 0, 0);
 		float4 sum_wp = float4(0, 0, 0, 0);
 
-		for (int i = 0; i < texelcount; i++)
-		{
+		for (int i = 0; i < texelcount; i++) {
 			int iwt = weights[i];
 			float weight = ewb->texel_weight[iwt];
 			float4 texel_datum = float4(blk->work_data[4 * iwt],
@@ -98,18 +100,15 @@ void compute_averages_and_directions_rgba(const partition_info * pt,
 
 		float4 best_vector = sum_xp;
 		float best_sum = prod_xp;
-		if (prod_yp > best_sum)
-		{
+		if (prod_yp > best_sum) {
 			best_vector = sum_yp;
 			best_sum = prod_yp;
 		}
-		if (prod_zp > best_sum)
-		{
+		if (prod_zp > best_sum) {
 			best_vector = sum_zp;
 			best_sum = prod_zp;
 		}
-		if (prod_wp > best_sum)
-		{
+		if (prod_wp > best_sum) {
 			best_vector = sum_wp;
 			best_sum = prod_wp;
 		}
@@ -128,22 +127,25 @@ void compute_averages_and_directions_rgba(const partition_info * pt,
 void compute_averages_and_directions_rgb(const partition_info * pt,
 										 const imageblock * blk,
 										 const error_weight_block * ewb,
-										 const float4 * color_scalefactors, float3 * averages, float3 * directions_rgb, float2 * directions_rg, float2 * directions_rb, float2 * directions_gb)
+										 const float4 * color_scalefactors,
+										 float3 * averages,
+										 float3 * directions_rgb,
+										 float2 * directions_rg,
+										 float2 * directions_rb,
+										 float2 * directions_gb)
 {
 	int partition_count = pt->partition_count;
 
 	const float *texel_weights = ewb->texel_weight_rgb;
 
-	for (int partition = 0; partition < partition_count; partition++)
-	{
+	for (int partition = 0; partition < partition_count; partition++) {
 		const uint8_t *weights = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
 
 		float3 base_sum = float3(0, 0, 0);
 		float partition_weight = 0.0f;
 
-		for (int i = 0; i < texelcount; i++)
-		{
+		for (int i = 0; i < texelcount; i++) {
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
 			float3 texel_datum = float3(blk->work_data[4 * iwt],
@@ -158,13 +160,11 @@ void compute_averages_and_directions_rgb(const partition_info * pt,
 		float3 average = base_sum * 1.0f / MAX(partition_weight, 1e-7f);
 		averages[partition] = average * csf.xyz;
 
-
 		float3 sum_xp = float3(0, 0, 0);
 		float3 sum_yp = float3(0, 0, 0);
 		float3 sum_zp = float3(0, 0, 0);
 
-		for (int i = 0; i < texelcount; i++)
-		{
+		for (int i = 0; i < texelcount; i++) {
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
 			float3 texel_datum = float3(blk->work_data[4 * iwt],
@@ -186,13 +186,11 @@ void compute_averages_and_directions_rgb(const partition_info * pt,
 
 		float3 best_vector = sum_xp;
 		float best_sum = prod_xp;
-		if (prod_yp > best_sum)
-		{
+		if (prod_yp > best_sum) {
 			best_vector = sum_yp;
 			best_sum = prod_yp;
 		}
-		if (prod_zp > best_sum)
-		{
+		if (prod_zp > best_sum) {
 			best_vector = sum_zp;
 			best_sum = prod_zp;
 		}
@@ -207,7 +205,12 @@ void compute_averages_and_directions_rgb(const partition_info * pt,
 void compute_averages_and_directions_3_components(const partition_info * pt,
 												  const imageblock * blk,
 												  const error_weight_block * ewb,
-												  const float3 * color_scalefactors, int component1, int component2, int component3, float3 * averages, float3 * directions)
+												  const float3 * color_scalefactors,
+												  int component1,
+												  int component2,
+												  int component3,
+												  float3 * averages,
+												  float3 * directions)
 {
 	int partition_count = pt->partition_count;
 
@@ -220,23 +223,19 @@ void compute_averages_and_directions_3_components(const partition_info * pt,
 		texel_weights = ewb->texel_weight_rga;
 	else if (component1 == 0 && component2 == 1 && component3 == 2)
 		texel_weights = ewb->texel_weight_rgb;
-	else
-	{
+	else {
 		texel_weights = ewb->texel_weight_gba;
 		ASTC_CODEC_INTERNAL_ERROR;
 	}
 
-
-	for (int partition = 0; partition < partition_count; partition++)
-	{
+	for (int partition = 0; partition < partition_count; partition++) {
 		const uint8_t *weights = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
 
 		float3 base_sum = float3(0, 0, 0);
 		float partition_weight = 0.0f;
 
-		for (int i = 0; i < texelcount; i++)
-		{
+		for (int i = 0; i < texelcount; i++) {
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
 			float3 texel_datum = float3(blk->work_data[4 * iwt + component1],
@@ -252,13 +251,11 @@ void compute_averages_and_directions_3_components(const partition_info * pt,
 		float3 average = base_sum * 1.0f / MAX(partition_weight, 1e-7f);
 		averages[partition] = average * csf.xyz;
 
-
 		float3 sum_xp = float3(0, 0, 0);
 		float3 sum_yp = float3(0, 0, 0);
 		float3 sum_zp = float3(0, 0, 0);
 
-		for (int i = 0; i < texelcount; i++)
-		{
+		for (int i = 0; i < texelcount; i++) {
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
 			float3 texel_datum = float3(blk->work_data[4 * iwt + component1],
@@ -280,13 +277,11 @@ void compute_averages_and_directions_3_components(const partition_info * pt,
 
 		float3 best_vector = sum_xp;
 		float best_sum = prod_xp;
-		if (prod_yp > best_sum)
-		{
+		if (prod_yp > best_sum) {
 			best_vector = sum_yp;
 			best_sum = prod_yp;
 		}
-		if (prod_zp > best_sum)
-		{
+		if (prod_zp > best_sum) {
 			best_vector = sum_zp;
 			best_sum = prod_zp;
 		}
@@ -299,11 +294,14 @@ void compute_averages_and_directions_3_components(const partition_info * pt,
 }
 
 
-
-
 void compute_averages_and_directions_2_components(const partition_info * pt,
 												  const imageblock * blk,
-												  const error_weight_block * ewb, const float2 * color_scalefactors, int component1, int component2, float2 * averages, float2 * directions)
+												  const error_weight_block * ewb,
+												  const float2 * color_scalefactors,
+												  int component1,
+												  int component2,
+												  float2 * averages,
+												  float2 * directions)
 {
 	int partition_count = pt->partition_count;
 
@@ -314,25 +312,21 @@ void compute_averages_and_directions_2_components(const partition_info * pt,
 		texel_weights = ewb->texel_weight_rb;
 	else if (component1 == 1 && component2 == 2)
 		texel_weights = ewb->texel_weight_gb;
-	else
-	{
+	else {
 		texel_weights = ewb->texel_weight_rg;
 		// unsupported set of color components.
 		ASTC_CODEC_INTERNAL_ERROR;
 		exit(1);
 	}
 
-
-	for (int partition = 0; partition < partition_count; partition++)
-	{
+	for (int partition = 0; partition < partition_count; partition++) {
 		const uint8_t *weights = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
 
 		float2 base_sum = float2(0, 0);
 		float partition_weight = 0.0f;
 
-		for (int i = 0; i < texelcount; i++)
-		{
+		for (int i = 0; i < texelcount; i++) {
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
 			float2 texel_datum = float2(blk->work_data[4 * iwt + component1],
@@ -347,12 +341,10 @@ void compute_averages_and_directions_2_components(const partition_info * pt,
 		float2 average = base_sum * 1.0f / MAX(partition_weight, 1e-7f);
 		averages[partition] = average * csf.xy;
 
-
 		float2 sum_xp = float2(0, 0);
 		float2 sum_yp = float2(0, 0);
 
-		for (int i = 0; i < texelcount; i++)
-		{
+		for (int i = 0; i < texelcount; i++) {
 			int iwt = weights[i];
 			float weight = texel_weights[iwt];
 			float2 texel_datum = float2(blk->work_data[4 * iwt + component1],
@@ -370,8 +362,7 @@ void compute_averages_and_directions_2_components(const partition_info * pt,
 
 		float2 best_vector = sum_xp;
 		float best_sum = prod_xp;
-		if (prod_yp > best_sum)
-		{
+		if (prod_yp > best_sum) {
 			best_vector = sum_yp;
 			best_sum = prod_yp;
 		}
@@ -393,23 +384,19 @@ float funcname( \
 	const processed_line2 *plines, \
 	float *length_of_lines \
 	) \
-	{ \
+{ \
 	float errorsum = 0.0f; \
-	for(int partition=0; partition<pt->partition_count; partition++) \
-		{ \
+	for (int partition=0; partition<pt->partition_count; partition++) { \
 		const uint8_t *weights = pt->texels_of_partition[ partition ]; \
 		int texelcount = pt->texels_per_partition[ partition ]; \
 		float lowparam = 1e10f; \
 		float highparam = -1e10f; \
 		processed_line2 l = plines[partition]; \
-		if( ewb->contains_zeroweight_texels ) \
-			{ \
-			for(int i=0;i<texelcount;i++) \
-				{ \
+		if (ewb->contains_zeroweight_texels) { \
+			for (int i=0;i<texelcount;i++) { \
 				int iwt = weights[i]; \
 				float texel_weight = ewb-> PASTE(texel_weight_ , c01_rname) [i]; \
-				if( texel_weight > 1e-20f ) \
-					{ \
+				if (texel_weight > 1e-20f) { \
 					float2 point = float2(blk->work_data[4*iwt + c0_iwt], blk->work_data[4*iwt + c1_iwt] ); \
 					float param = dot( point, l.bs ); \
 					float2 rp1 = l.amod + param*l.bis; \
@@ -418,13 +405,10 @@ float funcname( \
 					errorsum += dot( ews. c01_name, dist*dist ); \
 					if( param < lowparam ) lowparam = param; \
 					if( param > highparam ) highparam = param; \
-					} \
 				} \
 			} \
-		else \
-			{ \
-			for(int i=0;i<texelcount;i++) \
-				{ \
+		}else { \
+			for (int i=0;i<texelcount;i++) { \
 				int iwt = weights[i]; \
 				float2 point = float2(blk->work_data[4*iwt + c0_iwt], blk->work_data[4*iwt + c1_iwt] ); \
 				float param = dot( point, l.bs ); \
@@ -434,15 +418,15 @@ float funcname( \
 				errorsum += dot( ews. c01_name, dist*dist ); \
 				if( param < lowparam ) lowparam = param; \
 				if( param > highparam ) highparam = param; \
-				} \
 			} \
+		} \
 		float linelen = highparam - lowparam; \
-		if( !(linelen > 1e-7f) ) \
+		if (!(linelen > 1e-7f)) \
 			linelen = 1e-7f; \
 		length_of_lines[partition] = linelen; \
-		} \
+	} \
 	return errorsum; \
-	}
+}
 
 
 TWO_COMPONENT_ERROR_FUNC(compute_error_squared_rg, 0, 1, xy, rg)
@@ -462,23 +446,19 @@ float funcname( \
 	const processed_line3 *plines, \
 	float *length_of_lines \
 	) \
-	{ \
+{ \
 	float errorsum = 0.0f; \
-	for(int partition=0; partition<pt->partition_count; partition++) \
-		{ \
+	for (int partition=0; partition<pt->partition_count; partition++) { \
 		const uint8_t *weights = pt->texels_of_partition[ partition ]; \
 		int texelcount = pt->texels_per_partition[ partition ]; \
 		float lowparam = 1e10f; \
 		float highparam = -1e10f; \
 		processed_line3 l = plines[partition]; \
-		if( ewb->contains_zeroweight_texels ) \
-			{ \
-			for(int i=0;i<texelcount;i++) \
-				{ \
+		if (ewb->contains_zeroweight_texels) { \
+			for (int i=0;i<texelcount;i++) { \
 				int iwt = weights[i]; \
 				float texel_weight = ewb-> PASTE(texel_weight_ , c012_rname) [i]; \
-				if( texel_weight > 1e-20f ) \
-					{ \
+				if (texel_weight > 1e-20f) { \
 					float3 point = float3(blk->work_data[4*iwt + c0_iwt], blk->work_data[4*iwt + c1_iwt], blk->work_data[4*iwt + c2_iwt] ); \
 					float param = dot( point, l.bs ); \
 					float3 rp1 = l.amod + param*l.bis; \
@@ -487,13 +467,10 @@ float funcname( \
 					errorsum += dot( ews. c012_name, dist*dist ); \
 					if( param < lowparam ) lowparam = param; \
 					if( param > highparam ) highparam = param; \
-					} \
 				} \
 			} \
-		else \
-			{ \
-			for(int i=0;i<texelcount;i++) \
-				{ \
+		}else { \
+			for (int i=0;i<texelcount;i++) { \
 				int iwt = weights[i]; \
 				float3 point = float3(blk->work_data[4*iwt + c0_iwt], blk->work_data[4*iwt + c1_iwt], blk->work_data[4*iwt + c2_iwt] ); \
 				float param = dot( point, l.bs ); \
@@ -503,15 +480,15 @@ float funcname( \
 				errorsum += dot( ews. c012_name, dist*dist ); \
 				if( param < lowparam ) lowparam = param; \
 				if( param > highparam ) highparam = param; \
-				} \
 			} \
+		} \
 		float linelen = highparam - lowparam; \
-		if( !(linelen > 1e-7f) ) \
+		if (!(linelen > 1e-7f)) \
 			linelen = 1e-7f; \
 		length_of_lines[partition] = linelen; \
-		} \
+	} \
 	return errorsum; \
-	}
+}
 
 THREE_COMPONENT_ERROR_FUNC(compute_error_squared_gba, 1, 2, 3, yzw, gba)
 THREE_COMPONENT_ERROR_FUNC(compute_error_squared_rba, 0, 2, 3, xzw, rba)
@@ -519,11 +496,13 @@ THREE_COMPONENT_ERROR_FUNC(compute_error_squared_rga, 0, 1, 3, xyw, rga)
 THREE_COMPONENT_ERROR_FUNC(compute_error_squared_rgb, 0, 1, 2, xyz, rgb)
 
 float compute_error_squared_rgba(const partition_info * pt,	// the partition that we use when computing the squared-error.
-								 const imageblock * blk, const error_weight_block * ewb, const processed_line4 * plines, float *length_of_lines)
+								 const imageblock * blk,
+								 const error_weight_block * ewb,
+								 const processed_line4 * plines,
+								 float *length_of_lines)
 {
 	float errorsum = 0.0f;
-	for (int partition = 0; partition < pt->partition_count; partition++)
-	{
+	for (int partition = 0; partition < pt->partition_count; partition++) {
 		const uint8_t *weights = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
 		float lowparam = 1e10;
@@ -531,14 +510,14 @@ float compute_error_squared_rgba(const partition_info * pt,	// the partition tha
 
 		processed_line4 l = plines[partition];
 
-		if (ewb->contains_zeroweight_texels)
-		{
-			for (int i = 0; i < texelcount; i++)
-			{
+		if (ewb->contains_zeroweight_texels) {
+			for (int i = 0; i < texelcount; i++) {
 				int iwt = weights[i];
-				if (ewb->texel_weight[iwt] > 1e-20)
-				{
-					float4 point = float4(blk->work_data[4 * iwt], blk->work_data[4 * iwt + 1], blk->work_data[4 * iwt + 2], blk->work_data[4 * iwt + 3]);
+				if (ewb->texel_weight[iwt] > 1e-20) {
+					float4 point = float4(blk->work_data[4 * iwt],
+										  blk->work_data[4 * iwt + 1],
+										  blk->work_data[4 * iwt + 2],
+										  blk->work_data[4 * iwt + 3]);
 					float param = dot(point, l.bs);
 					float4 rp1 = l.amod + param * l.bis;
 					float4 dist = rp1 - point;
@@ -550,13 +529,13 @@ float compute_error_squared_rgba(const partition_info * pt,	// the partition tha
 						highparam = param;
 				}
 			}
-		}
-		else
-		{
-			for (int i = 0; i < texelcount; i++)
-			{
+		}else {
+			for (int i = 0; i < texelcount; i++) {
 				int iwt = weights[i];
-				float4 point = float4(blk->work_data[4 * iwt], blk->work_data[4 * iwt + 1], blk->work_data[4 * iwt + 2], blk->work_data[4 * iwt + 3]);
+				float4 point = float4(blk->work_data[4 * iwt],
+									  blk->work_data[4 * iwt + 1],
+									  blk->work_data[4 * iwt + 2],
+									  blk->work_data[4 * iwt + 3]);
 				float param = dot(point, l.bs);
 				float4 rp1 = l.amod + param * l.bis;
 				float4 dist = rp1 - point;
@@ -582,16 +561,19 @@ float compute_error_squared_rgba(const partition_info * pt,	// the partition tha
 
 // function to compute the error across a tile when using a particular line for
 // a particular partition.
-float compute_error_squared_rgb_single_partition(int partition_to_test, int xdim, int ydim, int zdim, const partition_info * pt,	// the partition that we use when computing the squared-error.
-												 const imageblock * blk, const error_weight_block * ewb, const processed_line3 * lin	// the line for the partition.
+float compute_error_squared_rgb_single_partition(int partition_to_test,
+												 int xdim, int ydim, int zdim,
+												 const partition_info * pt,	// the partition that we use when computing the squared-error.
+												 const imageblock * blk,
+												 const error_weight_block * ewb,
+												 const processed_line3 * lin	// the line for the partition.
 	)
 {
 	int texels_per_block = xdim * ydim * zdim;
 
 	float errorsum = 0.0f;
 
-	for (int i = 0; i < texels_per_block; i++)
-	{
+	for (int i = 0; i < texels_per_block; i++) {
 		int partition = pt->partition_of_texel[i];
 		float texel_weight = ewb->texel_weight_rgb[i];
 		if (partition != partition_to_test || texel_weight < 1e-20)
@@ -607,3 +589,4 @@ float compute_error_squared_rgb_single_partition(int partition_to_test, int xdim
 	}
 	return errorsum;
 }
+

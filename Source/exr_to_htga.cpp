@@ -71,13 +71,10 @@ void convert_exr_to_htga(const char *exr_filename, const char *htga_filename)
 
 	uint16_t *b2 = buffer;
 
-	int x, y;
-	for (y = 0; y < height; y++)
-	{
+	for (int y = 0; y < height; y++) {
 		int y_src = y;
 		// int y_src = height - y - 1;
-		for (x = 0; x < width; x++)
-		{
+		for (int x = 0; x < width; x++) {
 			*b2++ = pixels[y_src][x].b.bits();
 			*b2++ = pixels[y_src][x].g.bits();
 			*b2++ = pixels[y_src][x].r.bits();
@@ -98,7 +95,6 @@ void convert_exr_to_htga(const char *exr_filename, const char *htga_filename)
 
 int convert_htga_to_exr(const char *htga_filename, const char *exr_filename)
 {
-	int i;
 	tga_header hdr;
 
 	FILE *f = fopen(htga_filename, "rb");
@@ -107,8 +103,7 @@ int convert_htga_to_exr(const char *htga_filename, const char *exr_filename)
 
 	int bytes_read;
 	bytes_read = fread(&hdr, 1, 18, f);
-	if (bytes_read < 18)
-	{
+	if (bytes_read < 18) {
 		fclose(f);
 		return -1;
 	}
@@ -123,8 +118,7 @@ int convert_htga_to_exr(const char *htga_filename, const char *exr_filename)
 	int bytestoread = width * height * (bitsperpixel / 16) * 2;
 	bytes_read = fread(buf, 1, bytestoread, f);
 	fclose(f);
-	if (bytes_read != bytestoread)
-	{
+	if (bytes_read != bytestoread) {
 		delete[]buf;
 		return -1;
 	}
@@ -134,17 +128,13 @@ int convert_htga_to_exr(const char *htga_filename, const char *exr_filename)
 
 	int wordsperpixel = bitsperpixel / 16;
 
-	int y;
-	for (y = 0; y < height; y++)
-	{
+	for (int y = 0; y < height; y++) {
 		uint16_t *src = buf + (width * y * wordsperpixel);
 
 		int dst = width * y;
-		switch (hdr.bitsperpixel)
-		{
+		switch (hdr.bitsperpixel) {
 		case 16:				// Luminance
-			for (i = 0; i < width; i++)
-			{
+			for (int i = 0; i < width; i++) {
 				pixels[i + dst].r.setBits(src[0]);
 				pixels[i + dst].g.setBits(src[0]);
 				pixels[i + dst].b.setBits(src[0]);
@@ -153,8 +143,7 @@ int convert_htga_to_exr(const char *htga_filename, const char *exr_filename)
 			}
 			break;
 		case 32:				// Luminance-Alpha
-			for (i = 0; i < width; i++)
-			{
+			for (int i = 0; i < width; i++) {
 				pixels[i + dst].r.setBits(src[0]);
 				pixels[i + dst].g.setBits(src[0]);
 				pixels[i + dst].b.setBits(src[0]);
@@ -163,8 +152,7 @@ int convert_htga_to_exr(const char *htga_filename, const char *exr_filename)
 			}
 			break;
 		case 48:				// RGB
-			for (i = 0; i < width; i++)
-			{
+			for (int i = 0; i < width; i++) {
 				pixels[i + dst].r.setBits(src[2]);
 				pixels[i + dst].g.setBits(src[1]);
 				pixels[i + dst].b.setBits(src[0]);
@@ -173,8 +161,7 @@ int convert_htga_to_exr(const char *htga_filename, const char *exr_filename)
 			}
 			break;
 		case 64:
-			for (i = 0; i < width; i++)
-			{
+			for (int i = 0; i < width; i++) {
 				pixels[i + dst].r.setBits(src[2]);
 				pixels[i + dst].g.setBits(src[1]);
 				pixels[i + dst].b.setBits(src[0]);
@@ -193,9 +180,7 @@ int convert_htga_to_exr(const char *htga_filename, const char *exr_filename)
 
 int main(int argc, char **argv)
 {
-
-	if (argc < 4)
-	{
+	if (argc < 4) {
 		printf("EXR <-> HTGA (half-float-TGA) conversion tool\n"
 			   "Usage:\n" "    %s <operation> <input_filename> <output_filename>\n" "where operation may be\n" " -q : convert from EXR to HTGA\n" " -e : convert from HTGA to EXR\n", argv[0]);
 		return 1;
@@ -206,7 +191,7 @@ int main(int argc, char **argv)
 	else if (!strcmp(argv[1], "-e"))
 		convert_htga_to_exr(argv[2], argv[3]);
 
-
 	return 0;
-
 }
+
+

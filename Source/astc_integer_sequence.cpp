@@ -323,14 +323,12 @@ static const uint8_t integer_of_trits[3][3][3][3][3] = {
 };
 
 
-
 void find_number_of_bits_trits_quints(int quantization_level, int *bits, int *trits, int *quints)
 {
 	*bits = 0;
 	*trits = 0;
 	*quints = 0;
-	switch (quantization_level)
-	{
+	switch (quantization_level) {
 	case QUANT_2:
 		*bits = 1;
 		break;
@@ -442,8 +440,6 @@ static inline int read_bits(int bitcount, int bitoffset, const uint8_t * ptr)
 }
 
 
-
-
 void encode_ise(int quantization_level, int elements, const uint8_t * input_data, uint8_t * output_data, int bit_offset)
 {
 	uint8_t lowparts[64];
@@ -453,8 +449,7 @@ void encode_ise(int quantization_level, int elements, const uint8_t * input_data
 	int bits, trits, quints;
 	find_number_of_bits_trits_quints(quantization_level, &bits, &trits, &quints);
 
-	for (int i = 0; i < elements; i++)
-	{
+	for (int i = 0; i < elements; i++) {
 		lowparts[i] = input_data[i] & ((1 << bits) - 1);
 		highparts[i] = input_data[i] >> bits;
 	}
@@ -462,14 +457,12 @@ void encode_ise(int quantization_level, int elements, const uint8_t * input_data
 		highparts[i] = 0;		// padding before we start constructing trit-blocks or quint-blocks
 
 	// construct trit-blocks or quint-blocks as necessary
-	if (trits)
-	{
+	if (trits) {
 		int trit_blocks = (elements + 4) / 5;
 		for (int i = 0; i < trit_blocks; i++)
 			tq_blocks[i] = integer_of_trits[highparts[5 * i + 4]][highparts[5 * i + 3]][highparts[5 * i + 2]][highparts[5 * i + 1]][highparts[5 * i]];
 	}
-	if (quints)
-	{
+	if (quints) {
 		int quint_blocks = (elements + 2) / 3;
 		for (int i = 0; i < quint_blocks; i++)
 			tq_blocks[i] = integer_of_quints[highparts[3 * i + 2]][highparts[3 * i + 1]][highparts[3 * i]];
@@ -478,12 +471,10 @@ void encode_ise(int quantization_level, int elements, const uint8_t * input_data
 	// then, write out the actual bits.
 	int lcounter = 0;
 	int hcounter = 0;
-	for (int i = 0; i < elements; i++)
-	{
+	for (int i = 0; i < elements; i++) {
 		write_bits(lowparts[i], bits, bit_offset, output_data);
 		bit_offset += bits;
-		if (trits)
-		{
+		if (trits) {
 			static const int bits_to_write[5] = { 2, 2, 1, 2, 1 };
 			static const int block_shift[5] = { 0, 2, 4, 5, 7 };
 			static const int next_lcounter[5] = { 1, 2, 3, 4, 0 };
@@ -493,8 +484,7 @@ void encode_ise(int quantization_level, int elements, const uint8_t * input_data
 			hcounter += hcounter_incr[lcounter];
 			lcounter = next_lcounter[lcounter];
 		}
-		if (quints)
-		{
+		if (quints) {
 			static const int bits_to_write[3] = { 3, 2, 2 };
 			static const int block_shift[3] = { 0, 3, 5 };
 			static const int next_lcounter[3] = { 1, 2, 0 };
@@ -506,9 +496,6 @@ void encode_ise(int quantization_level, int elements, const uint8_t * input_data
 		}
 	}
 }
-
-
-
 
 void decode_ise(int quantization_level, int elements, const uint8_t * input_data, uint8_t * output_data, int bit_offset)
 {
@@ -530,12 +517,10 @@ void decode_ise(int quantization_level, int elements, const uint8_t * input_data
 		tq_blocks[i] = 0;
 
 	// collect bits for each element, as well as bits for any trit-blocks and quint-blocks.
-	for (int i = 0; i < elements; i++)
-	{
+	for (int i = 0; i < elements; i++) {
 		results[i] = read_bits(bits, bit_offset, input_data);
 		bit_offset += bits;
-		if (trits)
-		{
+		if (trits) {
 			static const int bits_to_read[5] = { 2, 2, 1, 2, 1 };
 			static const int block_shift[5] = { 0, 2, 4, 5, 7 };
 			static const int next_lcounter[5] = { 1, 2, 3, 4, 0 };
@@ -546,8 +531,7 @@ void decode_ise(int quantization_level, int elements, const uint8_t * input_data
 			hcounter += hcounter_incr[lcounter];
 			lcounter = next_lcounter[lcounter];
 		}
-		if (quints)
-		{
+		if (quints) {
 			static const int bits_to_read[3] = { 3, 2, 2 };
 			static const int block_shift[3] = { 0, 3, 5 };
 			static const int next_lcounter[3] = { 1, 2, 0 };
@@ -560,13 +544,10 @@ void decode_ise(int quantization_level, int elements, const uint8_t * input_data
 		}
 	}
 
-
 	// unpack trit-blocks or quint-blocks as needed
-	if (trits)
-	{
+	if (trits) {
 		int trit_blocks = (elements + 4) / 5;
-		for (int i = 0; i < trit_blocks; i++)
-		{
+		for (int i = 0; i < trit_blocks; i++) {
 			const uint8_t *tritptr = trits_of_integer[tq_blocks[i]];
 			results[5 * i] |= tritptr[0] << bits;
 			results[5 * i + 1] |= tritptr[1] << bits;
@@ -576,11 +557,9 @@ void decode_ise(int quantization_level, int elements, const uint8_t * input_data
 		}
 	}
 
-	if (quints)
-	{
+	if (quints) {
 		int quint_blocks = (elements + 2) / 3;
-		for (int i = 0; i < quint_blocks; i++)
-		{
+		for (int i = 0; i < quint_blocks; i++) {
 			const uint8_t *quintptr = quints_of_integer[tq_blocks[i]];
 			results[3 * i] |= quintptr[0] << bits;
 			results[3 * i + 1] |= quintptr[1] << bits;
@@ -592,13 +571,9 @@ void decode_ise(int quantization_level, int elements, const uint8_t * input_data
 		output_data[i] = results[i];
 }
 
-
-
-
 int compute_ise_bitcount(int items, quantization_method quant)
 {
-	switch (quant)
-	{
+	switch (quant) {
 	case QUANT_2:
 		return items;
 	case QUANT_3:
@@ -645,3 +620,4 @@ int compute_ise_bitcount(int items, quantization_method quant)
 		return 100000;
 	}
 }
+

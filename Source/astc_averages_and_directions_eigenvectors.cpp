@@ -49,8 +49,7 @@ static float4 power_method_eigenvector4(const mat4 & q)
 	mat4 p = q;
 	int i;
 	float4 eigvc;
-	for (i = 0; i < 20; i++)
-	{
+	for (i = 0; i < 20; i++) {
 		float sc0 =
 			((fabs(p.v[0].x)
 			  + fabs(p.v[0].y)
@@ -94,12 +93,10 @@ static float4 power_method_eigenvector4(const mat4 & q)
 
 static float3 power_method_eigenvector3(const mat3 & q)
 {
-	int i;
 	mat3 p = q;
 	float3 eigvc;
 
-	for (i = 0; i < 20; i++)
-	{
+	for (int i = 0; i < 20; i++) {
 		float sc0 = (fabs(p.v[0].x) + fabs(p.v[0].y) + fabs(p.v[0].z)) + (fabs(p.v[1].x) + fabs(p.v[1].y) + fabs(p.v[1].z)) + (fabs(p.v[2].x) + fabs(p.v[2].y) + fabs(p.v[2].z));
 		sc0 *= 0.25f;
 
@@ -126,7 +123,6 @@ static float3 power_method_eigenvector3(const mat3 & q)
 
 	}
 
-
 	float testval = fabs(eigvc.x) + fabs(eigvc.y) + fabs(eigvc.z);
 	if (testval > 1e-18f)
 		return eigvc;			// catch eigenvectors with 0 or NaN in them.
@@ -137,11 +133,9 @@ static float3 power_method_eigenvector3(const mat3 & q)
 
 static float2 power_method_eigenvector2(const mat2 & q)
 {
-	int i;
 	mat2 p = q;
 	float2 eigvc;
-	for (i = 0; i < 20; i++)
-	{
+	for (int i = 0; i < 20; i++) {
 		float sc0 = (fabs(p.v[0].x) + fabs(p.v[0].y)) + (fabs(p.v[1].x) + fabs(p.v[1].y));
 		sc0 *= 0.25f;
 		if (!(sc0 > 0.0f))
@@ -191,8 +185,7 @@ static float4 get_eigenvector4(const mat4 & p)
 
 	float4 retval;
 
-	if (maxval > 0.0f)
-	{
+	if (maxval > 0.0f) {
 		float4 eigvc = eigenvector(p, maxval);
 		// check whether the computed eigenvector is in fact a reasonable eigenvector at all.
 		float4 xform_eigvc = transform(p, eigvc);
@@ -203,8 +196,7 @@ static float4 get_eigenvector4(const mat4 & p)
 			retval = eigvc;
 		else
 			retval = power_method_eigenvector4(p);
-	}
-	else
+	}else
 		retval = power_method_eigenvector4(p);
 
 	#ifdef DEBUG_CAPTURE_NAN
@@ -234,8 +226,7 @@ static float3 get_eigenvector3(const mat3 & p)
 
 	float3 retval;
 
-	if (maxval > 0.0f)
-	{
+	if (maxval > 0.0f) {
 		float3 eigvc = eigenvector(p, maxval);
 		// check whether the computed eigenvector is in fact a reasonable eigenvector at all.
 		float3 xform_eigvc = transform(p, eigvc);
@@ -246,8 +237,7 @@ static float3 get_eigenvector3(const mat3 & p)
 			retval = eigvc;
 		else
 			retval = power_method_eigenvector3(p);
-	}
-	else
+	}else
 		retval = power_method_eigenvector3(p);
 
 	#ifdef DEBUG_CAPTURE_NAN
@@ -275,8 +265,7 @@ static float2 get_eigenvector2(const mat2 & p)
 
 	float2 retval;
 
-	if (maxval > 0.0f)
-	{
+	if (maxval > 0.0f) {
 		float2 eigvc = eigenvector(p, maxval);
 		// check whether the computed eigenvector is in fact a reasonable eigenvector at all.
 		float2 xform_eigvc = transform(p, eigvc);
@@ -287,8 +276,7 @@ static float2 get_eigenvector2(const mat2 & p)
 			retval = eigvc;
 		else
 			retval = power_method_eigenvector2(p);
-	}
-	else
+	}else
 		retval = power_method_eigenvector2(p);
 
 	#ifdef DEBUG_CAPTURE_NAN
@@ -299,7 +287,6 @@ static float2 get_eigenvector2(const mat2 & p)
 }
 
 
-
 /* 
 	For a full block, functions to compute averages and eigenvectors. The averages and eigenvectors are computed separately for each partition.
 	We have separate versions for blocks with and without alpha, since the processing for blocks with alpha is significantly more expensive.
@@ -308,15 +295,15 @@ static float2 get_eigenvector2(const mat2 & p)
 
 // compute averages and covariance matrices for 4 components
 static void compute_averages_and_covariance_matrices4(const partition_info * pt,
-													  const imageblock * blk, const error_weight_block * ewb, const float4 * color_scalefactors, float4 averages[4], mat4 cov_matrices[4])
+													  const imageblock * blk,
+													  const error_weight_block * ewb,
+													  const float4 * color_scalefactors,
+													  float4 averages[4],
+													  mat4 cov_matrices[4])
 {
-	int i;
 	int partition_count = pt->partition_count;
 
-	int partition;
-
-	for (partition = 0; partition < partition_count; partition++)
-	{
+	for (int partition = 0; partition < partition_count; partition++) {
 		float r_sum = 0.0f;
 		float g_sum = 0.0f;
 		float b_sum = 0.0f;
@@ -334,8 +321,7 @@ static void compute_averages_and_covariance_matrices4(const partition_info * pt,
 		float partition_weight = 0.0f;
 		const uint8_t *indexes = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
-		for (i = 0; i < texelcount; i++)
-		{
+		for (int i = 0; i < texelcount; i++) {
 			int idx = indexes[i];
 			float weight = ewb->texel_weight[idx];
 			float r = blk->work_data[4 * idx];
@@ -400,14 +386,17 @@ static void compute_averages_and_covariance_matrices4(const partition_info * pt,
 }
 
 
-
 // compute averages and covariance matrices for 3 selected components
 static void compute_averages_and_covariance_matrices3(const partition_info * pt,
 													  const imageblock * blk,
 													  int component1,
-													  int component2, int component3, const error_weight_block * ewb, const float3 * color_scalefactors, float3 averages[4], mat3 cov_matrices[4])
+													  int component2,
+													  int component3,
+													  const error_weight_block * ewb,
+													  const float3 * color_scalefactors,
+													  float3 averages[4],
+													  mat3 cov_matrices[4])
 {
-	int i;
 	int partition_count = pt->partition_count;
 
 	const float *texel_weights;
@@ -419,16 +408,12 @@ static void compute_averages_and_covariance_matrices3(const partition_info * pt,
 		texel_weights = ewb->texel_weight_rga;
 	else if (component1 == 0 && component2 == 1 && component3 == 2)
 		texel_weights = ewb->texel_weight_rgb;
-	else
-	{
+	else {
 		texel_weights = ewb->texel_weight_gba;
 		ASTC_CODEC_INTERNAL_ERROR;
 	}
 
-
-	int partition;
-	for (partition = 0; partition < partition_count; partition++)
-	{
+	for (int partition = 0; partition < partition_count; partition++) {
 		float r_sum = 0.0f;
 		float g_sum = 0.0f;
 		float b_sum = 0.0f;
@@ -441,8 +426,7 @@ static void compute_averages_and_covariance_matrices3(const partition_info * pt,
 		float partition_weight = 0.0f;
 		const uint8_t *indexes = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
-		for (i = 0; i < texelcount; i++)
-		{
+		for (int i = 0; i < texelcount; i++) {
 			int idx = indexes[i];
 			float weight = texel_weights[idx];
 			float r = blk->work_data[4 * idx + component1];
@@ -495,9 +479,13 @@ static void compute_averages_and_covariance_matrices3(const partition_info * pt,
 // compute averages and covariance matrices for 2 selected components
 static void compute_averages_and_covariance_matrices2(const partition_info * pt,
 													  const imageblock * blk,
-													  int component1, int component2, const error_weight_block * ewb, const float2 * scalefactors, float2 averages[4], mat2 cov_matrices[4])
+													  int component1,
+													  int component2,
+													  const error_weight_block * ewb,
+													  const float2 * scalefactors,
+													  float2 averages[4],
+													  mat2 cov_matrices[4])
 {
-	int i;
 	int partition_count = pt->partition_count;
 
 	const float *texel_weights;
@@ -507,17 +495,14 @@ static void compute_averages_and_covariance_matrices2(const partition_info * pt,
 		texel_weights = ewb->texel_weight_rb;
 	else if (component1 == 1 && component2 == 2)
 		texel_weights = ewb->texel_weight_gb;
-	else
-	{
+	else {
 		texel_weights = ewb->texel_weight_rg;
 		// unsupported set of color components.
 		ASTC_CODEC_INTERNAL_ERROR;
 		exit(1);
 	}
 
-	int partition;
-	for (partition = 0; partition < partition_count; partition++)
-	{
+	for (int partition = 0; partition < partition_count; partition++) {
 		float c1_sum = 0.0f;
 		float c2_sum = 0.0f;
 		float c1c1_sum = 0.0f;
@@ -526,8 +511,7 @@ static void compute_averages_and_covariance_matrices2(const partition_info * pt,
 		float partition_weight = 0.0f;
 		const uint8_t *indexes = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
-		for (i = 0; i < texelcount; i++)
-		{
+		for (int i = 0; i < texelcount; i++) {
 			int idx = indexes[i];
 			float weight = texel_weights[idx];
 			float c1 = blk->work_data[4 * idx + component1];
@@ -564,25 +548,24 @@ static void compute_averages_and_covariance_matrices2(const partition_info * pt,
 }
 
 
-
-
-
-
 void compute_averages_and_directions_rgba(const partition_info * pt,
 										  const imageblock * blk,
 										  const error_weight_block * ewb,
 										  const float4 * color_scalefactors,
-										  float4 * averages, float4 * eigenvectors_rgba, float3 * eigenvectors_gba, float3 * eigenvectors_rba, float3 * eigenvectors_rga, float3 * eigenvectors_rgb)
+										  float4 * averages,
+										  float4 * eigenvectors_rgba,
+										  float3 * eigenvectors_gba,
+										  float3 * eigenvectors_rba,
+										  float3 * eigenvectors_rga,
+										  float3 * eigenvectors_rgb)
 {
-	int i;
 	int partition_count = pt->partition_count;
 
 	mat4 covariance_matrices[4];
 
 	compute_averages_and_covariance_matrices4(pt, blk, ewb, color_scalefactors, averages, covariance_matrices);
 
-	for (i = 0; i < partition_count; i++)
-	{
+	for (int i = 0; i < partition_count; i++) {
 		eigenvectors_rgba[i] = get_eigenvector4(covariance_matrices[i]);
 		mat3 rcmat;				// reduced covariance matrix
 		rcmat.v[0] = covariance_matrices[i].v[1].yzw;
@@ -605,17 +588,17 @@ void compute_averages_and_directions_rgba(const partition_info * pt,
 }
 
 
-
-
-
 void compute_averages_and_directions_rgb(const partition_info * pt,
 										 const imageblock * blk,
 										 const error_weight_block * ewb,
-										 const float4 * color_scalefactors, float3 * averages, float3 * eigenvectors_rgb, float2 * eigenvectors_rg, float2 * eigenvectors_rb, float2 * eigenvectors_gb)
+										 const float4 * color_scalefactors,
+										 float3 * averages,
+										 float3 * eigenvectors_rgb,
+										 float2 * eigenvectors_rg,
+										 float2 * eigenvectors_rb,
+										 float2 * eigenvectors_gb)
 {
-	int i;
 	int partition_count = pt->partition_count;
-
 
 	mat3 covariance_matrices[4];
 	mat2 rg_matrices[4];
@@ -623,16 +606,14 @@ void compute_averages_and_directions_rgb(const partition_info * pt,
 	mat2 gb_matrices[4];
 
 	float3 scalefactors[4];
-	for (i = 0; i < partition_count; i++)
-	{
+	for (int i = 0; i < partition_count; i++) {
 		float4 scf = color_scalefactors[i];
 		scalefactors[i] = scf.xyz;
 	}
 
 	compute_averages_and_covariance_matrices3(pt, blk, 0, 1, 2, ewb, scalefactors, averages, covariance_matrices);
 
-	for (i = 0; i < partition_count; i++)
-	{
+	for (int i = 0; i < partition_count; i++) {
 		rg_matrices[i].v[0] = covariance_matrices[i].v[0].xy;
 		rg_matrices[i].v[1] = covariance_matrices[i].v[1].xy;
 		rb_matrices[i].v[0] = covariance_matrices[i].v[0].xz;
@@ -651,36 +632,42 @@ void compute_averages_and_directions_rgb(const partition_info * pt,
 void compute_averages_and_directions_3_components(const partition_info * pt,
 												  const imageblock * blk,
 												  const error_weight_block * ewb,
-												  const float3 * color_scalefactors, int component1, int component2, int component3, float3 * averages, float3 * eigenvectors)
+												  const float3 * color_scalefactors,
+												  int component1,
+												  int component2,
+												  int component3,
+												  float3 * averages,
+												  float3 * eigenvectors)
 {
-	int i;
 	int partition_count = pt->partition_count;
 
 	mat3 covariance_matrices[4];
 
 	compute_averages_and_covariance_matrices3(pt, blk, component1, component2, component3, ewb, color_scalefactors, averages, covariance_matrices);
 
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 		eigenvectors[i] = get_eigenvector3(covariance_matrices[i]);
 }
 
 
 void compute_averages_and_directions_2_components(const partition_info * pt,
 												  const imageblock * blk,
-												  const error_weight_block * ewb, const float2 * color_scalefactors, int component1, int component2, float2 * averages, float2 * eigenvectors)
+												  const error_weight_block * ewb,
+												  const float2 * color_scalefactors,
+												  int component1,
+												  int component2,
+												  float2 * averages,
+												  float2 * eigenvectors)
 {
-	int i;
 	int partition_count = pt->partition_count;
 
 	mat2 covariance_matrices[4];
 
 	compute_averages_and_covariance_matrices2(pt, blk, component1, component2, ewb, color_scalefactors, averages, covariance_matrices);
 
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 		eigenvectors[i] = get_eigenvector2(covariance_matrices[i]);
 }
-
-
 
 
 #define XPASTE(x,y) x##y
@@ -695,25 +682,19 @@ float funcname( \
 	const processed_line2 *plines, \
 	float *length_of_lines \
 	) \
-	{ \
-	int i; \
+{ \
 	float errorsum = 0.0f; \
-	int partition; \
-	for(partition=0; partition<pt->partition_count; partition++) \
-		{ \
+	for (int partition=0; partition<pt->partition_count; partition++) { \
 		const uint8_t *indexes = pt->texels_of_partition[ partition ]; \
 		int texelcount = pt->texels_per_partition[ partition ]; \
 		float lowparam = 1e10f; \
 		float highparam = -1e10f; \
 		processed_line2 l = plines[partition]; \
-		if( ewb->contains_zeroweight_texels ) \
-			{ \
-			for(i=0;i<texelcount;i++) \
-				{ \
+		if( ewb->contains_zeroweight_texels ) { \
+			for (int i=0;i<texelcount;i++) { \
 				int idx = indexes[i]; \
 				float texel_weight = ewb-> PASTE(texel_weight_ , c01_rname) [i]; \
-				if( texel_weight > 1e-20f ) \
-					{ \
+				if ( texel_weight > 1e-20f ) { \
 					float2 point = float2(blk->work_data[4*idx + c0_idx], blk->work_data[4*idx + c1_idx] ); \
 					float param = dot( point, l.bs ); \
 					float2 rp1 = l.amod + param*l.bis; \
@@ -722,13 +703,10 @@ float funcname( \
 					errorsum += dot( ews. c01_name, dist*dist ); \
 					if( param < lowparam ) lowparam = param; \
 					if( param > highparam ) highparam = param; \
-					} \
 				} \
 			} \
-		else \
-			{ \
-			for(i=0;i<texelcount;i++) \
-				{ \
+		}else { \
+			for (int i=0;i<texelcount;i++) { \
 				int idx = indexes[i]; \
 				float2 point = float2(blk->work_data[4*idx + c0_idx], blk->work_data[4*idx + c1_idx] ); \
 				float param = dot( point, l.bs ); \
@@ -738,15 +716,15 @@ float funcname( \
 				errorsum += dot( ews. c01_name, dist*dist ); \
 				if( param < lowparam ) lowparam = param; \
 				if( param > highparam ) highparam = param; \
-				} \
 			} \
+		} \
 		float linelen = highparam - lowparam; \
-		if( !(linelen > 1e-7f) ) \
+		if (!(linelen > 1e-7f)) \
 			linelen = 1e-7f; \
 		length_of_lines[partition] = linelen; \
-		} \
+	} \
 	return errorsum; \
-	}
+}
 
 TWO_COMPONENT_ERROR_FUNC(compute_error_squared_rg, 0, 1, xy, rg)
 TWO_COMPONENT_ERROR_FUNC(compute_error_squared_rb, 0, 2, xz, rb)
@@ -766,25 +744,19 @@ float funcname( \
 	const processed_line3 *plines, \
 	float *length_of_lines \
 	) \
-	{ \
-	int i; \
+{ \
 	float errorsum = 0.0f; \
-	int partition; \
-	for(partition=0; partition<pt->partition_count; partition++) \
-		{ \
+	for (int partition=0; partition<pt->partition_count; partition++) { \
 		const uint8_t *indexes = pt->texels_of_partition[ partition ]; \
 		int texelcount = pt->texels_per_partition[ partition ]; \
 		float lowparam = 1e10f; \
 		float highparam = -1e10f; \
 		processed_line3 l = plines[partition]; \
-		if( ewb->contains_zeroweight_texels ) \
-			{ \
-			for(i=0;i<texelcount;i++) \
-				{ \
+		if (ewb->contains_zeroweight_texels) { \
+			for (int i=0;i<texelcount;i++) { \
 				int idx = indexes[i]; \
 				float texel_weight = ewb-> PASTE(texel_weight_ , c012_rname) [i]; \
-				if( texel_weight > 1e-20f ) \
-					{ \
+				if (texel_weight > 1e-20f) { \
 					float3 point = float3(blk->work_data[4*idx + c0_idx], blk->work_data[4*idx + c1_idx], blk->work_data[4*idx + c2_idx] ); \
 					float param = dot( point, l.bs ); \
 					float3 rp1 = l.amod + param*l.bis; \
@@ -793,13 +765,10 @@ float funcname( \
 					errorsum += dot( ews. c012_name, dist*dist ); \
 					if( param < lowparam ) lowparam = param; \
 					if( param > highparam ) highparam = param; \
-					} \
 				} \
 			} \
-		else \
-			{ \
-			for(i=0;i<texelcount;i++) \
-				{ \
+		}else { \
+			for (int i=0;i<texelcount;i++) { \
 				int idx = indexes[i]; \
 				float3 point = float3(blk->work_data[4*idx + c0_idx], blk->work_data[4*idx + c1_idx], blk->work_data[4*idx + c2_idx] ); \
 				float param = dot( point, l.bs ); \
@@ -809,15 +778,15 @@ float funcname( \
 				errorsum += dot( ews. c012_name, dist*dist ); \
 				if( param < lowparam ) lowparam = param; \
 				if( param > highparam ) highparam = param; \
-				} \
 			} \
+		} \
 		float linelen = highparam - lowparam; \
-		if( !(linelen > 1e-7f) ) \
+		if (!(linelen > 1e-7f)) \
 			linelen = 1e-7f; \
 		length_of_lines[partition] = linelen; \
-		} \
+	} \
 	return errorsum; \
-	}
+}
 
 THREE_COMPONENT_ERROR_FUNC(compute_error_squared_gba, 1, 2, 3, yzw, gba)
 THREE_COMPONENT_ERROR_FUNC(compute_error_squared_rba, 0, 2, 3, xzw, rba)
@@ -825,14 +794,13 @@ THREE_COMPONENT_ERROR_FUNC(compute_error_squared_rga, 0, 1, 3, xyw, rga)
 THREE_COMPONENT_ERROR_FUNC(compute_error_squared_rgb, 0, 1, 2, xyz, rgb)
 
 float compute_error_squared_rgba(const partition_info * pt,	// the partition that we use when computing the squared-error.
-								 const imageblock * blk, const error_weight_block * ewb, const processed_line4 * plines, float *length_of_lines)
+								 const imageblock * blk,
+								 const error_weight_block * ewb,
+								 const processed_line4 * plines,
+								 float *length_of_lines)
 {
-	int i;
-
 	float errorsum = 0.0f;
-	int partition;
-	for (partition = 0; partition < pt->partition_count; partition++)
-	{
+	for (int partition = 0; partition < pt->partition_count; partition++) {
 		const uint8_t *indexes = pt->texels_of_partition[partition];
 		int texelcount = pt->texels_per_partition[partition];
 		float lowparam = 1e10;
@@ -842,11 +810,9 @@ float compute_error_squared_rgba(const partition_info * pt,	// the partition tha
 
 		if (ewb->contains_zeroweight_texels)
 		{
-			for (i = 0; i < texelcount; i++)
-			{
+			for (int i = 0; i < texelcount; i++) {
 				int idx = indexes[i];
-				if (ewb->texel_weight[idx] > 1e-20)
-				{
+				if (ewb->texel_weight[idx] > 1e-20) {
 					float4 point = float4(blk->work_data[4 * idx], blk->work_data[4 * idx + 1], blk->work_data[4 * idx + 2], blk->work_data[4 * idx + 3]);
 					float param = dot(point, l.bs);
 					float4 rp1 = l.amod + param * l.bis;
@@ -859,11 +825,8 @@ float compute_error_squared_rgba(const partition_info * pt,	// the partition tha
 						highparam = param;
 				}
 			}
-		}
-		else
-		{
-			for (i = 0; i < texelcount; i++)
-			{
+		}else {
+			for (int i = 0; i < texelcount; i++) {
 				int idx = indexes[i];
 				float4 point = float4(blk->work_data[4 * idx], blk->work_data[4 * idx + 1], blk->work_data[4 * idx + 2], blk->work_data[4 * idx + 3]);
 				float param = dot(point, l.bs);
@@ -888,21 +851,21 @@ float compute_error_squared_rgba(const partition_info * pt,	// the partition tha
 }
 
 
-
 // function to compute the error across a tile when using a particular line for
 // a particular partition.
-float compute_error_squared_rgb_single_partition(int partition_to_test, int xdim, int ydim, int zdim, const partition_info * pt,	// the partition that we use when computing the squared-error.
-												 const imageblock * blk, const error_weight_block * ewb, const processed_line3 * lin	// the line for the partition.
+float compute_error_squared_rgb_single_partition(int partition_to_test,
+												 int xdim, int ydim, int zdim,
+												 const partition_info * pt,	// the partition that we use when computing the squared-error.
+												 const imageblock * blk,
+												 const error_weight_block * ewb,
+												 const processed_line3 * lin	// the line for the partition.
 	)
 {
-	int i;
-
 	int texels_per_block = xdim * ydim * zdim;
 
 	float errorsum = 0.0f;
 
-	for (i = 0; i < texels_per_block; i++)
-	{
+	for (int i = 0; i < texels_per_block; i++) {
 		int partition = pt->partition_of_texel[i];
 		float texel_weight = ewb->texel_weight_rgb[i];
 		if (partition != partition_to_test || texel_weight < 1e-20)
@@ -918,3 +881,4 @@ float compute_error_squared_rgb_single_partition(int partition_to_test, int xdim
 	}
 	return errorsum;
 }
+

@@ -25,8 +25,7 @@ static inline float clamp01(float val)
 {
 	if (val > 1.0f)
 		val = 1.0f;
-	else if (val > 0.0f)
-	{
+	else if (val > 0.0f) {
 		// deliberately empty; switching the order of calculation here will fail to handle 0.
 	}
 	else
@@ -51,7 +50,6 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 																			   // arrays to return results back through.
 																			   float best_error[21][4], int format_of_choice[21][4])
 {
-	int i, j;
 	int partition_size = pi->texels_per_partition[partition_index];
 
 	static const float baseline_quant_error[21] = {
@@ -139,8 +137,7 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 
 
 	#ifdef DEBUG_PRINT_DIAGNOSTICS
-		if (print_diagnostics)
-		{
+		if (print_diagnostics) {
 			printf("%s : partition=%d\nrgb-error_wt=%f  alpha_error_wt=%f\n", __func__, partition_index, error_weight_rgbsum, error_weight.w);
 	
 			printf("ep0 = %f %f %f %f\n", ep0.x, ep0.y, ep0.z, ep0.w);
@@ -153,23 +150,17 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 		}
 	#endif
 
-	if (encode_hdr_rgb)
-	{
+	if (encode_hdr_rgb) {
 
 		// collect some statistics
 		float af, cf;
-		if (ep1.x > ep1.y && ep1.x > ep1.z)
-		{
+		if (ep1.x > ep1.y && ep1.x > ep1.z) {
 			af = ep1.x;
 			cf = ep1.x - ep0.x;
-		}
-		else if (ep1.y > ep1.z)
-		{
+		}else if (ep1.y > ep1.z) {
 			af = ep1.y;
 			cf = ep1.y - ep0.y;
-		}
-		else
-		{
+		}else {
 			af = ep1.z;
 			cf = ep1.z - ep0.z;
 		}
@@ -183,7 +174,6 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 		int b = (int)bf;
 		int c = (int)cf;
 		int d = (int)df;
-
 
 		// determine which one of the 6 submodes is likely to be used in
 		// case of an RGBO-mode
@@ -248,11 +238,8 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 
 		mode23mult *= 0.0005f;	// empirically determined ....
 
-
-
 		// pick among the available HDR endpoint modes
-		for (i = 0; i < 8; i++)
-		{
+		for (int i = 0; i < 8; i++) {
 			best_error[i][3] = 1e30f;
 			format_of_choice[i][3] = encode_hdr_alpha ? FMT_HDR_RGBA : FMT_HDR_RGB_LDR_ALPHA;
 			best_error[i][2] = 1e30f;
@@ -263,9 +250,7 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 			format_of_choice[i][0] = FMT_HDR_LUMINANCE_LARGE_RANGE;
 		}
 
-
-		for (i = 8; i < 21; i++)
-		{
+		for (int i = 8; i < 21; i++) {
 			// base_quant_error should depend on the scale-factor that would be used
 			// during actual encode of the color value.
 
@@ -303,22 +288,15 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 			format_of_choice[i][0] = FMT_HDR_LUMINANCE_LARGE_RANGE;
 
 			#ifdef DEBUG_PRINT_DIAGNOSTICS
-				if (print_diagnostics)
-				{
-					for (j = 0; j < 4; j++)
-					{
+				if (print_diagnostics) {
+					for (int j = 0; j < 4; j++) {
 						printf("(hdr) quant-level=%d ints=%d format=%d error=%f\n", i, j, format_of_choice[i][j], best_error[i][j]);
 					}
 				}
 			#endif
 		}
-	}
-
-
-	else
-	{
-		for (i = 0; i < 4; i++)
-		{
+	}else {
+		for (int i = 0; i < 4; i++) {
 			best_error[i][3] = 1e30f;
 			best_error[i][2] = 1e30f;
 			best_error[i][1] = 1e30f;
@@ -330,10 +308,8 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 			format_of_choice[i][0] = FMT_LUMINANCE;
 		}
 
-
 		// pick among the available LDR endpoint modes
-		for (i = 4; i < 21; i++)
-		{
+		for (int i = 4; i < 21; i++) {
 			float base_quant_error = baseline_quant_error[i] * partition_size * 1.0f;
 			float rgb_quantization_error = error_weight_rgbsum * base_quant_error;
 			float alpha_quantization_error = error_weight.w * base_quant_error;
@@ -369,34 +345,26 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 
 			float rgbs_alpha_error = rgba_quantization_error + eci->rgb_scale_error + rgb_range_error + alpha_range_error;
 
-			if (rgbs_alpha_error < full_ldr_rgb_error)
-			{
+			if (rgbs_alpha_error < full_ldr_rgb_error) {
 				best_error[i][2] = rgbs_alpha_error;
 				format_of_choice[i][2] = FMT_RGB_SCALE_ALPHA;
-			}
-			else
-			{
+			}else {
 				best_error[i][2] = full_ldr_rgb_error;
 				format_of_choice[i][2] = FMT_RGB;
 			}
-
 
 			// for 4 integers, we have a Luminance-Alpha encoding and the RGBS encoding
 			float ldr_rgbs_error = rgb_quantization_error + eci->alpha_drop_error + eci->rgb_scale_error + rgb_range_error;
 
 			float lum_alpha_error = rgba_quantization_error + eci->luminance_error + rgb_range_error + alpha_range_error;
 
-			if (ldr_rgbs_error < lum_alpha_error)
-			{
+			if (ldr_rgbs_error < lum_alpha_error) {
 				best_error[i][1] = ldr_rgbs_error;
 				format_of_choice[i][1] = FMT_RGB_SCALE;
-			}
-			else
-			{
+			}else {
 				best_error[i][1] = lum_alpha_error;
 				format_of_choice[i][1] = FMT_LUMINANCE_ALPHA;
 			}
-
 
 			// for 2 integers, we have a Luminance-encoding and an Alpha-encoding.
 			float luminance_error = rgb_quantization_error + eci->alpha_drop_error + eci->luminance_error + rgb_range_error;
@@ -405,10 +373,8 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 			format_of_choice[i][0] = FMT_LUMINANCE;
 
 			#ifdef DEBUG_PRINT_DIAGNOSTICS
-				if (print_diagnostics)
-				{
-					for (j = 0; j < 4; j++)
-					{
+				if (print_diagnostics) {
+					for (int j = 0; j < 4; j++) {
 						printf(" (ldr) quant-level=%d ints=%d format=%d error=%f\n", i, j, format_of_choice[i][j], best_error[i][j]);
 					}
 				}
@@ -418,22 +384,23 @@ static void compute_color_error_for_every_integer_count_and_quantization_level(i
 }
 
 
-
 // for 1 partition, find the best combination (one format + a quantization level) for a given bitcount
 
 static void one_partition_find_best_combination_for_bitcount(float combined_best_error[21][4],
-															 int formats_of_choice[21][4], int bits_available, int *best_quantization_level, int *best_formats, float *error_of_best_combination)
+															 int formats_of_choice[21][4],
+															 int bits_available,
+															 int *best_quantization_level,
+															 int *best_formats,
+															 float *error_of_best_combination)
 {
 	int best_integer_count = -1;
 	float best_integer_count_error = 1e20f;
-	for (int i = 0; i < 4; i++)
-	{
+	for (int i = 0; i < 4; i++) {
 		// compute the quantization level for a given number of integers and a given number of bits.
 		int quantization_level = quantization_mode_table[i + 1][bits_available];
 		if (quantization_level == -1)
 			continue;			// used to indicate the case where we don't have enoug bits to represent a given endpoint format at all.
-		if (combined_best_error[quantization_level][i] < best_integer_count_error)
-		{
+		if (combined_best_error[quantization_level][i] < best_integer_count_error) {
 			best_integer_count_error = combined_best_error[quantization_level][i];
 			best_integer_count = i;
 		}
@@ -451,7 +418,6 @@ static void one_partition_find_best_combination_for_bitcount(float combined_best
 }
 
 
-
 // for 2 partitions, find the best format combinations for every (quantization-mode, integer-count) combination
 
 static void two_partitions_find_best_combination_for_every_quantization_and_integer_count(float best_error[2][21][4],	// indexed by (partition, quant-level, integer-pair-count-minus-1)
@@ -459,19 +425,13 @@ static void two_partitions_find_best_combination_for_every_quantization_and_inte
 																						  float combined_best_error[21][7],	// indexed by (quant-level, integer-pair-count-minus-2)
 																						  int formats_of_choice[21][7][2])
 {
-	int i, j;
-
-	for (i = 0; i < 21; i++)
-		for (j = 0; j < 7; j++)
+	for (int i = 0; i < 21; i++)
+		for (int j = 0; j < 7; j++)
 			combined_best_error[i][j] = 1e30f;
 
-	int quant;
-	for (quant = 5; quant < 21; quant++)
-	{
-		for (i = 0; i < 4; i++)	// integer-count for first endpoint-pair
-		{
-			for (j = 0; j < 4; j++)	// integer-count for second endpoint-pair
-			{
+	for (int quant = 5; quant < 21; quant++) {
+		for (int i = 0; i < 4; i++) {	// integer-count for first endpoint-pair
+			for (int j = 0; j < 4; j++) {	// integer-count for second endpoint-pair
 				int low2 = MIN(i, j);
 				int high2 = MAX(i, j);
 				if ((high2 - low2) > 1)
@@ -479,8 +439,7 @@ static void two_partitions_find_best_combination_for_every_quantization_and_inte
 
 				int intcnt = i + j;
 				float errorterm = MIN(best_error[0][quant][i] + best_error[1][quant][j], 1e10f);
-				if (errorterm <= combined_best_error[quant][intcnt])
-				{
+				if (errorterm <= combined_best_error[quant][intcnt]) {
 					combined_best_error[quant][intcnt] = errorterm;
 					formats_of_choice[quant][intcnt][0] = format_of_choice[0][quant][i];
 					formats_of_choice[quant][intcnt][1] = format_of_choice[1][quant][j];
@@ -495,21 +454,21 @@ static void two_partitions_find_best_combination_for_every_quantization_and_inte
 
 static void two_partitions_find_best_combination_for_bitcount(float combined_best_error[21][7],
 															  int formats_of_choice[21][7][2],
-															  int bits_available, int *best_quantization_level, int *best_quantization_level_mod, int *best_formats, float *error_of_best_combination)
+															  int bits_available,
+															  int *best_quantization_level,
+															  int *best_quantization_level_mod,
+															  int *best_formats,
+															  float *error_of_best_combination)
 {
 	int best_integer_count = 0;
 	float best_integer_count_error = 1e20f;
-	int integer_count;
-
-	for (integer_count = 2; integer_count <= 8; integer_count++)
-	{
+	for (int integer_count = 2; integer_count <= 8; integer_count++) {
 		// compute the quantization level for a given number of integers and a given number of bits.
 		int quantization_level = quantization_mode_table[integer_count][bits_available];
 		if (quantization_level == -1)
 			break;				// used to indicate the case where we don't have enoug bits to represent a given endpoint format at all.
 		float integer_count_error = combined_best_error[quantization_level][integer_count - 2];
-		if (integer_count_error < best_integer_count_error)
-		{
+		if (integer_count_error < best_integer_count_error) {
 			best_integer_count_error = integer_count_error;
 			best_integer_count = integer_count;
 		}
@@ -521,19 +480,14 @@ static void two_partitions_find_best_combination_for_bitcount(float combined_bes
 	*best_quantization_level = ql;
 	*best_quantization_level_mod = ql_mod;
 	*error_of_best_combination = best_integer_count_error;
-	if (ql >= 0)
-	{
+	if (ql >= 0) {
 		for (int i = 0; i < 2; i++)
 			best_formats[i] = formats_of_choice[ql][best_integer_count - 2][i];
-	}
-	else
-	{
+	}else {
 		for (int i = 0; i < 2; i++)
 			best_formats[i] = FMT_LUMINANCE;
 	}
 }
-
-
 
 
 // for 3 partitions, find the best format combinations for every (quantization-mode, integer-count) combination
@@ -541,25 +495,18 @@ static void two_partitions_find_best_combination_for_bitcount(float combined_bes
 static void three_partitions_find_best_combination_for_every_quantization_and_integer_count(float best_error[3][21][4],	// indexed by (partition, quant-level, integer-count)
 																							int format_of_choice[3][21][4], float combined_best_error[21][10], int formats_of_choice[21][10][3])
 {
-	int i, j, k;
-
-	for (i = 0; i < 21; i++)
-		for (j = 0; j < 10; j++)
+	for (int i = 0; i < 21; i++)
+		for (int j = 0; j < 10; j++)
 			combined_best_error[i][j] = 1e30f;
 
-	int quant;
-	for (quant = 5; quant < 21; quant++)
-	{
-		for (i = 0; i < 4; i++)	// integer-count for first endpoint-pair
-		{
-			for (j = 0; j < 4; j++)	// integer-count for second endpoint-pair
-			{
+	for (int quant = 5; quant < 21; quant++) {
+		for (int i = 0; i < 4; i++) {	// integer-count for first endpoint-pair
+			for (int j = 0; j < 4; j++) {	// integer-count for second endpoint-pair
 				int low2 = MIN(i, j);
 				int high2 = MAX(i, j);
 				if ((high2 - low2) > 1)
 					continue;
-				for (k = 0; k < 4; k++)	// integer-count for third endpoint-pair
-				{
+				for (int k = 0; k < 4; k++) {	// integer-count for third endpoint-pair
 					int low3 = MIN(k, low2);
 					int high3 = MAX(k, high2);
 					if ((high3 - low3) > 1)
@@ -567,8 +514,7 @@ static void three_partitions_find_best_combination_for_every_quantization_and_in
 
 					int intcnt = i + j + k;
 					float errorterm = MIN(best_error[0][quant][i] + best_error[1][quant][j] + best_error[2][quant][k], 1e10f);
-					if (errorterm <= combined_best_error[quant][intcnt])
-					{
+					if (errorterm <= combined_best_error[quant][intcnt]) {
 						combined_best_error[quant][intcnt] = errorterm;
 						formats_of_choice[quant][intcnt][0] = format_of_choice[0][quant][i];
 						formats_of_choice[quant][intcnt][1] = format_of_choice[1][quant][j];
@@ -585,21 +531,21 @@ static void three_partitions_find_best_combination_for_every_quantization_and_in
 
 static void three_partitions_find_best_combination_for_bitcount(float combined_best_error[21][10],
 																int formats_of_choice[21][10][3],
-																int bits_available, int *best_quantization_level, int *best_quantization_level_mod, int *best_formats, float *error_of_best_combination)
+																int bits_available,
+																int *best_quantization_level,
+																int *best_quantization_level_mod,
+																int *best_formats,
+																float *error_of_best_combination)
 {
 	int best_integer_count = 0;
 	float best_integer_count_error = 1e20f;
-	int integer_count;
-
-	for (integer_count = 3; integer_count <= 9; integer_count++)
-	{
+	for (int integer_count = 3; integer_count <= 9; integer_count++) {
 		// compute the quantization level for a given number of integers and a given number of bits.
 		int quantization_level = quantization_mode_table[integer_count][bits_available];
 		if (quantization_level == -1)
 			break;				// used to indicate the case where we don't have enough bits to represent a given endpoint format at all.
 		float integer_count_error = combined_best_error[quantization_level][integer_count - 3];
-		if (integer_count_error < best_integer_count_error)
-		{
+		if (integer_count_error < best_integer_count_error) {
 			best_integer_count_error = integer_count_error;
 			best_integer_count = integer_count;
 		}
@@ -611,19 +557,14 @@ static void three_partitions_find_best_combination_for_bitcount(float combined_b
 	*best_quantization_level = ql;
 	*best_quantization_level_mod = ql_mod;
 	*error_of_best_combination = best_integer_count_error;
-	if (ql >= 0)
-	{
+	if (ql >= 0) {
 		for (int i = 0; i < 3; i++)
 			best_formats[i] = formats_of_choice[ql][best_integer_count - 3][i];
-	}
-	else
-	{
+	}else {
 		for (int i = 0; i < 3; i++)
 			best_formats[i] = FMT_LUMINANCE;
 	}
 }
-
-
 
 
 // for 4 partitions, find the best format combinations for every (quantization-mode, integer-count) combination
@@ -631,31 +572,23 @@ static void three_partitions_find_best_combination_for_bitcount(float combined_b
 static void four_partitions_find_best_combination_for_every_quantization_and_integer_count(float best_error[4][21][4],	// indexed by (partition, quant-level, integer-count)
 																						   int format_of_choice[4][21][4], float combined_best_error[21][13], int formats_of_choice[21][13][4])
 {
-	int i, j, k, l;
-
-	for (i = 0; i < 21; i++)
-		for (j = 0; j < 13; j++)
+	for (int i = 0; i < 21; i++)
+		for (int j = 0; j < 13; j++)
 			combined_best_error[i][j] = 1e30f;
 
-	int quant;
-	for (quant = 5; quant < 21; quant++)
-	{
-		for (i = 0; i < 4; i++)	// integer-count for first endpoint-pair
-		{
-			for (j = 0; j < 4; j++)	// integer-count for second endpoint-pair
-			{
+	for (int quant = 5; quant < 21; quant++) {
+		for (int i = 0; i < 4; i++) {	// integer-count for first endpoint-pair
+			for (int j = 0; j < 4; j++) {	// integer-count for second endpoint-pair
 				int low2 = MIN(i, j);
 				int high2 = MAX(i, j);
 				if ((high2 - low2) > 1)
 					continue;
-				for (k = 0; k < 4; k++)	// integer-count for third endpoint-pair
-				{
+				for (int k = 0; k < 4; k++) {	// integer-count for third endpoint-pair
 					int low3 = MIN(k, low2);
 					int high3 = MAX(k, high2);
 					if ((high3 - low3) > 1)
 						continue;
-					for (l = 0; l < 4; l++)	// integer-count for fourth endpoint-pair
-					{
+					for (int l = 0; l < 4; l++) {	// integer-count for fourth endpoint-pair
 						int low4 = MIN(l, low3);
 						int high4 = MAX(l, high3);
 						if ((high4 - low4) > 1)
@@ -663,8 +596,7 @@ static void four_partitions_find_best_combination_for_every_quantization_and_int
 
 						int intcnt = i + j + k + l;
 						float errorterm = MIN(best_error[0][quant][i] + best_error[1][quant][j] + best_error[2][quant][k] + best_error[3][quant][l], 1e10f);
-						if (errorterm <= combined_best_error[quant][intcnt])
-						{
+						if (errorterm <= combined_best_error[quant][intcnt]) {
 							combined_best_error[quant][intcnt] = errorterm;
 							formats_of_choice[quant][intcnt][0] = format_of_choice[0][quant][i];
 							formats_of_choice[quant][intcnt][1] = format_of_choice[1][quant][j];
@@ -679,10 +611,6 @@ static void four_partitions_find_best_combination_for_every_quantization_and_int
 }
 
 
-
-
-
-
 // for 4 partitions, find the best combination (four formats + a quantization level) for a given bitcount
 
 static void four_partitions_find_best_combination_for_bitcount(float combined_best_error[21][13],
@@ -691,17 +619,15 @@ static void four_partitions_find_best_combination_for_bitcount(float combined_be
 {
 	int best_integer_count = -4;
 	float best_integer_count_error = 1e20f;
-	int integer_count;
-
-	for (integer_count = 4; integer_count <= 9; integer_count++)
+	
+	for (int integer_count = 4; integer_count <= 9; integer_count++)
 	{
 		// compute the quantization level for a given number of integers and a given number of bits.
 		int quantization_level = quantization_mode_table[integer_count][bits_available];
 		if (quantization_level == -1)
 			break;				// used to indicate the case where we don't have enoug bits to represent a given endpoint format at all.
 		float integer_count_error = combined_best_error[quantization_level][integer_count - 4];
-		if (integer_count_error < best_integer_count_error)
-		{
+		if (integer_count_error < best_integer_count_error) {
 			best_integer_count_error = integer_count_error;
 			best_integer_count = integer_count;
 		}
@@ -713,18 +639,14 @@ static void four_partitions_find_best_combination_for_bitcount(float combined_be
 	*best_quantization_level = ql;
 	*best_quantization_level_mod = ql_mod;
 	*error_of_best_combination = best_integer_count_error;
-	if (ql >= 0)
-	{
+	if (ql >= 0) {
 		for (int i = 0; i < 4; i++)
 			best_formats[i] = formats_of_choice[ql][best_integer_count - 4][i];
-	}
-	else
-	{
+	}else {
 		for (int i = 0; i < 4; i++)
 			best_formats[i] = FMT_LUMINANCE;
 	}
 }
-
 
 
 /* 
@@ -758,12 +680,10 @@ void determine_optimal_set_of_endpoint_formats_to_use(int xdim, int ydim, int zd
 													  int partition_format_specifiers[4][4], int quantized_weight[4],
 													  int quantization_level[4], int quantization_level_mod[4])
 {
-	int i, j;
 	int partition_count = pt->partition_count;
 
 	int encode_hdr_rgb = blk->rgb_lns[0];
 	int encode_hdr_alpha = blk->alpha_lns[0];
-
 
 	// call a helper function to compute the errors that result from various
 	// encoding choices (such as using luminance instead of RGB, discarding Alpha,
@@ -776,10 +696,9 @@ void determine_optimal_set_of_endpoint_formats_to_use(int xdim, int ydim, int zd
 	float4 dummied_color_scalefactors[4];	// only used to receive data
 	compute_partition_error_color_weightings(xdim, ydim, zdim, ewb, pt, error_weightings, dummied_color_scalefactors);
 
-
 	float best_error[4][21][4];
 	int format_of_choice[4][21][4];
-	for (i = 0; i < partition_count; i++)
+	for (int i = 0; i < partition_count; i++)
 		compute_color_error_for_every_integer_count_and_quantization_level(encode_hdr_rgb, encode_hdr_alpha, i, pt, &(eci[i]), ep, error_weightings, best_error[i], format_of_choice[i]);
 
 	float errors_of_best_combination[MAX_WEIGHT_MODES];
@@ -788,15 +707,12 @@ void determine_optimal_set_of_endpoint_formats_to_use(int xdim, int ydim, int zd
 	int best_ep_formats[MAX_WEIGHT_MODES][4];
 
 	// code for the case where the block contains 1 partition
-	if (partition_count == 1)
-	{
+	if (partition_count == 1) {
 		int best_quantization_level;
 		int best_format;
 		float error_of_best_combination;
-		for (i = 0; i < MAX_WEIGHT_MODES; i++)
-		{
-			if (qwt_errors[i] >= 1e29f)
-			{
+		for (int i = 0; i < MAX_WEIGHT_MODES; i++) {
+			if (qwt_errors[i] >= 1e29f) {
 				errors_of_best_combination[i] = 1e30f;
 				continue;
 			}
@@ -810,10 +726,8 @@ void determine_optimal_set_of_endpoint_formats_to_use(int xdim, int ydim, int zd
 			best_ep_formats[i][0] = best_format;
 		}
 	}
-
 	// code for the case where the block contains 2 partitions
-	else if (partition_count == 2)
-	{
+	else if (partition_count == 2) {
 		int best_quantization_level;
 		int best_quantization_level_mod;
 		int best_formats[2];
@@ -824,11 +738,8 @@ void determine_optimal_set_of_endpoint_formats_to_use(int xdim, int ydim, int zd
 
 		two_partitions_find_best_combination_for_every_quantization_and_integer_count(best_error, format_of_choice, combined_best_error, formats_of_choice);
 
-
-		for (i = 0; i < MAX_WEIGHT_MODES; i++)
-		{
-			if (qwt_errors[i] >= 1e29f)
-			{
+		for (int i = 0; i < MAX_WEIGHT_MODES; i++) {
+			if (qwt_errors[i] >= 1e29f) {
 				errors_of_best_combination[i] = 1e30f;
 				continue;
 			}
@@ -847,8 +758,7 @@ void determine_optimal_set_of_endpoint_formats_to_use(int xdim, int ydim, int zd
 	}
 
 	// code for the case where the block contains 3 partitions
-	else if (partition_count == 3)
-	{
+	else if (partition_count == 3) {
 		int best_quantization_level;
 		int best_quantization_level_mod;
 		int best_formats[3];
@@ -859,10 +769,8 @@ void determine_optimal_set_of_endpoint_formats_to_use(int xdim, int ydim, int zd
 
 		three_partitions_find_best_combination_for_every_quantization_and_integer_count(best_error, format_of_choice, combined_best_error, formats_of_choice);
 
-		for (i = 0; i < MAX_WEIGHT_MODES; i++)
-		{
-			if (qwt_errors[i] >= 1e29f)
-			{
+		for (int i = 0; i < MAX_WEIGHT_MODES; i++) {
+			if (qwt_errors[i] >= 1e29f) {
 				errors_of_best_combination[i] = 1e30f;
 				continue;
 			}
@@ -879,10 +787,8 @@ void determine_optimal_set_of_endpoint_formats_to_use(int xdim, int ydim, int zd
 			best_ep_formats[i][2] = best_formats[2];
 		}
 	}
-
 	// code for the case where the block contains 4 partitions
-	else if (partition_count == 4)
-	{
+	else if (partition_count == 4) {
 		int best_quantization_level;
 		int best_quantization_level_mod;
 		int best_formats[4];
@@ -893,10 +799,8 @@ void determine_optimal_set_of_endpoint_formats_to_use(int xdim, int ydim, int zd
 
 		four_partitions_find_best_combination_for_every_quantization_and_integer_count(best_error, format_of_choice, combined_best_error, formats_of_choice);
 
-		for (i = 0; i < MAX_WEIGHT_MODES; i++)
-		{
-			if (qwt_errors[i] >= 1e29f)
-			{
+		for (int i = 0; i < MAX_WEIGHT_MODES; i++) {
+			if (qwt_errors[i] >= 1e29f) {
 				errors_of_best_combination[i] = 1e30f;
 				continue;
 			}
@@ -918,37 +822,31 @@ void determine_optimal_set_of_endpoint_formats_to_use(int xdim, int ydim, int zd
 
 	int best_error_weights[4];
 
-	for (i = 0; i < 4; i++)
-	{
+	for (int i = 0; i < 4; i++) {
 		float best_ep_error = 1e30f;
 		int best_error_index = -1;
-		for (j = 0; j < MAX_WEIGHT_MODES; j++)
-		{
-			if (errors_of_best_combination[j] < best_ep_error && best_quantization_levels[j] >= 5)
-			{
+		for (int j = 0; j < MAX_WEIGHT_MODES; j++) {
+			if (errors_of_best_combination[j] < best_ep_error && best_quantization_levels[j] >= 5) {
 				best_ep_error = errors_of_best_combination[j];
 				best_error_index = j;
 			}
 		}
 		best_error_weights[i] = best_error_index;
 
-		if(best_error_index >= 0)
-		{
+		if (best_error_index >= 0) {
 			errors_of_best_combination[best_error_index] = 1e30f;
 		}
 	}
 
-	for (i = 0; i < 4; i++)
-	{
+	for (int i = 0; i < 4; i++) {
 		quantized_weight[i] = best_error_weights[i];
-		if (quantized_weight[i] >= 0)
-		{
+		if (quantized_weight[i] >= 0) {
 			quantization_level[i] = best_quantization_levels[best_error_weights[i]];
 			quantization_level_mod[i] = best_quantization_levels_mod[best_error_weights[i]];
-			for (j = 0; j < partition_count; j++)
-			{
+			for (int j = 0; j < partition_count; j++) {
 				partition_format_specifiers[i][j] = best_ep_formats[best_error_weights[i]][j];
 			}
 		}
 	}
 }
+

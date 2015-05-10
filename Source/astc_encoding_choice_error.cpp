@@ -54,45 +54,38 @@ void merge_endpoints(const endpoints * ep1,	// contains three of the color compo
 {
 	int partition_count = ep1->partition_count;
 	res->partition_count = partition_count;
-	for (int i = 0; i < partition_count; i++)
-	{
+	for (int i = 0; i < partition_count; i++) {
 		res->endpt0[i] = ep1->endpt0[i];
 		res->endpt1[i] = ep1->endpt1[i];
 	}
 
-	switch (separate_component)
-	{
+	switch (separate_component) {
 	case 0:
-		for (int i = 0; i < partition_count; i++)
-		{
+		for (int i = 0; i < partition_count; i++) {
 			res->endpt0[i].x = ep2->endpt0[i].x;
 			res->endpt1[i].x = ep2->endpt1[i].x;
 		}
 		break;
 	case 1:
-		for (int i = 0; i < partition_count; i++)
-		{
+		for (int i = 0; i < partition_count; i++) {
 			res->endpt0[i].y = ep2->endpt0[i].y;
 			res->endpt1[i].y = ep2->endpt1[i].y;
 		}
 		break;
 	case 2:
-		for (int i = 0; i < partition_count; i++)
-		{
+		for (int i = 0; i < partition_count; i++) {
 			res->endpt0[i].z = ep2->endpt0[i].z;
 			res->endpt1[i].z = ep2->endpt1[i].z;
 		}
 		break;
 	case 3:
-		for (int i = 0; i < partition_count; i++)
-		{
+		for (int i = 0; i < partition_count; i++) {
 			res->endpt0[i].w = ep2->endpt0[i].w;
 			res->endpt1[i].w = ep2->endpt1[i].w;
 		}
 		break;
 	}
 }
-
 
 
 /* 
@@ -113,8 +106,7 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 	int texels_per_block = xdim * ydim * zdim;
 
 	#ifdef DEBUG_PRINT_DIAGNOSTICS
-		if (print_diagnostics)
-		{
+		if (print_diagnostics) {
 			printf("%s : texels-per-block=%dx%dx%d, separate_component=%d, partition-count=%d\n", __func__, xdim, ydim, zdim, separate_component, partition_count);
 		}
 	#endif
@@ -143,14 +135,11 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 	processed_line3 proc_rgb_luma_lines[4];	// for HDR-RGB-scale
 	processed_line3 proc_luminance_lines[4];
 
-
-	for (int i = 0; i < partition_count; i++)
-	{
+	for (int i = 0; i < partition_count; i++) {
 		inverse_color_scalefactors[i].x = 1.0f / MAX(color_scalefactors[i].x, 1e-7f);
 		inverse_color_scalefactors[i].y = 1.0f / MAX(color_scalefactors[i].y, 1e-7f);
 		inverse_color_scalefactors[i].z = 1.0f / MAX(color_scalefactors[i].z, 1e-7f);
 		inverse_color_scalefactors[i].w = 1.0f / MAX(color_scalefactors[i].w, 1e-7f);
-
 
 		uncorr_rgb_lines[i].a = averages[i];
 		if (dot(directions_rgb[i], directions_rgb[i]) == 0.0f)
@@ -171,8 +160,7 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 		luminance_lines[i].b = normalize(color_scalefactors[i].xyz);
 
 		#ifdef DEBUG_PRINT_DIAGNOSTICS
-			if (print_diagnostics)
-			{
+			if (print_diagnostics) {
 				printf("Partition %d\n", i);
 				printf("Average = <%g %g %g>\n", averages[i].x, averages[i].y, averages[i].z);
 				printf("Uncorr-rgb-line = <%g %g %g> + t<%g %g %g>\n",
@@ -199,16 +187,12 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 
 	}
 
-
-
 	float uncorr_rgb_error[4];
 	float samechroma_rgb_error[4];
 	float rgb_luma_error[4];
 	float luminance_rgb_error[4];
 
-
-	for (int i = 0; i < partition_count; i++)
-	{
+	for (int i = 0; i < partition_count; i++) {
 
 		uncorr_rgb_error[i] = compute_error_squared_rgb_single_partition(i, xdim, ydim, zdim, pi, pb, ewb, &(proc_uncorr_rgb_lines[i]));
 
@@ -219,8 +203,7 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 		luminance_rgb_error[i] = compute_error_squared_rgb_single_partition(i, xdim, ydim, zdim, pi, pb, ewb, &(proc_luminance_lines[i]));
 
 		#ifdef DEBUG_PRINT_DIAGNOSTICS
-			if (print_diagnostics)
-			{
+			if (print_diagnostics) {
 				printf("Partition %d : uncorr-error=%g  samechroma-error=%g  rgb-luma-error=%g  lum-error=%g\n",
 					i, uncorr_rgb_error[i], samechroma_rgb_error[i], rgb_luma_error[i], luminance_rgb_error[i]);
 			}
@@ -230,13 +213,11 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 	// compute the error that arises from just ditching alpha and RGB
 	float alpha_drop_error[4];
 	float rgb_drop_error[4];
-	for (int i = 0; i < partition_count; i++)
-	{
+	for (int i = 0; i < partition_count; i++) {
 		alpha_drop_error[i] = 0;
 		rgb_drop_error[i] = 0;
 	}
-	for (int i = 0; i < texels_per_block; i++)
-	{
+	for (int i = 0; i < texels_per_block; i++) {
 		int partition = pi->partition_of_texel[i];
 		float alpha = pb->work_data[4 * i + 3];
 		float default_alpha = pb->alpha_lns[i] ? (float)0x7800 : (float)0xFFFF;
@@ -252,14 +233,11 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 	// check if we are eligible for blue-contraction and offset-encoding
 
 	endpoints ep;
-	if (separate_component == -1)
-	{
+	if (separate_component == -1) {
 		endpoints_and_weights ei;
 		compute_endpoints_and_ideal_weights_1_plane(xdim, ydim, zdim, pi, pb, ewb, &ei);
 		ep = ei.ep;
-	}
-	else
-	{
+	}else {
 		endpoints_and_weights ei1, ei2;
 		compute_endpoints_and_ideal_weights_2_planes(xdim, ydim, zdim, pi, pb, ewb, separate_component, &ei1, &ei2);
 
@@ -269,8 +247,7 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 	int eligible_for_offset_encode[4];
 	int eligible_for_blue_contraction[4];
 
-	for (int i = 0; i < partition_count; i++)
-	{
+	for (int i = 0; i < partition_count; i++) {
 		float4 endpt0 = ep.endpt0[i];
 		float4 endpt1 = ep.endpt1[i];
 		float4 endpt_dif = endpt1 - endpt0;
@@ -290,10 +267,8 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 			eligible_for_blue_contraction[i] = 0;
 	}
 
-
 	// finally, gather up our results
-	for (int i = 0; i < partition_count; i++)
-	{
+	for (int i = 0; i < partition_count; i++) {
 		eci[i].rgb_scale_error = (samechroma_rgb_error[i] - uncorr_rgb_error[i]) * 0.7f;	// empirical
 		eci[i].rgb_luma_error = (rgb_luma_error[i] - uncorr_rgb_error[i]) * 1.5f;	// wild guess
 		eci[i].luminance_error = (luminance_rgb_error[i] - uncorr_rgb_error[i]) * 3.0f;	// empirical
@@ -303,3 +278,4 @@ void compute_encoding_choice_errors(int xdim, int ydim, int zdim, const imageblo
 		eci[i].can_blue_contract = eligible_for_blue_contraction[i];
 	}
 }
+

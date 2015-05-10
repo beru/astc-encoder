@@ -39,8 +39,6 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 										  int avg_var_kernel_radius, int alpha_kernel_radius,
 										  int dest_xoffset, int dest_yoffset, int dest_zoffset)
 {
-	int x, y, z;
-
 	int kernel_radius = MAX(avg_var_kernel_radius, alpha_kernel_radius);
 	int kerneldim = 2 * kernel_radius + 1;
 
@@ -56,8 +54,7 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 	varbuf1[0][0] = new double4[xpadsize * ypadsize * zpadsize];
 	varbuf2[0][0] = new double4[xpadsize * ypadsize * zpadsize];
 
-
-	for (z = 1; z < zpadsize; z++)
+	for (int z = 1; z < zpadsize; z++)
 	{
 		varbuf1[z] = varbuf1[0] + ypadsize * z;
 		varbuf2[z] = varbuf2[0] + ypadsize * z;
@@ -65,31 +62,25 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 		varbuf2[z][0] = varbuf2[0][0] + xpadsize * ypadsize * z;
 	}
 
-	for (z = 0; z < zpadsize; z++)
-		for (y = 1; y < ypadsize; y++)
-		{
+	for (int z = 0; z < zpadsize; z++)
+		for (int y = 1; y < ypadsize; y++) {
 			varbuf1[z][y] = varbuf1[z][0] + xpadsize * y;
 			varbuf2[z][y] = varbuf2[z][0] + xpadsize * y;
 		}
 
 	int powers_are_1 = (rgb_power_to_use == 1.0f) && (alpha_power_to_use == 1.0f);
 
-
 	// load x and x^2 values into the allocated buffers
-	if (img->imagedata8)
-	{
+	if (img->imagedata8) {
 		uint8_t data[6];
 		data[4] = 0;
 		data[5] = 255;
 
-		for (z = 0; z < zpadsize - 1; z++)
-		{
+		for (int z = 0; z < zpadsize - 1; z++) {
 			int z_src = z + source_zoffset - (use_z_axis ? kernel_radius : 0);
-			for (y = 0; y < ypadsize - 1; y++)
-			{
+			for (int y = 0; y < ypadsize - 1; y++) {
 				int y_src = y + source_yoffset - kernel_radius;
-				for (x = 0; x < xpadsize - 1; x++)
-				{
+				for (int x = 0; x < xpadsize - 1; x++) {
 					int x_src = x + source_xoffset - kernel_radius;
 					data[0] = img->imagedata8[z_src][y_src][4 * x_src + 0];
 					data[1] = img->imagedata8[z_src][y_src][4 * x_src + 1];
@@ -106,15 +97,13 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 										b * (1.0 / 255.0),
 										a * (1.0 / 255.0));
 
-					if (perform_srgb_transform)
-					{
+					if (perform_srgb_transform) {
 						d.x = (d.x <= 0.04045) ? d.x * (1.0 / 12.92) : (d.x <= 1) ? pow((d.x + 0.055) * (1.0 / 1.055), 2.4) : d.x;
 						d.y = (d.y <= 0.04045) ? d.y * (1.0 / 12.92) : (d.y <= 1) ? pow((d.y + 0.055) * (1.0 / 1.055), 2.4) : d.y;
 						d.z = (d.z <= 0.04045) ? d.z * (1.0 / 12.92) : (d.z <= 1) ? pow((d.z + 0.055) * (1.0 / 1.055), 2.4) : d.z;
 					}
 
-					if (!powers_are_1)
-					{
+					if (!powers_are_1) {
 						d.x = pow(MAX(d.x, 1e-6f), (double)rgb_power_to_use);
 						d.y = pow(MAX(d.y, 1e-6f), (double)rgb_power_to_use);
 						d.z = pow(MAX(d.z, 1e-6f), (double)rgb_power_to_use);
@@ -126,21 +115,16 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 				}
 			}
 		}
-	}
-	else
-	{
+	}else {
 		uint16_t data[6];
 		data[4] = 0;
 		data[5] = 0x3C00;		// 1.0 encoded as FP16.
 
-		for (z = 0; z < zpadsize - 1; z++)
-		{
+		for (int z = 0; z < zpadsize - 1; z++) {
 			int z_src = z + source_zoffset - (use_z_axis ? kernel_radius : 0);
-			for (y = 0; y < ypadsize - 1; y++)
-			{
+			for (int y = 0; y < ypadsize - 1; y++) {
 				int y_src = y + source_yoffset - kernel_radius;
-				for (x = 0; x < xpadsize - 1; x++)
-				{
+				for (int x = 0; x < xpadsize - 1; x++) {
 					int x_src = x + source_xoffset - kernel_radius;
 					data[0] = img->imagedata16[z_src][y_src][4 * x_src];
 					data[1] = img->imagedata16[z_src][y_src][4 * x_src + 1];
@@ -157,15 +141,13 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 										sf16_to_float(b),
 										sf16_to_float(a));
 
-					if (perform_srgb_transform)
-					{
+					if (perform_srgb_transform) {
 						d.x = (d.x <= 0.04045) ? d.x * (1.0 / 12.92) : (d.x <= 1) ? pow((d.x + 0.055) * (1.0 / 1.055), 2.4) : d.x;
 						d.y = (d.y <= 0.04045) ? d.y * (1.0 / 12.92) : (d.y <= 1) ? pow((d.y + 0.055) * (1.0 / 1.055), 2.4) : d.y;
 						d.z = (d.z <= 0.04045) ? d.z * (1.0 / 12.92) : (d.z <= 1) ? pow((d.z + 0.055) * (1.0 / 1.055), 2.4) : d.z;
 					}
 
-					if (!powers_are_1)
-					{
+					if (!powers_are_1) {
 						d.x = pow(MAX(d.x, 1e-6), (double)rgb_power_to_use);
 						d.y = pow(MAX(d.y, 1e-6), (double)rgb_power_to_use);
 						d.z = pow(MAX(d.z, 1e-6), (double)rgb_power_to_use);
@@ -179,40 +161,32 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 		}
 	}
 
-
-
 	// pad out buffers with 0s
-	for (z = 0; z < zpadsize; z++)
-	{
-		for (y = 0; y < ypadsize; y++)
-		{
+	for (int z = 0; z < zpadsize; z++) {
+		for (int y = 0; y < ypadsize; y++) {
 			varbuf1[z][y][xpadsize - 1] = double4(0.0, 0.0, 0.0, 0.0);
 			varbuf2[z][y][xpadsize - 1] = double4(0.0, 0.0, 0.0, 0.0);
 		}
-		for (x = 0; x < xpadsize; x++)
-		{
+		for (int x = 0; x < xpadsize; x++) {
 			varbuf1[z][ypadsize - 1][x] = double4(0.0, 0.0, 0.0, 0.0);
 			varbuf2[z][ypadsize - 1][x] = double4(0.0, 0.0, 0.0, 0.0);
 		}
 	}
 
 	if (use_z_axis)
-		for (y = 0; y < ypadsize; y++)
-			for (x = 0; x < xpadsize; x++)
-			{
+		for (int y = 0; y < ypadsize; y++)
+			for (int x = 0; x < xpadsize; x++) {
 				varbuf1[zpadsize - 1][y][x] = double4(0.0, 0.0, 0.0, 0.0);
 				varbuf2[zpadsize - 1][y][x] = double4(0.0, 0.0, 0.0, 0.0);
 			}
 
 
 	// generate summed-area tables for x and x2; this is done in-place
-	for (z = 0; z < zpadsize; z++)
-		for (y = 0; y < ypadsize; y++)
-		{
+	for (int z = 0; z < zpadsize; z++)
+		for (int y = 0; y < ypadsize; y++) {
 			double4 summa1 = double4(0.0, 0.0, 0.0, 0.0);
 			double4 summa2 = double4(0.0, 0.0, 0.0, 0.0);
-			for (x = 0; x < xpadsize; x++)
-			{
+			for (int x = 0; x < xpadsize; x++) {
 				double4 val1 = varbuf1[z][y][x];
 				double4 val2 = varbuf2[z][y][x];
 				varbuf1[z][y][x] = summa1;
@@ -222,13 +196,11 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 			}
 		}
 
-	for (z = 0; z < zpadsize; z++)
-		for (x = 0; x < xpadsize; x++)
-		{
+	for (int z = 0; z < zpadsize; z++)
+		for (int x = 0; x < xpadsize; x++) {
 			double4 summa1 = double4(0.0, 0.0, 0.0, 0.0);
 			double4 summa2 = double4(0.0, 0.0, 0.0, 0.0);
-			for (y = 0; y < ypadsize; y++)
-			{
+			for (int y = 0; y < ypadsize; y++) {
 				double4 val1 = varbuf1[z][y][x];
 				double4 val2 = varbuf2[z][y][x];
 				varbuf1[z][y][x] = summa1;
@@ -239,13 +211,11 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 		}
 
 	if (use_z_axis)
-		for (y = 0; y < ypadsize; y++)
-			for (x = 0; x < xpadsize; x++)
-			{
+		for (int y = 0; y < ypadsize; y++)
+			for (int x = 0; x < xpadsize; x++) {
 				double4 summa1 = double4(0.0, 0.0, 0.0, 0.0);
 				double4 summa2 = double4(0.0, 0.0, 0.0, 0.0);
-				for (z = 0; z < zpadsize; z++)
-				{
+				for (int z = 0; z < zpadsize; z++) {
 					double4 val1 = varbuf1[z][y][x];
 					double4 val2 = varbuf2[z][y][x];
 					varbuf1[z][y][x] = summa1;
@@ -259,23 +229,18 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 	int avg_var_kerneldim = 2 * avg_var_kernel_radius + 1;
 	int alpha_kerneldim = 2 * alpha_kernel_radius + 1;
 
-
 	// compute a few constants used in the variance-calculation.
 	double avg_var_samples;
 	double alpha_rsamples;
 	double mul1;
 
-	if (use_z_axis)
-	{
+	if (use_z_axis) {
 		avg_var_samples = avg_var_kerneldim * avg_var_kerneldim * avg_var_kerneldim;
 		alpha_rsamples = 1.0 / (alpha_kerneldim * alpha_kerneldim * alpha_kerneldim);
-	}
-	else
-	{
+	}else {
 		avg_var_samples = avg_var_kerneldim * avg_var_kerneldim;
 		alpha_rsamples = 1.0 / (alpha_kerneldim * alpha_kerneldim);
 	}
-
 
 	double avg_var_rsamples = 1.0 / avg_var_samples;
 	if (avg_var_samples == 1)
@@ -283,24 +248,18 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 	else
 		mul1 = 1.0 / (avg_var_samples * (avg_var_samples - 1));
 
-
 	double mul2 = avg_var_samples * mul1;
 
-
 	// use the summed-area tables to compute variance for each sample-neighborhood
-	if (use_z_axis)
-	{
-		for (z = 0; z < zsize; z++)
-		{
+	if (use_z_axis) {
+		for (int z = 0; z < zsize; z++) {
 			int z_src = z + kernel_radius;
 			int z_dst = z + dest_zoffset;
-			for (y = 0; y < ysize; y++)
-			{
+			for (int y = 0; y < ysize; y++) {
 				int y_src = y + kernel_radius;
 				int y_dst = y + dest_yoffset;
 
-				for (x = 0; x < xsize; x++)
-				{
+				for (int x = 0; x < xsize; x++) {
 					int x_src = x + kernel_radius;
 					int x_dst = x + dest_xoffset;
 
@@ -364,20 +323,15 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 				}
 			}
 		}
-	}
-	else
-	{
-		for (z = 0; z < zsize; z++)
-		{
+	}else {
+		for (int z = 0; z < zsize; z++) {
 			int z_src = z;
 			int z_dst = z + dest_zoffset;
-			for (y = 0; y < ysize; y++)
-			{
+			for (int y = 0; y < ysize; y++) {
 				int y_src = y + kernel_radius;
 				int y_dst = y + dest_yoffset;
 
-				for (x = 0; x < xsize; x++)
-				{
+				for (int x = 0; x < xsize; x++) {
 					int x_src = x + kernel_radius;
 					int x_dst = x + dest_xoffset;
 
@@ -438,20 +392,17 @@ static void compute_pixel_region_variance(const astc_codec_image * img, float rg
 static void allocate_input_average_and_variance_buffers(int xsize, int ysize, int zsize)
 {
 	int y, z;
-	if (input_averages)
-	{
+	if (input_averages) {
 		delete[]input_averages[0][0];
 		delete[]input_averages[0];
 		delete[]input_averages;
 	}
-	if (input_variances)
-	{
+	if (input_variances) {
 		delete[]input_variances[0][0];
 		delete[]input_variances[0];
 		delete[]input_variances;
 	}
-	if (input_alpha_averages)
-	{
+	if (input_alpha_averages) {
 		delete[]input_alpha_averages[0][0];
 		delete[]input_alpha_averages[0];
 		delete[]input_alpha_averages;
@@ -461,7 +412,6 @@ static void allocate_input_average_and_variance_buffers(int xsize, int ysize, in
 	input_variances = new float4 **[zsize];
 	input_alpha_averages = new float **[zsize];
 
-
 	input_averages[0] = new float4 *[ysize * zsize];
 	input_variances[0] = new float4 *[ysize * zsize];
 	input_alpha_averages[0] = new float *[ysize * zsize];
@@ -470,8 +420,7 @@ static void allocate_input_average_and_variance_buffers(int xsize, int ysize, in
 	input_variances[0][0] = new float4[xsize * ysize * zsize];
 	input_alpha_averages[0][0] = new float[xsize * ysize * zsize];
 
-	for (z = 1; z < zsize; z++)
-	{
+	for (z = 1; z < zsize; z++) {
 		input_averages[z] = input_averages[0] + z * ysize;
 		input_variances[z] = input_variances[0] + z * ysize;
 		input_alpha_averages[z] = input_alpha_averages[0] + z * ysize;
@@ -482,15 +431,12 @@ static void allocate_input_average_and_variance_buffers(int xsize, int ysize, in
 	}
 
 	for (z = 0; z < zsize; z++)
-		for (y = 1; y < ysize; y++)
-		{
+		for (y = 1; y < ysize; y++) {
 			input_averages[z][y] = input_averages[z][0] + y * xsize;
 			input_variances[z][y] = input_variances[z][0] + y * xsize;
 			input_alpha_averages[z][y] = input_alpha_averages[z][0] + y * xsize;
 		}
-
 }
-
 
 // compute avergaes and variances for the current input image.
 void compute_averages_and_variances(const astc_codec_image * img, float rgb_power_to_use, float alpha_power_to_use, int avg_var_kernel_radius, int alpha_kernel_radius, swizzlepattern swz)
@@ -500,16 +446,11 @@ void compute_averages_and_variances(const astc_codec_image * img, float rgb_powe
 	int zsize = img->zsize;
 	allocate_input_average_and_variance_buffers(xsize, ysize, zsize);
 
-
-	int x, y, z;
-	for (z = 0; z < zsize; z += 32)
-	{
+	for (int z = 0; z < zsize; z += 32) {
 		int zblocksize = MIN(32, zsize - z);
-		for (y = 0; y < ysize; y += 32)
-		{
+		for (int y = 0; y < ysize; y += 32) {
 			int yblocksize = MIN(32, ysize - y);
-			for (x = 0; x < xsize; x += 32)
-			{
+			for (int x = 0; x < xsize; x += 32) {
 				int xblocksize = MIN(32, xsize - x);
 				compute_pixel_region_variance(img,
 											  rgb_power_to_use,
@@ -522,3 +463,4 @@ void compute_averages_and_variances(const astc_codec_image * img, float rgb_powe
 		}
 	}
 }
+
